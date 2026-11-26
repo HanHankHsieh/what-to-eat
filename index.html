@@ -193,13 +193,13 @@
     }
 
     /* =========================================================================
-     * 4. 頂部四模式切換 Tab 與交通方式篩選列
+     * 4. 頂部五模式切換 Tab 與交通方式篩選列
      * ========================================================================= */
     .mode-tabs-bar {
       flex: 0 0 auto;
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 5px;
       padding: 5px;
       border-radius: var(--radius-md);
       background: rgba(10, 16, 31, 0.92);
@@ -209,18 +209,18 @@
 
     .mode-tab-btn {
       min-height: 38px;
-      padding: 6px 8px;
+      padding: 6px 5px;
       border-radius: 10px;
       border: 1px solid transparent;
       background: transparent;
       color: var(--text-muted);
-      font-size: 0.84rem;
+      font-size: 0.82rem;
       font-weight: 800;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      gap: 4px;
       white-space: nowrap;
       transition: all 0.18s ease;
     }
@@ -377,7 +377,7 @@
       background: radial-gradient(circle at center, #111b33 0%, #070c18 100%);
     }
 
-    #plinkoCanvas, #rouletteCanvas, #dartCanvas {
+    #plinkoCanvas, #rouletteCanvas, #dartCanvas, #clawCanvas {
       display: block;
       touch-action: none;
       user-select: none;
@@ -386,6 +386,8 @@
 
     #plinkoCanvas, #dartCanvas { cursor: crosshair; }
     #rouletteCanvas { cursor: pointer; }
+    #clawCanvas { cursor: grab; }
+    #clawCanvas:active { cursor: grabbing; }
 
     .empty-board-overlay {
       position: absolute;
@@ -795,6 +797,72 @@
         0 4px 0 #3b0764,
         0 0 22px rgba(168, 85, 247, 0.44),
         inset 0 2px 3px rgba(255, 255, 255, 0.35);
+    }
+
+    .drop-primary-btn.claw-btn {
+      background: linear-gradient(180deg, #22d3ee 0%, #0284c7 55%, #1d4ed8 100%);
+      box-shadow:
+        0 4px 0 #1e3a8a,
+        0 0 22px rgba(34, 211, 238, 0.42),
+        inset 0 2px 3px rgba(255, 255, 255, 0.35);
+    }
+
+    .drop-primary-btn.claw-btn.guaranteed-active {
+      background: linear-gradient(180deg, #fde047 0%, #f59e0b 45%, #dc2626 100%);
+      color: #fff;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.65);
+      box-shadow:
+        0 4px 0 #7f1d1d,
+        0 0 26px rgba(245, 158, 11, 0.72),
+        inset 0 2px 3px rgba(255, 255, 255, 0.45);
+    }
+
+    .claw-dpad-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex: 0 0 auto;
+    }
+
+    .claw-dpad-btn {
+      min-width: 48px;
+      min-height: 48px;
+      padding: 0 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(34, 211, 238, 0.45);
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      color: #67e8f9;
+      font-size: 1rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 0 #020617, inset 0 1px 1px rgba(255, 255, 255, 0.15);
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
+    }
+
+    .claw-dpad-btn:hover:not(:disabled) {
+      background: linear-gradient(180deg, #273759 0%, #16223b 100%);
+      border-color: rgba(103, 232, 249, 0.8);
+      color: #fff;
+    }
+
+    .claw-dpad-btn:active:not(:disabled),
+    .claw-dpad-btn.pressed:not(:disabled) {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #020617;
+      background: rgba(34, 211, 238, 0.24);
+      color: #fff;
+    }
+
+    .claw-dpad-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: 0 2px 0 #020617;
     }
 
     .drop-primary-btn:hover:not(:disabled) { filter: brightness(1.08); }
@@ -1469,6 +1537,7 @@
       .cabinet-shell { padding: 6px; border-radius: 15px; }
       .controls-bar { gap: 6px; }
       .drop-primary-btn { min-height: 46px; font-size: 0.94rem; padding: 8px 12px; }
+      .claw-dpad-btn { min-width: 46px; min-height: 46px; }
       .shuffle-toggle-pill { min-height: 46px; padding: 0 9px; font-size: 0.76rem; gap: 6px; }
       .manual-shuffle-btn { min-height: 46px; padding: 0 11px; font-size: 0.8rem; }
       .slot-chassis { padding: 10px 10px 12px; gap: 8px; }
@@ -1476,9 +1545,24 @@
       .mobile-tabbar { display: grid; }
     }
 
+    @media (max-width: 580px) {
+      .mode-tabs-bar { gap: 3px; padding: 3px; }
+      .mode-tab-btn {
+        flex-direction: column;
+        gap: 1px;
+        min-height: 42px;
+        padding: 3px 2px;
+        font-size: 0.68rem;
+        line-height: 1.15;
+      }
+      .mode-tab-btn > span:first-child { font-size: 0.96rem; }
+    }
+
     @media (max-width: 480px) {
       .header-title { font-size: 0.95rem; }
-      .mode-tab-btn { font-size: 0.72rem; padding: 4px 2px; gap: 2px; }
+      .mode-tab-btn { font-size: 0.66rem; padding: 3px 1px; gap: 1px; }
+      .claw-dpad-group { gap: 4px; }
+      .claw-dpad-btn { min-width: 42px; min-height: 46px; padding: 0 6px; }
       .shuffle-toggle-pill .long-txt, .manual-shuffle-btn .shuf-txt { display: none; }
       .form-row-2 { grid-template-columns: 1fr; }
       .slot-lever-zone { flex: 0 0 38px; height: 154px; }
@@ -1522,7 +1606,7 @@
       <!-- 左欄／手機分頁 1：抽選機主舞台 -->
       <section class="stage-column">
 
-        <!-- 頂部 4 種抽獎方式切換分頁（Mode Tabs） -->
+        <!-- 頂部 5 種抽獎方式切換分頁（Mode Tabs） -->
         <div class="mode-tabs-bar" role="tablist" aria-label="抽選模式切換">
           <button id="modeTabPlinko" type="button" role="tab" aria-selected="true" class="mode-tab-btn active" data-mode="plinko">
             <span>🎰</span><span>彈珠台</span>
@@ -1535,6 +1619,9 @@
           </button>
           <button id="modeTabDart" type="button" role="tab" aria-selected="false" class="mode-tab-btn" data-mode="dart">
             <span>🎯</span><span>射飛鏢</span>
+          </button>
+          <button id="modeTabClaw" type="button" role="tab" aria-selected="false" class="mode-tab-btn" data-mode="claw" title="夾娃娃機">
+            <span>🧸</span><span>夾娃娃</span>
           </button>
         </div>
 
@@ -1707,6 +1794,39 @@
             <button id="manualShuffleDartBtn" type="button" class="manual-shuffle-btn" title="手動打亂轉盤順序">
               <span>🔀</span>
               <span class="shuf-txt">洗牌順序</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ========== 模式五：🧸 夾娃娃機 (Claw Machine) ========== -->
+        <div id="panelClaw" class="mode-panel hidden">
+          <div class="cabinet-shell">
+            <div id="clawStageWrapper" class="canvas-stage-wrapper">
+              <div class="canvas-bezel">
+                <canvas id="clawCanvas"></canvas>
+                <div id="clawEmptyOverlay" class="empty-board-overlay hidden">
+                  <div style="font-size:2.2rem;">🧸</div>
+                  <h3>目前沒有符合條件的店家</h3>
+                  <p>請調整上方交通方式篩選，或在店家名單中啟用／新增餐廳。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="controls-bar">
+            <div class="claw-dpad-group" role="group" aria-label="天車方向控制">
+              <button id="clawLeftBtn" type="button" class="claw-dpad-btn" title="天車左移（鍵盤 ← / A）" aria-label="天車左移">◀</button>
+              <button id="clawRightBtn" type="button" class="claw-dpad-btn" title="天車右移（鍵盤 → / D）" aria-label="天車右移">▶</button>
+            </div>
+
+            <button id="clawDropBtn" type="button" class="drop-primary-btn claw-btn">
+              <span>🧸</span>
+              <span id="clawDropText">下爪夾取！</span>
+            </button>
+
+            <button id="manualShuffleClawBtn" type="button" class="manual-shuffle-btn" title="翻攪打亂機台扭蛋位置">
+              <span>🔀</span>
+              <span class="shuf-txt">洗球</span>
             </button>
           </div>
         </div>
@@ -2319,6 +2439,213 @@
               c.start(t); c.stop(t + 0.3);
             });
           }
+        } catch (e) {}
+      };
+
+      /* 夾娃娃機：天車步進馬達移動音效（節流避免過密） */
+      SoundEngine.prototype.playClawStep = function () {
+        var nowMs = Date.now();
+        if (this._lastStepAt && nowMs - this._lastStepAt < 75) return;
+        this._lastStepAt = nowMs;
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(210, now);
+          osc.frequency.linearRampToValueAtTime(275, now + 0.032);
+          gain.gain.setValueAtTime(0.038, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.036);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now); osc.stop(now + 0.04);
+        } catch (e) {}
+      };
+
+      /* 夾娃娃機：下爪捲揚馬達聲 */
+      SoundEngine.prototype.playClawDescent = function (isTurbo) {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var osc1 = ctx.createOscillator();
+          var osc2 = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc1.type = 'triangle';
+          osc2.type = 'sine';
+          osc1.frequency.setValueAtTime(isTurbo ? 620 : 410, now);
+          osc1.frequency.exponentialRampToValueAtTime(isTurbo ? 310 : 210, now + 0.24);
+          osc2.frequency.setValueAtTime(isTurbo ? 310 : 205, now);
+          osc2.frequency.exponentialRampToValueAtTime(isTurbo ? 155 : 105, now + 0.24);
+          gain.gain.setValueAtTime(0.09, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+          osc1.connect(gain); osc2.connect(gain);
+          gain.connect(ctx.destination);
+          osc1.start(now); osc2.start(now);
+          osc1.stop(now + 0.27); osc2.stop(now + 0.27);
+        } catch (e) {}
+      };
+
+      /* 夾娃娃機：電磁鐵合爪夾緊音效（保夾時附加鎖定高頻和弦） */
+      SoundEngine.prototype.playClawGrab = function (isStrong) {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var sq = ctx.createOscillator();
+          var sqG = ctx.createGain();
+          sq.type = 'square';
+          sq.frequency.setValueAtTime(340, now);
+          sq.frequency.exponentialRampToValueAtTime(105, now + 0.045);
+          sqG.gain.setValueAtTime(0.1, now);
+          sqG.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+          sq.connect(sqG); sqG.connect(ctx.destination);
+          sq.start(now); sq.stop(now + 0.055);
+
+          var tr = ctx.createOscillator();
+          var trG = ctx.createGain();
+          tr.type = 'triangle';
+          tr.frequency.setValueAtTime(165, now);
+          tr.frequency.exponentialRampToValueAtTime(62, now + 0.12);
+          trG.gain.setValueAtTime(0.18, now);
+          trG.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
+          tr.connect(trG); trG.connect(ctx.destination);
+          tr.start(now); tr.stop(now + 0.14);
+
+          if (isStrong) {
+            [880, 1318.51].forEach(function (f) {
+              var s = ctx.createOscillator();
+              var sg = ctx.createGain();
+              s.type = 'sine';
+              s.frequency.setValueAtTime(f, now);
+              sg.gain.setValueAtTime(0.09, now);
+              sg.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+              s.connect(sg); sg.connect(ctx.destination);
+              s.start(now); s.stop(now + 0.23);
+            });
+          }
+        } catch (e) {}
+      };
+
+      /* 夾娃娃機：ABS 扭蛋殼互撞塑膠清脆聲（節流避免過度疊音） */
+      SoundEngine.prototype.playCapsuleHit = function (intensity) {
+        var nowMs = Date.now();
+        if (this._lastCapHitAt && nowMs - this._lastCapHitAt < 55) return;
+        this._lastCapHitAt = nowMs;
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var vol = Math.min(0.09, Math.max(0.02, intensity || 0.05));
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(560 + Math.random() * 180, now);
+          osc.frequency.exponentialRampToValueAtTime(260, now + 0.038);
+          gain.gain.setValueAtTime(vol, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.042);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now); osc.stop(now + 0.045);
+        } catch (e) {}
+      };
+
+      /* 夾娃娃機：35% 夜市軟爪手滑鬆脫滑稽音效 */
+      SoundEngine.prototype.playClawSlip = function () {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var rel = ctx.createOscillator();
+          var relG = ctx.createGain();
+          rel.type = 'square';
+          rel.frequency.setValueAtTime(520, now);
+          rel.frequency.exponentialRampToValueAtTime(260, now + 0.06);
+          relG.gain.setValueAtTime(0.11, now);
+          relG.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
+          rel.connect(relG); relG.connect(ctx.destination);
+          rel.start(now); rel.stop(now + 0.07);
+
+          var slide = ctx.createOscillator();
+          var slG = ctx.createGain();
+          slide.type = 'sawtooth';
+          slide.frequency.setValueAtTime(440, now + 0.03);
+          slide.frequency.exponentialRampToValueAtTime(310, now + 0.14);
+          slide.frequency.exponentialRampToValueAtTime(135, now + 0.37);
+          slG.gain.setValueAtTime(0.16, now + 0.03);
+          slG.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+          slide.connect(slG); slG.connect(ctx.destination);
+          slide.start(now + 0.03); slide.stop(now + 0.39);
+        } catch (e) {}
+      };
+
+      /* 夾娃娃機：🔥 保夾強爪必中啟動激昂音效 */
+      SoundEngine.prototype.playGuaranteedCharge = function () {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          [392.00, 523.25, 659.25, 783.99, 1046.50].forEach(function (freq, idx) {
+            var t = now + idx * 0.055;
+            var osc = ctx.createOscillator();
+            var harm = ctx.createOscillator();
+            var gain = ctx.createGain();
+            osc.type = 'triangle';
+            harm.type = 'sawtooth';
+            osc.frequency.setValueAtTime(freq, t);
+            harm.frequency.setValueAtTime(freq * 2, t);
+            gain.gain.setValueAtTime(0.14, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+            var hGain = ctx.createGain();
+            hGain.gain.setValueAtTime(0.035, t);
+            hGain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+            osc.connect(gain); gain.connect(ctx.destination);
+            harm.connect(hGain); hGain.connect(ctx.destination);
+            osc.start(t); harm.start(t);
+            osc.stop(t + 0.24); harm.stop(t + 0.2);
+          });
+        } catch (e) {}
+      };
+
+      /* 夾娃娃機：出貨洞口撞擊 + 紅外線電眼叮咚音效 */
+      SoundEngine.prototype.playPrizeChute = function () {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var thump = ctx.createOscillator();
+          var thG = ctx.createGain();
+          thump.type = 'sine';
+          thump.frequency.setValueAtTime(195, now);
+          thump.frequency.exponentialRampToValueAtTime(72, now + 0.13);
+          thG.gain.setValueAtTime(0.24, now);
+          thG.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+          thump.connect(thG); thG.connect(ctx.destination);
+          thump.start(now); thump.stop(now + 0.15);
+
+          var bounce = ctx.createOscillator();
+          var bG = ctx.createGain();
+          bounce.type = 'sine';
+          bounce.frequency.setValueAtTime(240, now + 0.11);
+          bounce.frequency.exponentialRampToValueAtTime(110, now + 0.2);
+          bG.gain.setValueAtTime(0.12, now + 0.11);
+          bG.gain.exponentialRampToValueAtTime(0.001, now + 0.21);
+          bounce.connect(bG); bG.connect(ctx.destination);
+          bounce.start(now + 0.11); bounce.stop(now + 0.22);
+
+          [
+            { f: 1046.5, t: now + 0.14 },
+            { f: 1567.98, t: now + 0.22 }
+          ].forEach(function (n) {
+            var c = ctx.createOscillator();
+            var cg = ctx.createGain();
+            c.type = 'sine';
+            c.frequency.setValueAtTime(n.f, n.t);
+            cg.gain.setValueAtTime(0.14, n.t);
+            cg.gain.exponentialRampToValueAtTime(0.001, n.t + 0.24);
+            c.connect(cg); cg.connect(ctx.destination);
+            c.start(n.t); c.stop(n.t + 0.26);
+          });
         } catch (e) {}
       };
 
@@ -5275,6 +5602,1523 @@
       };
 
       /* =====================================================================
+       * 6.6 模式五：🧸 夾娃娃機引擎 (ClawMachineEngine)
+       *     - 2D 扭蛋堆物理碰撞 + 三合一操控（方向鍵／拖曳／鍵盤）
+       *     - 夜市經典「35% 軟爪手滑 → 🔥 啟動保夾必中」戲劇反轉機制
+       * ===================================================================== */
+      function ClawMachineEngine(canvas, wrapper, sound, callbacks) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.wrapper = wrapper;
+        this.sound = sound;
+        this.onStateChange = callbacks.onStateChange;
+        this.onResult = callbacks.onResult;
+
+        // 虛擬座標空間與機台幾何配置
+        this.VW = 600;
+        this.VH = 680;
+        this.railY = 72;
+        this.homeY = 122;
+        this.gripOffsetY = 40;
+
+        this.chuteLeft = 26;
+        this.chuteRight = 142;
+        this.chuteX = 84;
+        this.sensorY = 530;
+        this.chuteFloorY = 608;
+
+        this.baffleX = 148;
+        this.baffleHalfW = 6;
+        this.baffleTopY = 402;
+        this.baffleCapR = 7;
+
+        this.pitLeft = 154;
+        this.pitRight = 574;
+        this.floorY = 638;
+
+        this.pitMinX = 176;
+        this.pitMaxX = 550;
+        this.pitCenterX = 363;
+
+        this.slots = [];
+        this.capsules = [];
+        this.isBusy = false;
+        this.phase = 'idle'; // idle | aligning | descending | grabbing | lifting | slip_shock | guaranteed_charge | guaranteed_hunt | carrying | dropping_chute | celebrating
+        this.huntSubPhase = 'glide'; // glide | dive
+        this.phaseTime = 0;
+
+        this.gantryX = this.pitCenterX;
+        this.clawY = this.homeY;
+        this.clawOpen = 0.65;
+        this.clawSwing = 0;
+        this.clawSwingVel = 0;
+
+        this.moveDir = 0;
+        this.isDragging = false;
+        this.dragTargetX = null;
+        this.hasManualAim = false;
+        this.autoAlignX = this.pitCenterX;
+
+        this.willSlip = false;
+        this.slipCount = 0;
+        this.maxSlips = 3;
+        this.isGuaranteed = false;
+        this.wasSlipReversal = false;
+        this.chuteTriggered = false;
+
+        this.grabbedCap = null;
+        this.slippedCap = null;
+        this.guaranteedTarget = null;
+        this.prizeCap = null;
+        this.aimTargetCap = null;
+
+        this.bannerText = '';
+        this.bannerType = 'slip';
+        this.bannerAlpha = 0;
+        this.shakeTime = 0;
+        this.sensorFlash = 0;
+        this.slotFlash = 0;
+        this.pulseTime = 0;
+        this.grabSparksSpawned = false;
+
+        this.sparks = [];
+        this.confetti = [];
+        this.lastTs = 0;
+
+        this.bindEvents();
+        this.resize();
+
+        var self = this;
+        requestAnimationFrame(function (ts) { self.loop(ts); });
+      }
+
+      ClawMachineEngine.prototype.calcCapsuleRadius = function (n) {
+        if (n <= 6) return 33;
+        if (n <= 12) return 29;
+        if (n <= 20) return 26.5;
+        return 24;
+      };
+
+      ClawMachineEngine.prototype.getGripPos = function () {
+        var topY = this.railY + 8;
+        var dyHead = Math.max(16, this.clawY - topY);
+        var headX = this.gantryX + Math.sin(this.clawSwing) * Math.min(18, dyHead * 0.22);
+        var rot = -this.clawSwing * 0.55;
+        return {
+          headX: headX,
+          headY: this.clawY,
+          rot: rot,
+          x: headX - Math.sin(rot) * this.gripOffsetY,
+          y: this.clawY + Math.cos(rot) * this.gripOffsetY
+        };
+      };
+
+      ClawMachineEngine.prototype.setSlots = function (list, withJostle) {
+        this.slots = list.slice(0, MAX_SLOTS);
+        this.grabbedCap = null;
+        this.slippedCap = null;
+        this.guaranteedTarget = null;
+        this.prizeCap = null;
+        this.aimTargetCap = null;
+        if (this.slots.length === 0) {
+          this.slipCount = 0;
+        }
+
+        if (this.isBusy) {
+          this.phase = 'idle';
+          this.isBusy = false;
+          this.isGuaranteed = false;
+          this.wasSlipReversal = false;
+          this.clawY = this.homeY;
+          this.gantryX = this.pitCenterX;
+          this.clawOpen = 0.65;
+          if (typeof this.onStateChange === 'function') this.onStateChange();
+        }
+
+        if (withJostle) this.slotFlash = 1.0;
+        this.rebuildCapsules(Boolean(withJostle));
+      };
+
+      ClawMachineEngine.prototype.rebuildCapsules = function (withJostle) {
+        this.capsules = [];
+        var n = this.slots.length;
+        if (n === 0) return;
+
+        var r = this.calcCapsuleRadius(n);
+        var minX = this.pitLeft + r + 4;
+        var maxX = this.pitRight - r - 4;
+        var spanX = Math.max(40, maxX - minX);
+        var stepX = r * 2.08;
+        var cols = Math.max(1, Math.floor(spanX / stepX) + 1);
+        var startX = minX + (spanX - (cols - 1) * stepX) * 0.5;
+        var rowStepY = r * 1.72;
+
+        // 隨機打亂生成順序，確保每家店位於上層的機率公平一致
+        var indices = [];
+        for (var k = 0; k < n; k++) indices.push(k);
+        indices = fisherYatesShuffle(indices);
+
+        for (var i = 0; i < n; i++) {
+          var slotIdx = indices[i];
+          var slot = this.slots[slotIdx];
+          var row = Math.floor(i / cols);
+          var col = i % cols;
+          var stagger = (row % 2 === 1) ? (stepX * 0.45) : 0;
+          var cx = startX + col * stepX + stagger + (Math.random() - 0.5) * r * 0.35;
+          if (cx < minX) cx = minX + Math.random() * 6;
+          if (cx > maxX) cx = maxX - Math.random() * 6;
+          var cy = this.floorY - r - 2 - row * rowStepY - Math.random() * 4;
+          if (cy < this.homeY + r + 10) cy = this.homeY + r + 10;
+
+          this.capsules.push({
+            id: slot.id,
+            slot: slot,
+            slotIdx: slotIdx,
+            color: SLOT_PALETTE[slotIdx % SLOT_PALETTE.length],
+            x: cx,
+            y: cy,
+            vx: withJostle ? (Math.random() - 0.5) * 320 : (Math.random() - 0.5) * 20,
+            vy: withJostle ? -(220 + Math.random() * 240) : 10,
+            r: r,
+            rot: (Math.random() - 0.5) * 0.8,
+            vRot: withJostle ? (Math.random() - 0.5) * 10 : 0,
+            grabbed: false,
+            inChute: false
+          });
+        }
+
+        if (!withJostle) {
+          for (var s = 0; s < 16; s++) {
+            this.stepPhysics(0.016, true);
+          }
+          for (var m = 0; m < this.capsules.length; m++) {
+            this.capsules[m].vx *= 0.2;
+            this.capsules[m].vy = 0;
+            this.capsules[m].vRot = 0;
+          }
+        }
+      };
+
+      ClawMachineEngine.prototype.jostlePile = function () {
+        this.slotFlash = 1.0;
+        for (var i = 0; i < this.capsules.length; i++) {
+          var c = this.capsules[i];
+          if (c.grabbed || c.inChute) continue;
+          c.vy = -(220 + Math.random() * 240);
+          c.vx = (Math.random() - 0.5) * 320;
+          c.vRot = (Math.random() - 0.5) * 10;
+        }
+      };
+
+      ClawMachineEngine.prototype.restorePrizeToPit = function () {
+        if (this.prizeCap && this.prizeCap.inChute) {
+          var c = this.prizeCap;
+          c.inChute = false;
+          c.grabbed = false;
+          c.x = this.pitMinX + Math.random() * (this.pitMaxX - this.pitMinX);
+          c.y = this.homeY + 75;
+          c.vx = (Math.random() - 0.5) * 90;
+          c.vy = 40;
+          c.vRot = (Math.random() - 0.5) * 4;
+        }
+        this.prizeCap = null;
+        this.chuteTriggered = false;
+        if (!this.isBusy) {
+          this.isGuaranteed = false;
+          this.wasSlipReversal = false;
+        }
+      };
+
+      ClawMachineEngine.prototype.resize = function () {
+        if (!this.wrapper || !this.canvas) return;
+        var availW = this.wrapper.clientWidth;
+        var availH = this.wrapper.clientHeight;
+        if (availW < 40 || availH < 40) return;
+
+        var maxW = Math.max(200, availW - 4);
+        var maxH = Math.max(200, availH - 4);
+        var ratio = this.VW / this.VH;
+        var dispW, dispH;
+
+        if (maxW / maxH > ratio) {
+          dispH = maxH;
+          dispW = Math.floor(maxH * ratio);
+        } else {
+          dispW = maxW;
+          dispH = Math.floor(maxW / ratio);
+        }
+
+        dispW = Math.max(190, dispW);
+        dispH = Math.max(210, dispH);
+
+        var dpr = window.devicePixelRatio || 1;
+        this.canvas.style.width = dispW + 'px';
+        this.canvas.style.height = dispH + 'px';
+        this.canvas.width = Math.round(dispW * dpr);
+        this.canvas.height = Math.round(dispH * dpr);
+      };
+
+      ClawMachineEngine.prototype.setMoveDir = function (dir) {
+        this.moveDir = dir;
+        if (dir !== 0 && this.phase === 'idle' && this.slots.length > 0) {
+          this.hasManualAim = true;
+        }
+      };
+
+      ClawMachineEngine.prototype.nudge = function (dir) {
+        if (this.phase !== 'idle' || this.slots.length === 0) return;
+        this.hasManualAim = true;
+        var nextX = Math.max(this.pitMinX, Math.min(this.pitMaxX, this.gantryX + dir * 18));
+        if (Math.abs(nextX - this.gantryX) > 0.5) {
+          this.gantryX = nextX;
+          this.clawSwingVel += -dir * 2.2;
+          this.sound.playClawStep();
+        }
+      };
+
+      ClawMachineEngine.prototype.stopInput = function () {
+        this.moveDir = 0;
+        this.isDragging = false;
+        this.dragTargetX = null;
+      };
+
+      ClawMachineEngine.prototype.bindEvents = function () {
+        var self = this;
+        if (typeof ResizeObserver !== 'undefined') {
+          try {
+            this.ro = new ResizeObserver(function () { self.resize(); });
+            this.ro.observe(this.wrapper);
+          } catch (e) {}
+        }
+
+        function toVirtual(clientX, clientY) {
+          var rect = self.canvas.getBoundingClientRect();
+          if (rect.width <= 0 || rect.height <= 0) return null;
+          return {
+            x: ((clientX - rect.left) / rect.width) * self.VW,
+            y: ((clientY - rect.top) / rect.height) * self.VH
+          };
+        }
+
+        function clampPitX(x) {
+          return Math.max(self.pitMinX, Math.min(self.pitMaxX, x));
+        }
+
+        this.canvas.addEventListener('pointerdown', function (e) {
+          var pos = toVirtual(e.clientX, e.clientY);
+          if (!pos) return;
+          if (self.phase === 'idle' && self.slots.length > 0) {
+            self.isDragging = true;
+            self.hasManualAim = true;
+            self.dragTargetX = clampPitX(pos.x);
+            try { self.canvas.setPointerCapture(e.pointerId); } catch (err) {}
+          }
+        });
+
+        this.canvas.addEventListener('pointermove', function (e) {
+          if (!self.isDragging || self.phase !== 'idle') return;
+          var pos = toVirtual(e.clientX, e.clientY);
+          if (!pos) return;
+          self.dragTargetX = clampPitX(pos.x);
+        });
+
+        function endDrag(e) {
+          if (self.isDragging) {
+            self.isDragging = false;
+            self.dragTargetX = null;
+            try { self.canvas.releasePointerCapture(e.pointerId); } catch (err) {}
+          }
+        }
+
+        this.canvas.addEventListener('pointerup', endDrag);
+        this.canvas.addEventListener('pointercancel', endDrag);
+      };
+
+      ClawMachineEngine.prototype.getPitCapsules = function () {
+        var list = [];
+        for (var i = 0; i < this.capsules.length; i++) {
+          var c = this.capsules[i];
+          if (!c.inChute && !c.grabbed) list.push(c);
+        }
+        return list;
+      };
+
+      ClawMachineEngine.prototype.pickGuaranteedTarget = function () {
+        var pitCaps = this.getPitCapsules();
+        if (pitCaps.length === 0) return null;
+        var sorted = pitCaps.slice().sort(function (a, b) { return a.y - b.y; });
+        var topCount = Math.max(1, Math.min(sorted.length, Math.max(4, Math.ceil(sorted.length * 0.5))));
+        var pool = sorted.slice(0, topCount);
+        if (pitCaps.length > 1 && this.slippedCap) {
+          var slipped = this.slippedCap;
+          var filtered = pool.filter(function (c) { return c !== slipped; });
+          if (filtered.length > 0) pool = filtered;
+        }
+        return pool[Math.floor(Math.random() * pool.length)] || pitCaps[0];
+      };
+
+      ClawMachineEngine.prototype.dropClaw = function () {
+        if (this.isBusy || this.slots.length === 0) return false;
+        this.restorePrizeToPit();
+
+        this.isBusy = true;
+        this.moveDir = 0;
+        this.isDragging = false;
+        this.dragTargetX = null;
+
+        this.isGuaranteed = false;
+        this.wasSlipReversal = false;
+        this.chuteTriggered = false;
+        this.grabbedCap = null;
+        this.slippedCap = null;
+        this.guaranteedTarget = null;
+        this.grabSparksSpawned = false;
+        this.bannerAlpha = 0;
+        this.bannerText = '';
+        this.sparks = [];
+        this.confetti = [];
+
+        // 夜市經典：35% 機率觸發軟爪手滑 → 🔥 啟動保夾必中
+        this.willSlip = Math.random() < 0.35;
+
+        if (!this.hasManualAim) {
+          var pitCaps = this.getPitCapsules();
+          if (pitCaps.length > 0) {
+            var sorted = pitCaps.slice().sort(function (a, b) { return a.y - b.y; });
+            var topCount = Math.max(1, Math.min(sorted.length, Math.max(4, Math.ceil(sorted.length * 0.55))));
+            var chosen = sorted[Math.floor(Math.random() * topCount)];
+            this.autoAlignX = Math.max(this.pitMinX, Math.min(this.pitMaxX, chosen.x + (Math.random() - 0.5) * 10));
+          } else {
+            this.autoAlignX = this.pitCenterX;
+          }
+          this.phase = 'aligning';
+          this.phaseTime = 0;
+        } else {
+          this.phase = 'descending';
+          this.phaseTime = 0;
+          this.sound.playClawDescent(false);
+        }
+
+        if (typeof this.onStateChange === 'function') this.onStateChange();
+        return true;
+      };
+
+      ClawMachineEngine.prototype.spawnShockParticles = function (x, y) {
+        for (var i = 0; i < 20; i++) {
+          var ang = Math.random() * Math.PI * 2;
+          var spd = 65 + Math.random() * 175;
+          this.sparks.push({
+            x: x, y: y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd - 30,
+            size: 2.5 + Math.random() * 3,
+            color: i % 2 === 0 ? '#FDA4AF' : '#38BDF8',
+            life: 1.0
+          });
+        }
+      };
+
+      ClawMachineEngine.prototype.spawnGoldenAura = function (x, y) {
+        for (var i = 0; i < 28; i++) {
+          var ang = Math.random() * Math.PI * 2;
+          var spd = 85 + Math.random() * 210;
+          this.sparks.push({
+            x: x, y: y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            size: 2.4 + Math.random() * 3.4,
+            color: i % 3 === 0 ? '#FEF08A' : (i % 3 === 1 ? '#F59E0B' : '#F43F5E'),
+            life: 1.0
+          });
+        }
+      };
+
+      ClawMachineEngine.prototype.spawnConfetti = function (x, y) {
+        for (var i = 0; i < 64; i++) {
+          var ang = -Math.PI * 0.9 + Math.random() * Math.PI * 0.8;
+          var spd = 120 + Math.random() * 280;
+          this.confetti.push({
+            x: x, y: y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd - 80,
+            size: 4 + Math.random() * 5,
+            color: SLOT_PALETTE[Math.floor(Math.random() * SLOT_PALETTE.length)],
+            rot: Math.random() * Math.PI * 2,
+            vRot: (Math.random() - 0.5) * 12,
+            life: 1.0
+          });
+        }
+      };
+
+      ClawMachineEngine.prototype.clampPitCapsule = function (c) {
+        if (c.y > this.floorY - c.r) {
+          c.y = this.floorY - c.r;
+          if (c.vy > 45) {
+            if (c.vy > 190 && !this._silentPhysics) {
+              this.sound.playCapsuleHit(Math.min(0.08, c.vy / 3500));
+            }
+            c.vy = -c.vy * 0.22;
+          } else {
+            c.vy = 0;
+          }
+          c.vx *= 0.92;
+          c.vRot = (c.vx / c.r) * 0.6;
+        }
+        if (c.y < this.homeY + c.r) {
+          c.y = this.homeY + c.r;
+          if (c.vy < 0) c.vy = -c.vy * 0.2;
+        }
+        if (c.x > this.pitRight - c.r - 2) {
+          c.x = this.pitRight - c.r - 2;
+          if (c.vx > 0) c.vx = -c.vx * 0.3;
+        }
+        // 嚴格阻隔右側扭蛋堆，防止洗球彈跳越過擋板誤入左側取物洞
+        if (c.x < this.pitLeft + c.r + 1) {
+          c.x = this.pitLeft + c.r + 1;
+          if (c.vx < 0) c.vx = -c.vx * 0.3;
+        }
+      };
+
+      ClawMachineEngine.prototype.stepPhysics = function (dt, silent) {
+        var subSteps = 4;
+        var subDt = dt / subSteps;
+        var caps = this.capsules;
+        var n = caps.length;
+        if (n === 0) return;
+
+        this._silentPhysics = Boolean(silent);
+        var isDiving = (this.phase === 'descending') || (this.phase === 'guaranteed_hunt' && this.huntSubPhase === 'dive');
+        var gp = this.getGripPos();
+        var gripX = gp.x;
+        var gripY = gp.y;
+
+        for (var step = 0; step < subSteps; step++) {
+          var i, j, c;
+          for (i = 0; i < n; i++) {
+            c = caps[i];
+            if (c.grabbed) continue;
+
+            if (c.inChute) {
+              c.vy += 980 * subDt;
+              c.vx *= Math.pow(0.86, subDt * 10);
+              c.x += c.vx * subDt;
+              c.y += c.vy * subDt;
+              c.rot += c.vRot * subDt;
+
+              var cMinX = this.chuteLeft + c.r + 4;
+              var cMaxX = this.chuteRight - c.r - 4;
+              if (c.x < cMinX) { c.x = cMinX; if (c.vx < 0) c.vx = -c.vx * 0.3; }
+              if (c.x > cMaxX) { c.x = cMaxX; if (c.vx > 0) c.vx = -c.vx * 0.3; }
+              if (c.y > this.chuteFloorY - c.r) {
+                c.y = this.chuteFloorY - c.r;
+                if (c.vy > 40) {
+                  c.vy = -c.vy * 0.25;
+                } else {
+                  c.vy = 0;
+                  c.vx *= 0.85;
+                  c.vRot *= 0.8;
+                }
+              }
+              continue;
+            }
+
+            c.vy += 980 * subDt;
+            c.vx *= Math.pow(0.95, subDt * 60);
+            c.vRot *= Math.pow(0.94, subDt * 60);
+            c.x += c.vx * subDt;
+            c.y += c.vy * subDt;
+            c.rot += c.vRot * subDt;
+
+            if (isDiving) {
+              var dxClaw = c.x - gripX;
+              var dyClaw = c.y - gripY;
+              var distClaw = Math.hypot(dxClaw, dyClaw);
+              var pushR = c.r + 22;
+              if (distClaw < pushR && distClaw > 0.01) {
+                var pushForce = (pushR - distClaw) * 18;
+                c.vx += (dxClaw / distClaw) * pushForce * subDt;
+                c.vy += (dyClaw / distClaw) * pushForce * subDt;
+              }
+            }
+
+            this.clampPitCapsule(c);
+          }
+
+          // 扭蛋堆雙圓彈性碰撞求解
+          for (i = 0; i < n; i++) {
+            var a = caps[i];
+            if (a.grabbed || a.inChute) continue;
+            for (j = i + 1; j < n; j++) {
+              var b = caps[j];
+              if (b.grabbed || b.inChute) continue;
+              var dx = b.x - a.x;
+              var dy = b.y - a.y;
+              var minDist = a.r + b.r;
+              var distSq = dx * dx + dy * dy;
+              if (distSq >= minDist * minDist) continue;
+
+              var dist = Math.sqrt(distSq) || 0.001;
+              var nx = dx / dist;
+              var ny = dy / dist;
+              var overlap = minDist - dist;
+
+              a.x -= nx * overlap * 0.5;
+              a.y -= ny * overlap * 0.5;
+              b.x += nx * overlap * 0.5;
+              b.y += ny * overlap * 0.5;
+
+              var rvx = b.vx - a.vx;
+              var rvy = b.vy - a.vy;
+              var vn = rvx * nx + rvy * ny;
+              if (vn < 0) {
+                var imp = -(1 + 0.2) * vn * 0.5;
+                a.vx -= imp * nx;
+                a.vy -= imp * ny;
+                b.vx += imp * nx;
+                b.vy += imp * ny;
+
+                var tx = -ny, ty = nx;
+                var vt = rvx * tx + rvy * ty;
+                a.vx += vt * 0.04 * tx;
+                b.vx -= vt * 0.04 * tx;
+                a.vRot += vt * 0.012;
+                b.vRot -= vt * 0.012;
+
+                if (-vn > 145 && !this._silentPhysics) {
+                  this.sound.playCapsuleHit(Math.min(0.085, (-vn - 120) / 2800));
+                }
+              }
+
+              this.clampPitCapsule(a);
+              this.clampPitCapsule(b);
+            }
+          }
+        }
+
+        // 極微速休眠阻尼，防止堆疊靜止後抖動
+        for (var k = 0; k < n; k++) {
+          var cap = caps[k];
+          if (cap.grabbed) continue;
+          if (Math.abs(cap.vx) < 2.2) cap.vx = 0;
+          if (Math.abs(cap.vRot) < 0.05) cap.vRot = 0;
+          var floorLimit = cap.inChute ? (this.chuteFloorY - cap.r - 0.5) : (this.floorY - cap.r - 0.5);
+          if (cap.y >= floorLimit && Math.hypot(cap.vx, cap.vy) < 6) {
+            cap.vx = 0;
+            cap.vy = 0;
+            cap.vRot = 0;
+          }
+        }
+        this._silentPhysics = false;
+      };
+
+      ClawMachineEngine.prototype.update = function (dt) {
+        var i;
+        this.pulseTime += dt;
+        if (this.slotFlash > 0) this.slotFlash = Math.max(0, this.slotFlash - dt * 2.5);
+        if (this.shakeTime > 0) this.shakeTime = Math.max(0, this.shakeTime - dt);
+        if (this.sensorFlash > 0) this.sensorFlash = Math.max(0, this.sensorFlash - dt * 1.4);
+        if (this.bannerAlpha > 0 && (this.phase === 'idle' || this.phase === 'celebrating' || this.phase === 'carrying')) {
+          this.bannerAlpha = Math.max(0, this.bannerAlpha - dt * 0.65);
+        }
+
+        // 粒子更新
+        for (i = this.sparks.length - 1; i >= 0; i--) {
+          var sp = this.sparks[i];
+          sp.vy += 180 * dt;
+          sp.x += sp.vx * dt;
+          sp.y += sp.vy * dt;
+          sp.life -= dt * 2.1;
+          if (sp.life <= 0) this.sparks.splice(i, 1);
+        }
+        for (i = this.confetti.length - 1; i >= 0; i--) {
+          var cp = this.confetti[i];
+          cp.vy += 320 * dt;
+          cp.x += cp.vx * dt;
+          cp.y += cp.vy * dt;
+          cp.rot += cp.vRot * dt;
+          cp.life -= dt * 0.65;
+          if (cp.life <= 0) this.confetti.splice(i, 1);
+        }
+
+        // 天車鐘擺阻尼物理
+        var prevGantryX = this.gantryX;
+
+        // 2D 扭蛋堆物理
+        this.stepPhysics(dt, false);
+
+        // 狀態機更新
+        if (this.slots.length > 0) {
+          if (this.phase === 'idle') {
+            if (this.moveDir !== 0) {
+              var nextX = Math.max(this.pitMinX, Math.min(this.pitMaxX, this.gantryX + this.moveDir * 285 * dt));
+              if (Math.abs(nextX - this.gantryX) > 0.05) {
+                this.gantryX = nextX;
+                this.sound.playClawStep();
+              }
+            } else if (this.isDragging && typeof this.dragTargetX === 'number') {
+              var diffD = this.dragTargetX - this.gantryX;
+              var maxMove = 680 * dt;
+              if (Math.abs(diffD) > 0.5) {
+                this.gantryX += Math.abs(diffD) > maxMove ? Math.sign(diffD) * maxMove : diffD;
+                if (Math.abs(diffD) > 2.5) this.sound.playClawStep();
+              }
+            }
+
+            // 計算垂直瞄準雷射落點扭蛋
+            var pitCaps = this.getPitCapsules();
+            var bestAim = null;
+            for (i = 0; i < pitCaps.length; i++) {
+              var cand = pitCaps[i];
+              if (Math.abs(cand.x - this.gantryX) <= cand.r + 18) {
+                if (!bestAim || cand.y < bestAim.y) bestAim = cand;
+              }
+            }
+            this.aimTargetCap = bestAim;
+          } else {
+            this.aimTargetCap = null;
+            this.phaseTime += dt;
+
+            if (this.phase === 'aligning') {
+              var dAlign = this.autoAlignX - this.gantryX;
+              var stepA = 380 * dt;
+              if (Math.abs(dAlign) <= stepA || Math.abs(dAlign) < 3) {
+                this.gantryX = this.autoAlignX;
+                this.phase = 'descending';
+                this.phaseTime = 0;
+                this.sound.playClawDescent(false);
+              } else {
+                this.gantryX += Math.sign(dAlign) * stepA;
+                this.sound.playClawStep();
+              }
+            } else if (this.phase === 'descending') {
+              this.clawOpen += (1.0 - this.clawOpen) * Math.min(1, dt * 12);
+              this.clawY += 285 * dt;
+
+              var curGripY = this.clawY + this.gripOffsetY;
+              var pitCapsD = this.getPitCapsules();
+              var stopY = this.floorY - 30;
+              for (i = 0; i < pitCapsD.length; i++) {
+                var pc = pitCapsD[i];
+                if (Math.abs(pc.x - this.gantryX) <= pc.r + 22) {
+                  stopY = Math.min(stopY, pc.y - 2);
+                }
+              }
+
+              if (curGripY >= stopY) {
+                this.clawY = stopY - this.gripOffsetY;
+                var fGripY = this.clawY + this.gripOffsetY;
+                var bestCap = null;
+                var bestDist = Infinity;
+                for (i = 0; i < pitCapsD.length; i++) {
+                  var cc = pitCapsD[i];
+                  if (Math.abs(cc.x - this.gantryX) <= cc.r + 38 && Math.abs(cc.y - fGripY) <= cc.r + 36) {
+                    var d = Math.hypot(cc.x - this.gantryX, cc.y - fGripY);
+                    if (d < bestDist) {
+                      bestDist = d;
+                      bestCap = cc;
+                    }
+                  }
+                }
+
+                if (bestCap) {
+                  this.grabbedCap = bestCap;
+                  bestCap.grabbed = true;
+                  bestCap.vx = 0;
+                  bestCap.vy = 0;
+                  bestCap.vRot = 0;
+                  this.phase = 'grabbing';
+                  this.phaseTime = 0;
+                  this.sound.playClawGrab(false);
+                } else {
+                  // 若手動瞄準於空無一球處，累積 1 次失敗計數（滿 3 次才啟動保夾）
+                  this.grabbedCap = null;
+                  this.slipCount = Math.min(this.maxSlips, this.slipCount + 1);
+                  this.clawOpen = 0.78;
+                  this.shakeTime = 0.24;
+                  this.bannerText = this.slipCount >= this.maxSlips
+                    ? '😅 夾空滿 3/3！即將啟動保夾必中！'
+                    : ('😅 夾空了！（保夾累積 ' + this.slipCount + '/' + this.maxSlips + '）');
+                  this.bannerType = 'slip';
+                  this.bannerAlpha = 1.0;
+                  this.sound.playClawSlip();
+                  this.phase = 'slip_shock';
+                  this.phaseTime = 0;
+                }
+              }
+            } else if (this.phase === 'grabbing') {
+              var pG = Math.min(1, this.phaseTime / 0.28);
+              var closedOpen = this.isGuaranteed ? 0.14 : 0.22;
+              this.clawOpen = this.clawOpen + (closedOpen - this.clawOpen) * Math.min(1, dt * 14);
+              if (this.grabbedCap) {
+                var gpGrab = this.getGripPos();
+                this.grabbedCap.x += (gpGrab.x - this.grabbedCap.x) * Math.min(1, dt * 18);
+                this.grabbedCap.y += (gpGrab.y - this.grabbedCap.y) * Math.min(1, dt * 18);
+                if (this.isGuaranteed && !this.grabSparksSpawned) {
+                  this.grabSparksSpawned = true;
+                  this.spawnGoldenAura(gpGrab.x, gpGrab.y);
+                }
+              }
+              if (pG >= 1) {
+                this.phase = 'lifting';
+                this.phaseTime = 0;
+              }
+            } else if (this.phase === 'lifting') {
+              var liftSpd = this.isGuaranteed ? 310 : 230;
+              this.clawY -= liftSpd * dt;
+              var gpLift = this.getGripPos();
+              if (this.grabbedCap) {
+                this.grabbedCap.x = gpLift.x;
+                this.grabbedCap.y = gpLift.y;
+              }
+
+              // 35% 軟爪手滑觸發點（累積滿 3 次才啟動保夾）
+              if (!this.isGuaranteed && this.willSlip && this.clawY <= this.homeY + 42) {
+                var slippedName = (this.grabbedCap && this.grabbedCap.slot) ? this.grabbedCap.slot.name : '扭蛋';
+                if (this.grabbedCap) {
+                  this.slippedCap = this.grabbedCap;
+                  this.grabbedCap.grabbed = false;
+                  this.grabbedCap.vx = (Math.random() < 0.5 ? 1 : -1) * (35 + Math.random() * 55);
+                  this.grabbedCap.vy = 35;
+                  this.grabbedCap.vRot = (Math.random() - 0.5) * 9;
+                  this.grabbedCap = null;
+                }
+                this.slipCount = Math.min(this.maxSlips, this.slipCount + 1);
+                this.clawOpen = 0.78;
+                this.shakeTime = 0.28;
+                this.spawnShockParticles(gpLift.x, gpLift.y);
+                this.bannerText = this.slipCount >= this.maxSlips
+                  ? ('😱 「' + slippedName + '」掉球滿 3/3！啟動保夾！')
+                  : ('😱 「' + slippedName + '」掉球了！(保夾 ' + this.slipCount + '/' + this.maxSlips + ')');
+                this.bannerType = 'slip';
+                this.bannerAlpha = 1.0;
+                this.sound.playClawSlip();
+                this.phase = 'slip_shock';
+                this.phaseTime = 0;
+              } else if (this.clawY <= this.homeY) {
+                this.clawY = this.homeY;
+                var gpHome = this.getGripPos();
+                if (this.grabbedCap) {
+                  this.grabbedCap.x = gpHome.x;
+                  this.grabbedCap.y = gpHome.y;
+                }
+                this.phase = 'carrying';
+                this.phaseTime = 0;
+              }
+            } else if (this.phase === 'slip_shock') {
+              if (this.clawY > this.homeY) {
+                this.clawY = Math.max(this.homeY, this.clawY - 260 * dt);
+              }
+              if (this.phaseTime >= 0.72 && this.clawY <= this.homeY + 1) {
+                if (this.slipCount < this.maxSlips) {
+                  this.clawY = this.homeY;
+                  this.clawOpen = 0.65;
+                  this.phase = 'idle';
+                  this.phaseTime = 0;
+                  this.isBusy = false;
+                  this.hasManualAim = false;
+                  this.gantryX = Math.max(this.pitMinX, Math.min(this.pitMaxX, this.gantryX));
+                  if (typeof this.onStateChange === 'function') this.onStateChange();
+                } else {
+                  this.wasSlipReversal = true;
+                  this.phase = 'guaranteed_charge';
+                  this.phaseTime = 0;
+                  this.isGuaranteed = true;
+                  this.shakeTime = 0.22;
+                  this.bannerText = '🔥 累積滿 3 次！啟動保夾強爪必中！';
+                  this.bannerType = 'guaranteed';
+                  this.bannerAlpha = 1.0;
+                  this.guaranteedTarget = this.pickGuaranteedTarget();
+                  this.spawnGoldenAura(this.gantryX, this.clawY + 14);
+                  this.sound.playGuaranteedCharge();
+                  if (typeof this.onStateChange === 'function') this.onStateChange();
+                }
+              }
+            } else if (this.phase === 'guaranteed_charge') {
+              if (this.clawY > this.homeY) {
+                this.clawY = Math.max(this.homeY, this.clawY - 240 * dt);
+              }
+              if (this.phaseTime >= 0.58) {
+                if (!this.guaranteedTarget || this.guaranteedTarget.inChute) {
+                  this.guaranteedTarget = this.pickGuaranteedTarget();
+                }
+                this.phase = 'guaranteed_hunt';
+                this.huntSubPhase = 'glide';
+                this.phaseTime = 0;
+                this.grabSparksSpawned = false;
+              }
+            } else if (this.phase === 'guaranteed_hunt') {
+              var tgt = this.guaranteedTarget;
+              if (!tgt) tgt = this.pickGuaranteedTarget();
+              this.guaranteedTarget = tgt;
+
+              if (!tgt) {
+                // 極端無球防呆安全回復
+                this.phase = 'idle';
+                this.isBusy = false;
+                this.isGuaranteed = false;
+                if (typeof this.onStateChange === 'function') this.onStateChange();
+              } else if (this.huntSubPhase === 'glide') {
+                var targetX = Math.max(this.pitMinX - 10, Math.min(this.pitMaxX + 10, tgt.x));
+                var dg = targetX - this.gantryX;
+                var stepG = 460 * dt;
+                if (Math.abs(dg) <= stepG || Math.abs(dg) < 3) {
+                  this.gantryX = targetX;
+                  this.huntSubPhase = 'dive';
+                  this.sound.playClawDescent(true);
+                } else {
+                  this.gantryX += Math.sign(dg) * stepG;
+                  this.sound.playClawStep();
+                }
+              } else {
+                this.clawOpen += (0.95 - this.clawOpen) * Math.min(1, dt * 16);
+                var dxFollow = tgt.x - this.gantryX;
+                if (Math.abs(dxFollow) > 1) {
+                  this.gantryX += Math.sign(dxFollow) * Math.min(Math.abs(dxFollow), 240 * dt);
+                }
+                this.clawY += 410 * dt;
+                if (this.clawY + this.gripOffsetY >= tgt.y) {
+                  this.clawY = tgt.y - this.gripOffsetY;
+                  this.grabbedCap = tgt;
+                  tgt.grabbed = true;
+                  tgt.vx = 0;
+                  tgt.vy = 0;
+                  tgt.vRot = 0;
+                  this.spawnGoldenAura(tgt.x, tgt.y);
+                  this.sound.playClawGrab(true);
+                  this.phase = 'grabbing';
+                  this.phaseTime = 0;
+                }
+              }
+            } else if (this.phase === 'carrying') {
+              var carrySpd = this.isGuaranteed ? 320 : 245;
+              if (this.gantryX > this.chuteX + 2) {
+                this.gantryX = Math.max(this.chuteX, this.gantryX - carrySpd * dt);
+                this.sound.playClawStep();
+              } else {
+                this.gantryX = this.chuteX;
+                this.phase = 'dropping_chute';
+                this.phaseTime = 0;
+                this.prizeCap = this.grabbedCap;
+                if (this.prizeCap) {
+                  this.prizeCap.grabbed = false;
+                  this.prizeCap.inChute = true;
+                  this.prizeCap.vx = 0;
+                  this.prizeCap.vy = 80;
+                }
+                this.grabbedCap = null;
+              }
+              if (this.grabbedCap) {
+                var gpCarry = this.getGripPos();
+                this.grabbedCap.x = gpCarry.x;
+                this.grabbedCap.y = gpCarry.y;
+              }
+            } else if (this.phase === 'dropping_chute') {
+              this.clawOpen += (1.0 - this.clawOpen) * Math.min(1, dt * 14);
+              if (!this.chuteTriggered && ((this.prizeCap && this.prizeCap.y >= this.sensorY) || this.phaseTime >= 1.6)) {
+                this.chuteTriggered = true;
+                this.sensorFlash = 1.0;
+                this.sound.playPrizeChute();
+                this.sound.playWin();
+                this.spawnConfetti(this.chuteX, this.sensorY + 12);
+                this.phase = 'celebrating';
+                this.phaseTime = 0;
+              }
+            } else if (this.phase === 'celebrating') {
+              this.clawOpen += (0.65 - this.clawOpen) * Math.min(1, dt * 6);
+              this.gantryX += (this.pitCenterX - this.gantryX) * Math.min(1, dt * 4.5);
+              if (this.phaseTime >= 0.65) {
+                var winner = this.prizeCap ? this.prizeCap.slot : null;
+                var wasReversal = this.wasSlipReversal;
+                this.slipCount = 0;
+                this.phase = 'idle';
+                this.isBusy = false;
+                this.hasManualAim = false;
+                this.gantryX = this.pitCenterX;
+                this.clawY = this.homeY;
+                this.clawOpen = 0.65;
+                if (typeof this.onStateChange === 'function') this.onStateChange();
+
+                if (winner && typeof this.onResult === 'function') {
+                  this.onResult(winner, {
+                    icon: wasReversal ? '🔥' : '🧸',
+                    sub: wasReversal
+                      ? '累積 3 次保夾觸發！🔥 強爪必中出貨'
+                      : '夾娃娃機一爪入魂！出貨結果揭曉'
+                  });
+                }
+              }
+            }
+          }
+        }
+
+        // 更新天車移動引發的機械爪擺盪
+        var vxGantry = (this.gantryX - prevGantryX) / Math.max(0.001, dt);
+        this.clawSwingVel += (-vxGantry * 0.0028 - this.clawSwing * 38 - this.clawSwingVel * 6.5) * dt;
+        this.clawSwing = Math.max(-0.26, Math.min(0.26, this.clawSwing + this.clawSwingVel * dt));
+      };
+
+      ClawMachineEngine.prototype.drawCapsule = function (ctx, c, isTargetLock, isAimTarget) {
+        ctx.save();
+        ctx.translate(c.x, c.y);
+
+        // 陰影
+        ctx.beginPath();
+        ctx.arc(2, 4, c.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+        ctx.fill();
+
+        // 旋轉扭蛋殼體
+        ctx.save();
+        ctx.rotate(c.rot);
+
+        // 下半球（半透明珍珠白）
+        ctx.beginPath();
+        ctx.arc(0, 0, c.r, 0, Math.PI);
+        ctx.closePath();
+        var botGrad = ctx.createRadialGradient(-c.r * 0.25, c.r * 0.25, 2, 0, 0, c.r);
+        botGrad.addColorStop(0, '#FFFFFF');
+        botGrad.addColorStop(0.65, '#E2E8F0');
+        botGrad.addColorStop(1, '#94A3B8');
+        ctx.fillStyle = botGrad;
+        ctx.fill();
+
+        // 上半球（主題鮮豔彩色蓋）
+        ctx.beginPath();
+        ctx.arc(0, 0, c.r, Math.PI, Math.PI * 2);
+        ctx.closePath();
+        ctx.fillStyle = c.color;
+        ctx.fill();
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
+        ctx.beginPath();
+        ctx.arc(-c.r * 0.28, -c.r * 0.36, c.r * 0.36, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 中腰接縫環
+        ctx.beginPath();
+        ctx.moveTo(-c.r, 0);
+        ctx.lineTo(c.r, 0);
+        ctx.strokeStyle = 'rgba(15, 23, 42, 0.72)';
+        ctx.lineWidth = 2.2;
+        ctx.stroke();
+
+        // 殼體外描邊
+        ctx.beginPath();
+        ctx.arc(0, 0, c.r, 0, Math.PI * 2);
+        ctx.strokeStyle = isTargetLock ? '#FDE047' : (isAimTarget ? '#67E8F9' : 'rgba(255, 255, 255, 0.48)');
+        ctx.lineWidth = isTargetLock ? 3 : (isAimTarget ? 2.4 : 1.3);
+        ctx.stroke();
+
+        ctx.restore();
+
+        // 閃爍特效
+        if (this.slotFlash > 0.01 && !c.inChute) {
+          ctx.beginPath();
+          ctx.arc(0, 0, c.r, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(254, 240, 138, ' + (this.slotFlash * 0.35) + ')';
+          ctx.fill();
+        }
+
+        // 池內盲盒顯示「？」隱藏餐廳資訊；僅於夾起或出貨時才揭曉店名
+        var isRevealed = Boolean(c.grabbed || c.inChute);
+        if (isRevealed) {
+          var name = c.slot.name;
+          var maxLen = c.r >= 30 ? 5 : 4;
+          if (name.length > maxLen) name = name.slice(0, maxLen - 1) + '…';
+          var pillW = Math.min(c.r * 1.88, name.length * 10 + 12);
+          var pillH = 16;
+          ctx.fillStyle = 'rgba(10, 16, 31, 0.88)';
+          ctx.strokeStyle = isTargetLock ? '#FDE047' : 'rgba(103, 232, 249, 0.65)';
+          ctx.lineWidth = 1.2;
+          drawRoundRect(ctx, -pillW / 2, -pillH / 2, pillW, pillH, 6);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#FEF9C3';
+          var labelFont = c.r >= 30 ? 10.5 : 9.5;
+          ctx.font = 'bold ' + labelFont + 'px "Noto Sans TC", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(name, 0, 0.5);
+        } else {
+          var badgeR = Math.max(8, c.r * 0.34);
+          ctx.beginPath();
+          ctx.arc(0, 0, badgeR, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+          ctx.fill();
+          ctx.strokeStyle = isTargetLock ? '#FDE047' : 'rgba(255, 255, 255, 0.45)';
+          ctx.lineWidth = 1.4;
+          ctx.stroke();
+
+          ctx.fillStyle = '#FEF08A';
+          ctx.font = '900 ' + Math.round(badgeR * 1.25) + 'px "Noto Sans TC", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('?', 0, 0.5);
+        }
+
+        // 瞄準或保夾鎖定外圈
+        if (isTargetLock) {
+          var pLock = 0.5 + 0.5 * Math.sin(this.pulseTime * 14);
+          ctx.strokeStyle = '#FDE047';
+          ctx.lineWidth = 2.6;
+          ctx.beginPath();
+          ctx.arc(0, 0, c.r + 5 + pLock * 3, 0, Math.PI * 2);
+          ctx.stroke();
+        } else if (isAimTarget) {
+          ctx.setLineDash([4, 3]);
+          ctx.strokeStyle = 'rgba(34, 211, 238, 0.88)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(0, 0, c.r + 4, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        ctx.restore();
+      };
+
+      ClawMachineEngine.prototype.drawClaw = function (ctx) {
+        var topX = this.gantryX;
+        var topY = this.railY + 8;
+
+        // 天車滑輪小車
+        ctx.save();
+        ctx.fillStyle = this.isGuaranteed ? '#B45309' : '#1E293B';
+        ctx.strokeStyle = this.isGuaranteed ? '#FDE047' : '#38BDF8';
+        ctx.lineWidth = 2;
+        drawRoundRect(ctx, topX - 24, this.railY - 12, 48, 22, 7);
+        ctx.fill();
+        ctx.stroke();
+
+        // 小車左右指示燈
+        ctx.beginPath();
+        ctx.arc(topX - 13, this.railY - 1, 3.2, 0, Math.PI * 2);
+        ctx.arc(topX + 13, this.railY - 1, 3.2, 0, Math.PI * 2);
+        ctx.fillStyle = this.isGuaranteed ? '#FEF08A' : (this.isBusy ? '#F43F5E' : '#22D3EE');
+        ctx.fill();
+        ctx.restore();
+
+        // 吊繩與擺動爪頭（使用精準 getGripPos 對齊抓點）
+        var gp = this.getGripPos();
+
+        ctx.save();
+        ctx.strokeStyle = this.isGuaranteed ? '#FDE047' : '#CBD5E1';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(topX, topY);
+        ctx.lineTo(gp.headX, gp.headY);
+        ctx.stroke();
+
+        ctx.translate(gp.headX, gp.headY);
+        ctx.rotate(gp.rot);
+
+        if (this.isGuaranteed) {
+          ctx.shadowColor = '#F59E0B';
+          ctx.shadowBlur = 18;
+        }
+
+        // 後側第三支點爪臂（營造立體三爪抓握感）
+        ctx.save();
+        ctx.strokeStyle = this.isGuaranteed ? 'rgba(253, 224, 71, 0.55)' : 'rgba(148, 163, 184, 0.5)';
+        ctx.lineWidth = 3.2;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(0, 12);
+        ctx.lineTo(0, 26 + this.clawOpen * 6);
+        ctx.stroke();
+        ctx.restore();
+
+        // 左右機械爪臂 (依據 clawOpen 0.14 ~ 1.0 開合，寬度適配扭蛋半徑 24~33)
+        var spread = 0.22 + this.clawOpen * 0.72;
+        for (var side = -1; side <= 1; side += 2) {
+          ctx.save();
+          ctx.translate(side * 12, 10);
+          ctx.scale(side, 1);
+          ctx.rotate(-spread);
+
+          ctx.strokeStyle = this.isGuaranteed ? '#FDE047' : '#E2E8F0';
+          ctx.lineWidth = 4.6;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(24, 21);
+          ctx.lineTo(10, 44);
+          ctx.stroke();
+
+          // 爪尖橡膠防滑墊
+          ctx.fillStyle = this.isGuaranteed ? '#EF4444' : '#06B6D4';
+          ctx.beginPath();
+          ctx.arc(10, 44, 3.8, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // 機械爪馬達核心頭
+        var headGrad = ctx.createLinearGradient(-15, -6, 15, 16);
+        if (this.isGuaranteed) {
+          headGrad.addColorStop(0, '#FEF08A');
+          headGrad.addColorStop(0.5, '#F59E0B');
+          headGrad.addColorStop(1, '#DC2626');
+        } else {
+          headGrad.addColorStop(0, '#E2E8F0');
+          headGrad.addColorStop(0.5, '#64748B');
+          headGrad.addColorStop(1, '#1E293B');
+        }
+        ctx.fillStyle = headGrad;
+        ctx.strokeStyle = this.isGuaranteed ? '#FFFBEB' : '#94A3B8';
+        ctx.lineWidth = 2;
+        drawRoundRect(ctx, -16, -4, 32, 20, 7);
+        ctx.fill();
+        ctx.stroke();
+
+        // 核心指示燈
+        ctx.beginPath();
+        ctx.arc(0, 6, 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = this.isGuaranteed ? '#FEF08A' : (this.phase === 'slip_shock' ? '#FB7185' : '#22D3EE');
+        ctx.fill();
+
+        ctx.restore();
+      };
+
+      ClawMachineEngine.prototype.drawGrabbedRevealCard = function (ctx, cap) {
+        if (!cap || !cap.slot) return;
+        var item = cap.slot;
+        var meta = getTransportMeta(item.transport);
+        var caption = this.isGuaranteed ? '🔥 保夾強爪必中揭曉' : '✨ 夾起扭蛋餐廳揭曉';
+        var mainText = item.name + ' · ' + meta.icon + ' ' + item.transport + (item.time ? ' · ⏱️ ' + item.time : '');
+
+        ctx.save();
+        ctx.font = '900 15.5px "Noto Sans TC", sans-serif';
+        var wMain = ctx.measureText(mainText).width;
+        ctx.font = 'bold 11.5px "Noto Sans TC", sans-serif';
+        var wCap = ctx.measureText(caption).width;
+
+        var padX = 18;
+        var boxW = Math.min(this.VW - 44, Math.max(210, Math.max(wMain, wCap) + padX * 2));
+        var boxH = 48;
+        var boxX = (this.VW - boxW) / 2;
+        var boxY = 80;
+
+        ctx.shadowColor = this.isGuaranteed ? 'rgba(245, 158, 11, 0.55)' : 'rgba(34, 211, 238, 0.4)';
+        ctx.shadowBlur = 16;
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
+        ctx.strokeStyle = this.isGuaranteed ? '#FDE047' : '#22D3EE';
+        ctx.lineWidth = 2.2;
+        drawRoundRect(ctx, boxX, boxY, boxW, boxH, 14);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.stroke();
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = this.isGuaranteed ? '#FDE047' : '#67E8F9';
+        ctx.font = 'bold 11.5px "Noto Sans TC", sans-serif';
+        ctx.fillText(caption, this.VW / 2, boxY + 14);
+
+        ctx.fillStyle = '#FEF9C3';
+        ctx.font = '900 15.5px "Noto Sans TC", sans-serif';
+        var displayMain = mainText;
+        while (ctx.measureText(displayMain).width > boxW - 22 && displayMain.length > 6) {
+          displayMain = displayMain.slice(0, displayMain.length - 2) + '…';
+        }
+        ctx.fillText(displayMain, this.VW / 2, boxY + 34);
+        ctx.restore();
+      };
+
+      ClawMachineEngine.prototype.draw = function () {
+        var ctx = this.ctx;
+        if (!ctx || this.canvas.width === 0 || this.canvas.height === 0) return;
+
+        ctx.save();
+        ctx.setTransform(this.canvas.width / this.VW, 0, 0, this.canvas.height / this.VH, 0, 0);
+
+        // 微震動偏移（軟爪手滑／保夾啟動）
+        var shX = this.shakeTime > 0 ? (Math.random() - 0.5) * 9 * (this.shakeTime / 0.28) : 0;
+        var shY = this.shakeTime > 0 ? (Math.random() - 0.5) * 9 * (this.shakeTime / 0.28) : 0;
+        ctx.translate(shX, shY);
+
+        // 1. 機台內部夜光背板
+        var bg = ctx.createLinearGradient(0, 0, 0, this.VH);
+        bg.addColorStop(0, '#0f172a');
+        bg.addColorStop(0.55, '#0b1224');
+        bg.addColorStop(1, '#060a14');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, this.VW, this.VH);
+
+        // 櫥窗背景網格紋理
+        ctx.strokeStyle = this.isGuaranteed ? 'rgba(245, 158, 11, 0.08)' : 'rgba(34, 211, 238, 0.05)';
+        ctx.lineWidth = 1;
+        for (var gx = 30; gx < this.VW; gx += 36) {
+          ctx.beginPath(); ctx.moveTo(gx, 54); ctx.lineTo(gx, this.floorY); ctx.stroke();
+        }
+        for (var gy = 70; gy < this.floorY; gy += 36) {
+          ctx.beginPath(); ctx.moveTo(18, gy); ctx.lineTo(this.VW - 18, gy); ctx.stroke();
+        }
+
+        // 2. 頂部燈箱 Marquee
+        var marqGrad = ctx.createLinearGradient(18, 10, this.VW - 18, 52);
+        if (this.isGuaranteed) {
+          marqGrad.addColorStop(0, '#991B1B');
+          marqGrad.addColorStop(0.5, '#D97706');
+          marqGrad.addColorStop(1, '#991B1B');
+        } else {
+          marqGrad.addColorStop(0, '#0F172A');
+          marqGrad.addColorStop(0.5, '#1E293B');
+          marqGrad.addColorStop(1, '#0F172A');
+        }
+        ctx.fillStyle = marqGrad;
+        ctx.strokeStyle = this.isGuaranteed ? '#FDE047' : 'rgba(34, 211, 238, 0.65)';
+        ctx.lineWidth = 2.2;
+        drawRoundRect(ctx, 18, 10, this.VW - 36, 42, 12);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = this.isGuaranteed ? '#FEF08A' : '#67E8F9';
+        ctx.font = '900 16px "Noto Sans TC", sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(
+          this.isGuaranteed ? '🔥 保夾強爪必中！鎖定出貨！' : '🧸 盲盒扭蛋夾娃娃機 · CLAW',
+          32,
+          31
+        );
+
+        // 右側保夾累積進度膠囊 (0/3 ~ 3/3)
+        var pityX = this.VW - 156;
+        var pityY = 17;
+        var pityW = 126;
+        var pityH = 28;
+        ctx.fillStyle = this.isGuaranteed ? 'rgba(127, 29, 29, 0.92)' : 'rgba(10, 16, 31, 0.88)';
+        ctx.strokeStyle = (this.isGuaranteed || this.slipCount >= this.maxSlips) ? '#FDE047' : 'rgba(34, 211, 238, 0.45)';
+        ctx.lineWidth = 1.6;
+        drawRoundRect(ctx, pityX, pityY, pityW, pityH, 14);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = (this.isGuaranteed || this.slipCount >= this.maxSlips) ? '#FEF08A' : '#CBD5E1';
+        ctx.font = '800 11.5px "Noto Sans TC", sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(this.isGuaranteed ? '🔥 保夾' : '保夾', pityX + 10, pityY + 14.5);
+
+        var dotStartX = this.isGuaranteed ? (pityX + 58) : (pityX + 46);
+        for (var dIdx = 0; dIdx < this.maxSlips; dIdx++) {
+          var lit = this.isGuaranteed || (dIdx < this.slipCount);
+          ctx.beginPath();
+          ctx.arc(dotStartX + dIdx * 14, pityY + 14, 4.4, 0, Math.PI * 2);
+          ctx.fillStyle = lit ? (this.isGuaranteed ? '#FDE047' : '#FB7185') : 'rgba(148, 163, 184, 0.28)';
+          ctx.fill();
+          if (lit) {
+            ctx.strokeStyle = '#FEF08A';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+        ctx.fillStyle = (this.isGuaranteed || this.slipCount >= this.maxSlips) ? '#FEF08A' : '#94A3B8';
+        ctx.font = '800 11.5px sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText((this.isGuaranteed ? this.maxSlips : this.slipCount) + '/' + this.maxSlips, pityX + pityW - 9, pityY + 14.5);
+
+        // 3. 天車橫向軌道鋼樑
+        var railGrad = ctx.createLinearGradient(0, this.railY - 5, 0, this.railY + 5);
+        railGrad.addColorStop(0, '#94A3B8');
+        railGrad.addColorStop(0.5, '#475569');
+        railGrad.addColorStop(1, '#1E293B');
+        ctx.fillStyle = railGrad;
+        ctx.fillRect(22, this.railY - 4, this.VW - 44, 8);
+
+        // 4. 左側出貨洞口 (Prize Chute)
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.72)';
+        ctx.strokeStyle = this.sensorFlash > 0.05 ? '#34D399' : 'rgba(148, 163, 184, 0.28)';
+        ctx.lineWidth = this.sensorFlash > 0.05 ? 2.6 : 1.5;
+        drawRoundRect(ctx, this.chuteLeft, this.baffleTopY + 10, this.chuteRight - this.chuteLeft, this.floorY - this.baffleTopY - 10, 10);
+        ctx.fill();
+        ctx.stroke();
+
+        // 出貨區標籤與墊片
+        ctx.fillStyle = 'rgba(34, 211, 238, 0.85)';
+        ctx.font = '800 12px "Noto Sans TC", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('取物口', this.chuteX, this.baffleTopY + 30);
+        ctx.fillStyle = 'rgba(148, 163, 184, 0.55)';
+        ctx.font = 'bold 9.5px sans-serif';
+        ctx.fillText('PRIZE OUT', this.chuteX, this.baffleTopY + 46);
+
+        // 紅外線電眼感測線
+        ctx.save();
+        ctx.setLineDash([5, 4]);
+        ctx.strokeStyle = this.sensorFlash > 0.05 ? '#34D399' : 'rgba(244, 63, 94, 0.65)';
+        ctx.lineWidth = this.sensorFlash > 0.05 ? 3 : 1.6;
+        ctx.beginPath();
+        ctx.moveTo(this.chuteLeft + 6, this.sensorY);
+        ctx.lineTo(this.chuteRight - 6, this.sensorY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+
+        // 緩衝底墊
+        ctx.fillStyle = '#1E293B';
+        ctx.fillRect(this.chuteLeft + 4, this.chuteFloorY, this.chuteRight - this.chuteLeft - 8, this.floorY - this.chuteFloorY);
+
+        // 5. 右側扭蛋池底板與壓克力分隔擋板
+        ctx.fillStyle = '#0F172A';
+        ctx.fillRect(this.pitLeft, this.floorY, this.pitRight - this.pitLeft, 24);
+
+        ctx.strokeStyle = 'rgba(34, 211, 238, 0.45)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(this.pitLeft, this.floorY);
+        ctx.lineTo(this.pitRight, this.floorY);
+        ctx.stroke();
+
+        // 分隔擋板與圓頂帽
+        var bGrad = ctx.createLinearGradient(this.baffleX - this.baffleHalfW, 0, this.baffleX + this.baffleHalfW, 0);
+        bGrad.addColorStop(0, '#38BDF8');
+        bGrad.addColorStop(0.5, '#E0F2FE');
+        bGrad.addColorStop(1, '#0284C7');
+        ctx.fillStyle = bGrad;
+        ctx.fillRect(this.baffleX - this.baffleHalfW, this.baffleTopY, this.baffleHalfW * 2, this.floorY - this.baffleTopY);
+        ctx.beginPath();
+        ctx.arc(this.baffleX, this.baffleTopY, this.baffleCapR, 0, Math.PI * 2);
+        ctx.fillStyle = '#FDE047';
+        ctx.fill();
+
+        // 6. 待機垂直瞄準雷射預覽
+        if (this.phase === 'idle' && this.slots.length > 0) {
+          var gpAim = this.getGripPos();
+          var laserEndY = this.aimTargetCap ? (this.aimTargetCap.y - this.aimTargetCap.r) : this.floorY;
+          ctx.save();
+          ctx.setLineDash([6, 6]);
+          ctx.strokeStyle = 'rgba(34, 211, 238, 0.5)';
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.moveTo(this.gantryX, gpAim.y);
+          ctx.lineTo(this.gantryX, laserEndY);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.restore();
+        }
+
+        // 7. 繪製所有扭蛋
+        var i;
+        for (i = 0; i < this.capsules.length; i++) {
+          var cap = this.capsules[i];
+          if (cap.grabbed) continue;
+          var isLock = (this.isGuaranteed && cap === this.guaranteedTarget && (this.phase === 'guaranteed_charge' || this.phase === 'guaranteed_hunt'));
+          var isAim = (this.phase === 'idle' && cap === this.aimTargetCap);
+          this.drawCapsule(ctx, cap, isLock, isAim);
+        }
+
+        // 若正在抓取扭蛋，繪製被夾住的扭蛋與機械爪
+        if (this.grabbedCap) {
+          this.drawCapsule(ctx, this.grabbedCap, this.isGuaranteed, false);
+        }
+        this.drawClaw(ctx);
+
+        // 鎖定準星文字 (LOCK ON)
+        if (this.isGuaranteed && this.guaranteedTarget && (this.phase === 'guaranteed_charge' || this.phase === 'guaranteed_hunt')) {
+          var gt = this.guaranteedTarget;
+          ctx.save();
+          ctx.fillStyle = '#FDE047';
+          ctx.font = '900 12px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.shadowColor = '#000';
+          ctx.shadowBlur = 6;
+          ctx.fillText('🎯 LOCK ON', gt.x, gt.y - gt.r - 12);
+          ctx.restore();
+        }
+
+        // 8. 玻璃櫥窗反光斜紋
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(32, 62);
+        ctx.lineTo(130, 62);
+        ctx.lineTo(64, this.floorY);
+        ctx.lineTo(24, this.floorY);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.028)';
+        ctx.fill();
+        ctx.restore();
+
+        // 9. 電光火花與慶祝彩帶
+        for (i = 0; i < this.sparks.length; i++) {
+          var sp = this.sparks[i];
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, sp.life);
+          ctx.fillStyle = sp.color;
+          ctx.beginPath();
+          ctx.arc(sp.x, sp.y, sp.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        for (i = 0; i < this.confetti.length; i++) {
+          var pt = this.confetti[i];
+          ctx.save();
+          ctx.translate(pt.x, pt.y);
+          ctx.rotate(pt.rot);
+          ctx.globalAlpha = Math.max(0, pt.life);
+          ctx.fillStyle = pt.color;
+          ctx.fillRect(-pt.size / 2, -pt.size / 2, pt.size, pt.size * 0.6);
+          ctx.restore();
+        }
+
+        // 10. 夾起時即時揭曉餐廳卡 / 戲劇橫幅（手滑 / 保夾啟動）/ 待機盲盒提示
+        var revealedCap = this.grabbedCap || (this.prizeCap && this.prizeCap.inChute ? this.prizeCap : null);
+        if (revealedCap) {
+          this.drawGrabbedRevealCard(ctx, revealedCap);
+        } else if (this.bannerAlpha > 0.02 && this.bannerText) {
+          ctx.save();
+          ctx.globalAlpha = Math.min(1, this.bannerAlpha);
+          var bw = 340, bh = 36;
+          var bx0 = (this.VW - bw) / 2;
+          var by0 = 84;
+          ctx.shadowColor = this.bannerType === 'guaranteed' ? '#F59E0B' : '#F43F5E';
+          ctx.shadowBlur = 18;
+          ctx.fillStyle = this.bannerType === 'guaranteed' ? 'rgba(154, 52, 18, 0.96)' : 'rgba(136, 19, 55, 0.95)';
+          ctx.strokeStyle = '#FDE047';
+          ctx.lineWidth = 2.4;
+          drawRoundRect(ctx, bx0, by0, bw, bh, 18);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.stroke();
+
+          ctx.fillStyle = '#FEF08A';
+          ctx.font = '900 14px "Noto Sans TC", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(this.bannerText, this.VW / 2, by0 + bh / 2 + 0.5);
+          ctx.restore();
+        } else if (this.phase === 'idle' && this.slots.length > 0) {
+          ctx.save();
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.78)';
+          ctx.strokeStyle = 'rgba(34, 211, 238, 0.45)';
+          ctx.lineWidth = 1.4;
+          drawRoundRect(ctx, this.VW / 2 - 166, 84, 332, 28, 14);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = '#A5F3FC';
+          ctx.font = 'bold 12px "Noto Sans TC", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('🕹️ 盲盒扭蛋夾起才揭曉 · 累積掉球 3 次啟動保夾！', this.VW / 2, 98);
+          ctx.restore();
+        }
+
+        ctx.restore();
+      };
+
+      ClawMachineEngine.prototype.loop = function (ts) {
+        if (!this.lastTs) this.lastTs = ts;
+        var dt = Math.min(0.033, Math.max(0.001, (ts - this.lastTs) / 1000));
+        this.lastTs = ts;
+        this.update(dt);
+        this.draw();
+        var self = this;
+        requestAnimationFrame(function (nextTs) { self.loop(nextTs); });
+      };
+
+      /* =====================================================================
        * 7. 應用程式狀態與 DOM 參考
        * ===================================================================== */
       var state = {
@@ -5300,6 +7144,7 @@
         modeTabSlot: document.getElementById('modeTabSlot'),
         modeTabRoulette: document.getElementById('modeTabRoulette'),
         modeTabDart: document.getElementById('modeTabDart'),
+        modeTabClaw: document.getElementById('modeTabClaw'),
 
         filterChips: document.getElementById('filterChips'),
         candidateCount: document.getElementById('candidateCount'),
@@ -5348,6 +7193,16 @@
         throwDartBtn: document.getElementById('throwDartBtn'),
         throwDartText: document.getElementById('throwDartText'),
         manualShuffleDartBtn: document.getElementById('manualShuffleDartBtn'),
+
+        panelClaw: document.getElementById('panelClaw'),
+        clawStageWrapper: document.getElementById('clawStageWrapper'),
+        clawCanvas: document.getElementById('clawCanvas'),
+        clawEmptyOverlay: document.getElementById('clawEmptyOverlay'),
+        clawLeftBtn: document.getElementById('clawLeftBtn'),
+        clawRightBtn: document.getElementById('clawRightBtn'),
+        clawDropBtn: document.getElementById('clawDropBtn'),
+        clawDropText: document.getElementById('clawDropText'),
+        manualShuffleClawBtn: document.getElementById('manualShuffleClawBtn'),
 
         formCard: document.getElementById('formCard'),
         formToggleBtn: document.getElementById('formToggleBtn'),
@@ -5487,7 +7342,7 @@
         });
       }
 
-      /* ----- 初始化音效引擎與三大抽選引擎 ----- */
+      /* ----- 初始化音效引擎與五大抽選引擎 ----- */
       var soundEngine = new SoundEngine();
 
       function syncSoundUI() {
@@ -5500,7 +7355,8 @@
         return (plinko && plinko.isDropping) ||
                (slotMachine && slotMachine.isSpinning) ||
                (roulette && roulette.isSpinning) ||
-               (dartWheel && dartWheel.isBusy);
+               (dartWheel && dartWheel.isBusy) ||
+               (clawMachine && clawMachine.isBusy);
       }
 
       var plinko = new PlinkoEngine(els.plinkoCanvas, els.plinkoStageWrapper, soundEngine, {
@@ -5509,6 +7365,8 @@
             state.boardSlots = fisherYatesShuffle(state.boardSlots);
             plinko.setSlots(state.boardSlots, true);
             roulette.setSlots(state.boardSlots, false);
+            dartWheel.setSlots(state.boardSlots, false);
+            clawMachine.setSlots(state.boardSlots, false);
           }
         },
         onStateChange: syncControlButtons,
@@ -5542,6 +7400,7 @@
             roulette.setSlots(state.boardSlots, true);
             plinko.setSlots(state.boardSlots, false);
             dartWheel.setSlots(state.boardSlots, false);
+            clawMachine.setSlots(state.boardSlots, false);
           }
         },
         onStateChange: syncControlButtons,
@@ -5549,6 +7408,11 @@
       });
 
       var dartWheel = new DartWheelEngine(els.dartCanvas, els.dartStageWrapper, soundEngine, {
+        onStateChange: syncControlButtons,
+        onResult: openResultModal
+      });
+
+      var clawMachine = new ClawMachineEngine(els.clawCanvas, els.clawStageWrapper, soundEngine, {
         onStateChange: syncControlButtons,
         onResult: openResultModal
       });
@@ -5561,6 +7425,7 @@
         els.modeTabSlot.disabled = busy;
         els.modeTabRoulette.disabled = busy;
         els.modeTabDart.disabled = busy;
+        els.modeTabClaw.disabled = busy;
 
         els.dropBallBtn.disabled = !hasSlots || busy;
         els.manualShuffleBtn.disabled = state.boardSlots.length < 2 || busy;
@@ -5577,6 +7442,15 @@
         els.throwDartBtn.disabled = !hasSlots || busy;
         els.manualShuffleDartBtn.disabled = state.boardSlots.length < 2 || busy;
         els.throwDartText.textContent = dartWheel.isBusy ? '飛鏢投擲中...' : '隨機射出飛鏢！';
+
+        els.clawLeftBtn.disabled = !hasSlots || busy;
+        els.clawRightBtn.disabled = !hasSlots || busy;
+        els.clawDropBtn.disabled = !hasSlots || busy;
+        els.manualShuffleClawBtn.disabled = state.boardSlots.length < 2 || busy;
+        els.clawDropBtn.classList.toggle('guaranteed-active', Boolean(clawMachine.isBusy && clawMachine.isGuaranteed));
+        els.clawDropText.textContent = clawMachine.isBusy
+          ? (clawMachine.isGuaranteed ? '🔥 保夾強爪必中！' : '機械爪運作中...')
+          : (clawMachine.slipCount > 0 ? ('下爪夾取！(保夾 ' + clawMachine.slipCount + '/3)') : '下爪夾取！');
       }
 
       function syncBoardSlots(shuffleNow) {
@@ -5589,10 +7463,12 @@
           slotMachine.setCandidates([]);
           roulette.setSlots([], false);
           dartWheel.setSlots([], false);
+          clawMachine.setSlots([], false);
           els.plinkoEmptyOverlay.classList.remove('hidden');
           els.slotEmptyOverlay.classList.remove('hidden');
           els.rouletteEmptyOverlay.classList.remove('hidden');
           els.dartEmptyOverlay.classList.remove('hidden');
+          els.clawEmptyOverlay.classList.remove('hidden');
           syncControlButtons();
           return;
         }
@@ -5601,6 +7477,7 @@
         els.slotEmptyOverlay.classList.add('hidden');
         els.rouletteEmptyOverlay.classList.add('hidden');
         els.dartEmptyOverlay.classList.add('hidden');
+        els.clawEmptyOverlay.classList.add('hidden');
 
         var list = shuffleNow ? fisherYatesShuffle(candidates) : candidates.slice();
         state.boardSlots = list.slice(0, MAX_SLOTS);
@@ -5608,6 +7485,7 @@
         slotMachine.setCandidates(candidates);
         roulette.setSlots(state.boardSlots, shuffleNow);
         dartWheel.setSlots(state.boardSlots, shuffleNow);
+        clawMachine.setSlots(state.boardSlots, shuffleNow && state.currentMode === 'claw');
         syncControlButtons();
       }
 
@@ -5619,27 +7497,35 @@
         if (state.currentMode === 'dart' && mode !== 'dart') {
           dartWheel.resetView(true);
         }
+        if (state.currentMode === 'claw' && mode !== 'claw') {
+          clawMachine.stopInput();
+          clawMachine.restorePrizeToPit();
+        }
         state.currentMode = mode;
 
         els.panelPlinko.classList.toggle('hidden', mode !== 'plinko');
         els.panelSlot.classList.toggle('hidden', mode !== 'slot');
         els.panelRoulette.classList.toggle('hidden', mode !== 'roulette');
         els.panelDart.classList.toggle('hidden', mode !== 'dart');
+        els.panelClaw.classList.toggle('hidden', mode !== 'claw');
 
         els.modeTabPlinko.classList.toggle('active', mode === 'plinko');
         els.modeTabSlot.classList.toggle('active', mode === 'slot');
         els.modeTabRoulette.classList.toggle('active', mode === 'roulette');
         els.modeTabDart.classList.toggle('active', mode === 'dart');
+        els.modeTabClaw.classList.toggle('active', mode === 'claw');
 
         els.modeTabPlinko.setAttribute('aria-selected', String(mode === 'plinko'));
         els.modeTabSlot.setAttribute('aria-selected', String(mode === 'slot'));
         els.modeTabRoulette.setAttribute('aria-selected', String(mode === 'roulette'));
         els.modeTabDart.setAttribute('aria-selected', String(mode === 'dart'));
+        els.modeTabClaw.setAttribute('aria-selected', String(mode === 'claw'));
 
         requestAnimationFrame(function () {
           if (mode === 'plinko') plinko.resize();
           else if (mode === 'roulette') roulette.resize();
           else if (mode === 'dart') dartWheel.resize();
+          else if (mode === 'claw') clawMachine.resize();
           else if (mode === 'slot') slotMachine.renderIdleReels();
         });
       }
@@ -5795,6 +7681,9 @@
         if (state.currentMode === 'dart' && dartWheel.phase === 'holding') {
           dartWheel.resetView(false);
         }
+        if (state.currentMode === 'claw') {
+          clawMachine.restorePrizeToPit();
+        }
       }
 
       function switchMobileTab(tab) {
@@ -5806,6 +7695,7 @@
             if (state.currentMode === 'plinko') plinko.resize();
             else if (state.currentMode === 'roulette') roulette.resize();
             else if (state.currentMode === 'dart') dartWheel.resize();
+            else if (state.currentMode === 'claw') clawMachine.resize();
             else if (state.currentMode === 'slot') slotMachine.renderIdleReels();
           });
         }
@@ -5824,6 +7714,7 @@
       els.modeTabSlot.addEventListener('click', function () { switchDrawMode('slot'); });
       els.modeTabRoulette.addEventListener('click', function () { switchDrawMode('roulette'); });
       els.modeTabDart.addEventListener('click', function () { switchDrawMode('dart'); });
+      els.modeTabClaw.addEventListener('click', function () { switchDrawMode('claw'); });
 
       els.filterChips.addEventListener('click', function (e) {
         var btn = e.target.closest('button[data-transport]');
@@ -5853,20 +7744,133 @@
         plinko.setSlots(state.boardSlots, state.currentMode === 'plinko');
         roulette.setSlots(state.boardSlots, state.currentMode === 'roulette');
         dartWheel.setSlots(state.boardSlots, state.currentMode === 'dart');
+        clawMachine.setSlots(state.boardSlots, state.currentMode === 'claw');
         soundEngine.playShuffle();
-        showToast('已打亂抽選位置順序 🔀');
+        showToast(state.currentMode === 'claw' ? '已翻攪打亂扭蛋堆位置 🔀' : '已打亂抽選位置順序 🔀');
       }
 
       els.dropBallBtn.addEventListener('click', function () { plinko.dropBall(); });
       els.pullSlotBtn.addEventListener('click', function () { slotMachine.spin(); });
       els.spinRouletteBtn.addEventListener('click', function () { roulette.spin(); });
       els.throwDartBtn.addEventListener('click', function () { dartWheel.throwRandom(); });
+      els.clawDropBtn.addEventListener('click', function () { clawMachine.dropClaw(); });
 
       els.autoShuffleCheck.addEventListener('change', function () { handleAutoShuffleToggle(els.autoShuffleCheck.checked); });
       els.autoShuffleRouletteCheck.addEventListener('change', function () { handleAutoShuffleToggle(els.autoShuffleRouletteCheck.checked); });
       els.manualShuffleBtn.addEventListener('click', handleManualShuffle);
       els.manualShuffleRouletteBtn.addEventListener('click', handleManualShuffle);
       els.manualShuffleDartBtn.addEventListener('click', handleManualShuffle);
+      els.manualShuffleClawBtn.addEventListener('click', handleManualShuffle);
+
+      /* ----- 夾娃娃機方向按鈕與鍵盤天車操控 ----- */
+      function bindClawDpadButton(btn, dir) {
+        var downAt = 0;
+        var activePtrId = null;
+
+        btn.addEventListener('pointerdown', function (e) {
+          if (btn.disabled) return;
+          e.preventDefault();
+          downAt = Date.now();
+          activePtrId = e.pointerId;
+          btn.classList.add('pressed');
+          try { btn.setPointerCapture(e.pointerId); } catch (err) {}
+          clawMachine.setMoveDir(dir);
+        });
+
+        function releaseDpad(e, allowNudge) {
+          if (activePtrId !== null && e && e.pointerId !== undefined && e.pointerId !== activePtrId) return;
+          var wasPressed = btn.classList.contains('pressed');
+          btn.classList.remove('pressed');
+          activePtrId = null;
+          clawMachine.setMoveDir(0);
+          if (allowNudge && wasPressed && (Date.now() - downAt) < 140) {
+            clawMachine.nudge(dir);
+          }
+          if (e && e.pointerId !== undefined) {
+            try { btn.releasePointerCapture(e.pointerId); } catch (err) {}
+          }
+        }
+
+        btn.addEventListener('pointerup', function (e) { releaseDpad(e, true); });
+        btn.addEventListener('pointercancel', function (e) { releaseDpad(e, false); });
+        btn.addEventListener('pointerleave', function (e) {
+          if (e.pointerType === 'mouse' && btn.classList.contains('pressed')) {
+            releaseDpad(e, false);
+          }
+        });
+      }
+
+      bindClawDpadButton(els.clawLeftBtn, -1);
+      bindClawDpadButton(els.clawRightBtn, 1);
+
+      var clawKeysDown = { left: false, right: false };
+
+      function isClawKeyboardReady() {
+        if (state.currentMode !== 'claw') return false;
+        if (!els.resultModal.classList.contains('hidden')) return false;
+        if (!els.confirmModal.classList.contains('hidden')) return false;
+        if (window.innerWidth < 1024 && els.appShell.getAttribute('data-tab') !== 'board') return false;
+        var activeEl = document.activeElement;
+        if (activeEl) {
+          var tag = activeEl.tagName;
+          if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return false;
+        }
+        return true;
+      }
+
+      window.addEventListener('keydown', function (e) {
+        if (!isClawKeyboardReady()) return;
+        var k = e.key;
+        var code = e.code;
+        if (k === 'ArrowLeft' || code === 'KeyA' || k === 'a' || k === 'A') {
+          e.preventDefault();
+          clawKeysDown.left = true;
+          els.clawLeftBtn.classList.add('pressed');
+          clawMachine.setMoveDir(-1);
+        } else if (k === 'ArrowRight' || code === 'KeyD' || k === 'd' || k === 'D') {
+          e.preventDefault();
+          clawKeysDown.right = true;
+          els.clawRightBtn.classList.add('pressed');
+          clawMachine.setMoveDir(1);
+        } else if (k === 'ArrowDown' || code === 'KeyS' || k === 's' || k === 'S') {
+          e.preventDefault();
+          clawMachine.dropClaw();
+        } else if (code === 'Space' || k === ' ' || k === 'Enter') {
+          var activeEl = document.activeElement;
+          var isOtherBtn = activeEl && activeEl.tagName === 'BUTTON' &&
+            activeEl !== els.clawDropBtn && activeEl !== els.clawLeftBtn && activeEl !== els.clawRightBtn;
+          if (isOtherBtn) return;
+          if (k === 'Enter' && (activeEl === els.clawLeftBtn || activeEl === els.clawRightBtn)) return;
+          e.preventDefault();
+          clawMachine.dropClaw();
+        }
+      });
+
+      window.addEventListener('keyup', function (e) {
+        var k = e.key;
+        var code = e.code;
+        if (k === 'ArrowLeft' || code === 'KeyA' || k === 'a' || k === 'A') {
+          clawKeysDown.left = false;
+          els.clawLeftBtn.classList.remove('pressed');
+          if (state.currentMode === 'claw') {
+            clawMachine.setMoveDir(clawKeysDown.right ? 1 : 0);
+          }
+        } else if (k === 'ArrowRight' || code === 'KeyD' || k === 'd' || k === 'D') {
+          clawKeysDown.right = false;
+          els.clawRightBtn.classList.remove('pressed');
+          if (state.currentMode === 'claw') {
+            clawMachine.setMoveDir(clawKeysDown.left ? -1 : 0);
+          }
+        }
+      });
+
+      window.addEventListener('blur', function () {
+        clawKeysDown.left = false;
+        clawKeysDown.right = false;
+        els.clawLeftBtn.classList.remove('pressed');
+        els.clawRightBtn.classList.remove('pressed');
+        clawMachine.stopInput();
+      });
 
       els.formToggleBtn.addEventListener('click', function () {
         var isOpen = els.formCard.classList.contains('open');
@@ -6010,6 +8014,7 @@
             if (state.currentMode === 'plinko') plinko.dropBall();
             else if (state.currentMode === 'slot') slotMachine.spin();
             else if (state.currentMode === 'roulette') roulette.spin();
+            else if (state.currentMode === 'claw') clawMachine.dropClaw();
           }, 160);
         } else {
           showToast('目前沒有剩餘的候選店家可以重抽！', 'error');
@@ -6092,6 +8097,7 @@
         if (state.currentMode === 'plinko') plinko.resize();
         else if (state.currentMode === 'roulette') roulette.resize();
         else if (state.currentMode === 'dart') dartWheel.resize();
+        else if (state.currentMode === 'claw') clawMachine.resize();
         else if (state.currentMode === 'slot') slotMachine.renderIdleReels();
       });
 
@@ -6105,6 +8111,7 @@
         plinko.resize();
         roulette.resize();
         dartWheel.resize();
+        clawMachine.resize();
       });
     });
   </script>
