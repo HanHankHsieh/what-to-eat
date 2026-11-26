@@ -193,12 +193,12 @@
     }
 
     /* =========================================================================
-     * 4. 頂部三模式切換 Tab 與交通方式篩選列
+     * 4. 頂部四模式切換 Tab 與交通方式篩選列
      * ========================================================================= */
     .mode-tabs-bar {
       flex: 0 0 auto;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 6px;
       padding: 5px;
       border-radius: var(--radius-md);
@@ -209,18 +209,18 @@
 
     .mode-tab-btn {
       min-height: 38px;
-      padding: 6px 10px;
+      padding: 6px 8px;
       border-radius: 10px;
       border: 1px solid transparent;
       background: transparent;
       color: var(--text-muted);
-      font-size: 0.86rem;
+      font-size: 0.84rem;
       font-weight: 800;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 5px;
       white-space: nowrap;
       transition: all 0.18s ease;
     }
@@ -377,14 +377,14 @@
       background: radial-gradient(circle at center, #111b33 0%, #070c18 100%);
     }
 
-    #plinkoCanvas, #rouletteCanvas {
+    #plinkoCanvas, #rouletteCanvas, #dartCanvas {
       display: block;
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
     }
 
-    #plinkoCanvas { cursor: crosshair; }
+    #plinkoCanvas, #dartCanvas { cursor: crosshair; }
     #rouletteCanvas { cursor: pointer; }
 
     .empty-board-overlay {
@@ -786,6 +786,14 @@
       box-shadow:
         0 4px 0 #064e3b,
         0 0 22px rgba(16, 185, 129, 0.42),
+        inset 0 2px 3px rgba(255, 255, 255, 0.35);
+    }
+
+    .drop-primary-btn.dart-btn {
+      background: linear-gradient(180deg, #a855f7 0%, #7c3aed 55%, #5b21b6 100%);
+      box-shadow:
+        0 4px 0 #3b0764,
+        0 0 22px rgba(168, 85, 247, 0.44),
         inset 0 2px 3px rgba(255, 255, 255, 0.35);
     }
 
@@ -1457,7 +1465,7 @@
 
       .stage-column { padding: 6px 8px 6px; gap: 6px; }
       .mode-tabs-bar { padding: 4px; gap: 4px; }
-      .mode-tab-btn { min-height: 36px; padding: 4px 6px; font-size: 0.8rem; gap: 4px; }
+      .mode-tab-btn { min-height: 36px; padding: 4px 4px; font-size: 0.76rem; gap: 3px; }
       .cabinet-shell { padding: 6px; border-radius: 15px; }
       .controls-bar { gap: 6px; }
       .drop-primary-btn { min-height: 46px; font-size: 0.94rem; padding: 8px 12px; }
@@ -1470,6 +1478,7 @@
 
     @media (max-width: 480px) {
       .header-title { font-size: 0.95rem; }
+      .mode-tab-btn { font-size: 0.72rem; padding: 4px 2px; gap: 2px; }
       .shuffle-toggle-pill .long-txt, .manual-shuffle-btn .shuf-txt { display: none; }
       .form-row-2 { grid-template-columns: 1fr; }
       .slot-lever-zone { flex: 0 0 38px; height: 154px; }
@@ -1510,10 +1519,10 @@
     <!-- ================= 主內容區 ================= -->
     <main class="app-body">
 
-      <!-- 左欄／手機分頁 1：多模式抽選主舞台 -->
-      <section class="stage-column" aria-label="趣味抽選機台">
+      <!-- 左欄／手機分頁 1：抽選機主舞台 -->
+      <section class="stage-column">
 
-        <!-- 頂部 3 種抽獎方式切換分頁（Mode Tabs） -->
+        <!-- 頂部 4 種抽獎方式切換分頁（Mode Tabs） -->
         <div class="mode-tabs-bar" role="tablist" aria-label="抽選模式切換">
           <button id="modeTabPlinko" type="button" role="tab" aria-selected="true" class="mode-tab-btn active" data-mode="plinko">
             <span>🎰</span><span>彈珠台</span>
@@ -1522,7 +1531,10 @@
             <span>🕹️</span><span>拉霸機</span>
           </button>
           <button id="modeTabRoulette" type="button" role="tab" aria-selected="false" class="mode-tab-btn" data-mode="roulette">
-            <span>🎡</span><span>俄羅斯輪盤</span>
+            <span>🎡</span><span>輪盤</span>
+          </button>
+          <button id="modeTabDart" type="button" role="tab" aria-selected="false" class="mode-tab-btn" data-mode="dart">
+            <span>🎯</span><span>射飛鏢</span>
           </button>
         </div>
 
@@ -1667,6 +1679,34 @@
             <button id="manualShuffleRouletteBtn" type="button" class="manual-shuffle-btn" title="手動打亂輪盤順序">
               <span>🔀</span>
               <span class="shuf-txt">洗牌</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ========== 模式四：🎯 轉盤射飛鏢 (Dart Wheel) ========== -->
+        <div id="panelDart" class="mode-panel hidden">
+          <div class="cabinet-shell">
+            <div id="dartStageWrapper" class="canvas-stage-wrapper">
+              <div class="canvas-bezel round-bezel">
+                <canvas id="dartCanvas"></canvas>
+                <div id="dartEmptyOverlay" class="empty-board-overlay hidden">
+                  <div style="font-size:2.2rem;">🎯</div>
+                  <h3>目前沒有符合條件的店家</h3>
+                  <p>請調整上方交通方式篩選，或在店家名單中啟用／新增餐廳。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="controls-bar">
+            <button id="throwDartBtn" type="button" class="drop-primary-btn dart-btn">
+              <span>🎯</span>
+              <span id="throwDartText">隨機射出飛鏢！</span>
+            </button>
+
+            <button id="manualShuffleDartBtn" type="button" class="manual-shuffle-btn" title="手動打亂轉盤順序">
+              <span>🔀</span>
+              <span class="shuf-txt">洗牌順序</span>
             </button>
           </div>
         </div>
@@ -2221,8 +2261,69 @@
         } catch (e) {}
       };
 
+      /* 飛鏢破空投擲音效 (Whoosh) */
+      SoundEngine.prototype.playDartWhoosh = function () {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(760, now);
+          osc.frequency.exponentialRampToValueAtTime(190, now + 0.22);
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.12, now + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now); osc.stop(now + 0.25);
+        } catch (e) {}
+      };
+
+      /* 飛鏢命中木盤釘入音效 (Thud / Thunk + 紅心清脆和弦) */
+      SoundEngine.prototype.playDartHit = function (isBullseye) {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var thud = ctx.createOscillator();
+          var tGain = ctx.createGain();
+          thud.type = 'triangle';
+          thud.frequency.setValueAtTime(175, now);
+          thud.frequency.exponentialRampToValueAtTime(48, now + 0.11);
+          tGain.gain.setValueAtTime(0.28, now);
+          tGain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
+          thud.connect(tGain); tGain.connect(ctx.destination);
+          thud.start(now); thud.stop(now + 0.14);
+
+          var snap = ctx.createOscillator();
+          var sGain = ctx.createGain();
+          snap.type = 'square';
+          snap.frequency.setValueAtTime(520, now);
+          snap.frequency.exponentialRampToValueAtTime(180, now + 0.035);
+          sGain.gain.setValueAtTime(0.08, now);
+          sGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+          snap.connect(sGain); sGain.connect(ctx.destination);
+          snap.start(now); snap.stop(now + 0.045);
+
+          if (isBullseye) {
+            [880, 1174.66, 1567.98].forEach(function (freq, idx) {
+              var t = now + idx * 0.055;
+              var c = ctx.createOscillator();
+              var cg = ctx.createGain();
+              c.type = 'sine';
+              c.frequency.setValueAtTime(freq, t);
+              cg.gain.setValueAtTime(0.12, t);
+              cg.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+              c.connect(cg); cg.connect(ctx.destination);
+              c.start(t); c.stop(t + 0.3);
+            });
+          }
+        } catch (e) {}
+      };
+
       /* =====================================================================
-       * 4. 模式一：高隨機公平 2D 彈珠台物理與繪圖引擎 (PlinkoEngine)
+       * 4. 模式一：高隨機公平 2D 彈珠台物理引擎 (PlinkoEngine)
        * ===================================================================== */
       function PlinkoEngine(canvas, wrapper, sound, callbacks) {
         this.canvas = canvas;
@@ -2234,40 +2335,38 @@
         this.onResult = callbacks.onResult;
 
         this.VW = 600;
-        this.VH = 820;
+        this.VH = 840;
         this.wallPad = 14;
-        this.dropZoneH = 66;
-        this.slotH = 114;
+        this.dropZoneH = 48;
+        this.slotH = 122;
+        this.pegR = 4.6;
+        this.ballR = 9.5;
+        this.divHalfW = 2.2;
+        this.divTipR = 4.2;
 
-        this.ballR = 8.5;
-        this.divHalfW = 2.0;
-        this.divTipR = 3.5;
-        this.pegR = 5.2;
-
-        this.baseGravity = 580;
-        this.maxSpeed = 445;
+        this.baseGravity = 420;
         this.airFriction = 0.996;
-        this.pegBounce = 0.72;
+        this.maxSpeed = 520;
+        this.pegBounce = 0.76;
 
+        this.slots = [];
         this.pegs = [];
         this.bumpers = [];
         this.spinners = [];
         this.deflectors = [];
         this.dividers = [];
-        this.slots = [];
 
         this.ball = null;
         this.trail = [];
         this.confetti = [];
         this.isDropping = false;
-        this.slotFlash = 0;
+        this.isAiming = false;
+        this.aimX = null;
         this.winningIdx = -1;
         this.winPulse = 0;
+        this.slotFlash = 0;
         this.hoveredSlotIdx = -1;
         this.touchTipTimer = null;
-
-        this.aimX = null;
-        this.isAiming = false;
         this.lastTs = 0;
 
         this.buildLayout();
@@ -2279,89 +2378,68 @@
       }
 
       PlinkoEngine.prototype.buildLayout = function () {
-        var W = this.VW;
-        var H = this.VH;
-        this.dropZoneH = Math.round(Math.max(54, Math.min(72, H * 0.08)));
-        this.slotH = Math.round(Math.max(102, Math.min(130, H * 0.145)));
+        this.slotH = Math.max(104, Math.min(132, Math.round(this.VH * 0.145)));
+        var usableW = this.VW - this.wallPad * 2;
+        var fieldTop = this.dropZoneH + 26;
+        var fieldBot = this.VH - this.slotH - 36;
+        var fieldH = Math.max(320, fieldBot - fieldTop);
 
-        var playTop = this.dropZoneH + 22;
-        var playBot = H - this.slotH - 28;
-        var playH = playBot - playTop;
-
-        var spY = playTop + playH * 0.27;
-        var prevSp = this.spinners;
-        this.spinners = [
-          {
-            x: W * 0.33, y: spY, armLen: 33, halfW: 4.0,
-            angle: prevSp[0] ? prevSp[0].angle : 0.4,
-            omega: prevSp[0] ? prevSp[0].omega : 1.5,
-            glow: 0, cooldown: 0, color: '#22D3EE'
-          },
-          {
-            x: W * 0.67, y: spY, armLen: 33, halfW: 4.0,
-            angle: prevSp[1] ? prevSp[1].angle : 1.2,
-            omega: prevSp[1] ? prevSp[1].omega : -1.5,
-            glow: 0, cooldown: 0, color: '#A78BFA'
-          }
-        ];
-
-        var bUpperY = playTop + playH * 0.54;
-        var bLowerY = playTop + playH * 0.78;
+        // 3 顆霓虹強力彈跳蘑菇頭
         this.bumpers = [
-          { x: W * 0.27, y: bUpperY, r: 21, glow: 0, ripple: 0, scale: 1, cooldown: 0, color: '#F43F5E', core: '#FDA4AF' },
-          { x: W * 0.73, y: bUpperY, r: 21, glow: 0, ripple: 0, scale: 1, cooldown: 0, color: '#EC4899', core: '#F9A8D4' },
-          { x: W * 0.50, y: bLowerY, r: 23, glow: 0, ripple: 0, scale: 1, cooldown: 0, color: '#10B981', core: '#6EE7B7' }
+          { x: this.VW * 0.30, y: fieldTop + fieldH * 0.34, r: 22, color: '#F43F5E', core: '#FDA4AF', glow: 0, ripple: 0, scale: 1, cooldown: 0 },
+          { x: this.VW * 0.70, y: fieldTop + fieldH * 0.34, r: 22, color: '#06B6D4', core: '#A5F3FC', glow: 0, ripple: 0, scale: 1, cooldown: 0 },
+          { x: this.VW * 0.50, y: fieldTop + fieldH * 0.67, r: 24, color: '#A855F7', core: '#E9D5FF', glow: 0, ripple: 0, scale: 1, cooldown: 0 }
         ];
 
+        // 2 個每局隨機方向與轉速的旋轉風車
+        this.spinners = [
+          { x: this.VW * 0.32, y: fieldTop + fieldH * 0.55, armLen: 34, halfW: 3.4, angle: 0.4, omega: 1.8, color: '#22D3EE', glow: 0, cooldown: 0 },
+          { x: this.VW * 0.68, y: fieldTop + fieldH * 0.55, armLen: 34, halfW: 3.4, angle: 1.1, omega: -1.8, color: '#F59E0B', glow: 0, cooldown: 0 }
+        ];
+
+        // 左右 4 對斜角導流反彈壁
         this.deflectors = [];
-        var defFracs = [0.14, 0.39, 0.64, 0.87];
-        var protrude = 20;
-        var halfH = Math.max(20, Math.min(30, playH * 0.046));
-        var rightWall = W - this.wallPad;
-        for (var d = 0; d < defFracs.length; d++) {
-          var cy = playTop + playH * defFracs[d];
+        var defYRatios = [0.18, 0.42, 0.66, 0.86];
+        for (var d = 0; d < defYRatios.length; d++) {
+          var cy = fieldTop + fieldH * defYRatios[d];
+          var halfH = 22;
+          var depth = 24;
           this.deflectors.push({
             pTop: { x: this.wallPad, y: cy - halfH },
-            pTip: { x: this.wallPad + protrude, y: cy },
+            pTip: { x: this.wallPad + depth, y: cy },
             pBot: { x: this.wallPad, y: cy + halfH },
             glow: 0, cooldown: 0
           });
           this.deflectors.push({
-            pTop: { x: rightWall, y: cy - halfH },
-            pTip: { x: rightWall - protrude, y: cy },
-            pBot: { x: rightWall, y: cy + halfH },
+            pTop: { x: this.VW - this.wallPad, y: cy - halfH },
+            pTip: { x: this.VW - this.wallPad - depth, y: cy },
+            pBot: { x: this.VW - this.wallPad, y: cy + halfH },
             glow: 0, cooldown: 0
           });
         }
 
+        // 12 層交錯發光釘陣（自動避開蘑菇頭與風車周圍）
         this.pegs = [];
         var rows = 12;
-        var rowGap = playH / (rows - 1);
-        var usableW = W - this.wallPad * 2;
+        var rowStep = fieldH / (rows - 1);
         for (var r = 0; r < rows; r++) {
-          var cols = (r % 2 === 0) ? 8 : 9;
-          var colGap = usableW / (cols + 0.65);
-          var startX = this.wallPad + (usableW - colGap * (cols - 1)) / 2;
+          var isOdd = r % 2 === 1;
+          var cols = isOdd ? 9 : 10;
+          var padX = isOdd ? 56 : 36;
+          var spanX = usableW - padX * 2;
+          var py = fieldTop + r * rowStep;
           for (var c = 0; c < cols; c++) {
-            var px = startX + c * colGap;
-            var py = playTop + r * rowGap;
-
+            var px = this.wallPad + padX + (cols > 1 ? (c / (cols - 1)) * spanX : spanX / 2);
             var blocked = false;
-            for (var bi = 0; bi < this.bumpers.length; bi++) {
-              if (Math.hypot(px - this.bumpers[bi].x, py - this.bumpers[bi].y) < this.bumpers[bi].r + 24) {
+            var k;
+            for (k = 0; k < this.bumpers.length; k++) {
+              if (Math.hypot(px - this.bumpers[k].x, py - this.bumpers[k].y) < this.bumpers[k].r + 22) {
                 blocked = true; break;
               }
             }
             if (!blocked) {
-              for (var si = 0; si < this.spinners.length; si++) {
-                if (Math.hypot(px - this.spinners[si].x, py - this.spinners[si].y) < this.spinners[si].armLen + 16) {
-                  blocked = true; break;
-                }
-              }
-            }
-            if (!blocked) {
-              for (var ki = 0; ki < this.deflectors.length; ki++) {
-                if (Math.hypot(px - this.deflectors[ki].pTip.x, py - this.deflectors[ki].pTip.y) < 28) {
+              for (k = 0; k < this.spinners.length; k++) {
+                if (Math.hypot(px - this.spinners[k].x, py - this.spinners[k].y) < this.spinners[k].armLen + 18) {
                   blocked = true; break;
                 }
               }
@@ -2371,6 +2449,7 @@
             }
           }
         }
+
         this.rebuildDividers();
       };
 
@@ -4345,15 +4424,866 @@
       };
 
       /* =====================================================================
-       * 7. 應用程式核心狀態、DOM 參照與多模式協調控制
+       * 6.5 模式四：🎯 轉盤射飛鏢引擎 (DartWheelEngine)
+       *     - 使用者點擊轉盤瞄準投擲 → 3D 透視飛鏢飛行 → 命中釘入與煞車 → 鏡頭平滑放大特寫
+       * ===================================================================== */
+      function DartWheelEngine(canvas, wrapper, sound, callbacks) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.wrapper = wrapper;
+        this.sound = sound;
+        this.onStateChange = callbacks.onStateChange;
+        this.onResult = callbacks.onResult;
+
+        this.VSIZE = 640;
+        this.cx = 320;
+        this.cy = 320;
+        this.outerR = 294;
+        this.wheelR = 264;
+        this.bullseyeR = 22;
+
+        this.slots = [];
+        this.isBusy = false;
+        this.phase = 'spinning'; // spinning | flying | braking | zooming | holding | resetting
+        this.phaseTime = 0;
+
+        this.baseSpeed = 2.4;
+        this.wheelAngle = 0;
+        this.wheelSpeed = this.baseSpeed;
+        this.slotFlash = 0;
+
+        // 瞄準準星（桌機游標懸停於轉盤內時顯示）
+        this.aimX = null;
+        this.aimY = null;
+
+        // 飛鏢飛行與釘入狀態
+        this.dartStartX = 320;
+        this.dartStartY = 690;
+        this.dartTargetX = 320;
+        this.dartTargetY = 220;
+        this.dartCurrX = 320;
+        this.dartCurrY = 690;
+        this.dartScale = 2.4;
+        this.dartTrail = [];
+
+        this.pinned = false;
+        this.pinRelAngle = 0;
+        this.pinRadius = 0;
+        this.winningIdx = -1;
+        this.isBullseye = false;
+        this.winPulse = 0;
+        this.shakeTime = 0;
+
+        // 鏡頭放大特寫 (Camera Zoom-In)
+        this.camZoom = 1.0;
+        this.camX = this.cx;
+        this.camY = this.cy;
+        this.zoomStartX = this.cx;
+        this.zoomStartY = this.cy;
+        this.zoomStartScale = 1.0;
+        this.zoomTargetX = this.cx;
+        this.zoomTargetY = this.cy;
+        this.zoomTargetScale = 2.75;
+        this.modalOpened = false;
+
+        this.sparks = [];
+        this.confetti = [];
+        this.lastTs = 0;
+
+        this.bindEvents();
+        this.resize();
+
+        var self = this;
+        requestAnimationFrame(function (ts) { self.loop(ts); });
+      }
+
+      DartWheelEngine.prototype.setSlots = function (list, withFlash) {
+        this.slots = list.slice(0, MAX_SLOTS);
+        if (withFlash) this.slotFlash = 1.0;
+        if (this.phase === 'spinning') {
+          this.winningIdx = -1;
+          this.pinned = false;
+        }
+      };
+
+      DartWheelEngine.prototype.resize = function () {
+        if (!this.wrapper || !this.canvas) return;
+        var availW = this.wrapper.clientWidth;
+        var availH = this.wrapper.clientHeight;
+        if (availW < 40 || availH < 40) return;
+
+        var size = Math.max(200, Math.floor(Math.min(availW, availH) - 6));
+        var dpr = window.devicePixelRatio || 1;
+        this.canvas.style.width = size + 'px';
+        this.canvas.style.height = size + 'px';
+        this.canvas.width = Math.round(size * dpr);
+        this.canvas.height = Math.round(size * dpr);
+      };
+
+      DartWheelEngine.prototype.bindEvents = function () {
+        var self = this;
+        if (typeof ResizeObserver !== 'undefined') {
+          try {
+            this.ro = new ResizeObserver(function () { self.resize(); });
+            this.ro.observe(this.wrapper);
+          } catch (e) {}
+        }
+
+        function toVirtual(clientX, clientY) {
+          var rect = self.canvas.getBoundingClientRect();
+          if (rect.width <= 0 || rect.height <= 0) return null;
+          return {
+            x: ((clientX - rect.left) / rect.width) * self.VSIZE,
+            y: ((clientY - rect.top) / rect.height) * self.VSIZE
+          };
+        }
+
+        this.canvas.addEventListener('pointermove', function (e) {
+          if (e.pointerType !== 'mouse' || self.phase !== 'spinning' || self.slots.length === 0) {
+            self.aimX = null;
+            self.aimY = null;
+            return;
+          }
+          var pos = toVirtual(e.clientX, e.clientY);
+          if (!pos) return;
+          var dist = Math.hypot(pos.x - self.cx, pos.y - self.cy);
+          if (dist <= self.wheelR) {
+            self.aimX = pos.x;
+            self.aimY = pos.y;
+          } else {
+            self.aimX = null;
+            self.aimY = null;
+          }
+        });
+
+        this.canvas.addEventListener('pointerleave', function () {
+          self.aimX = null;
+          self.aimY = null;
+        });
+
+        this.canvas.addEventListener('pointerdown', function (e) {
+          if (self.phase !== 'spinning' || self.slots.length === 0) return;
+          var pos = toVirtual(e.clientX, e.clientY);
+          if (!pos) return;
+          var dist = Math.hypot(pos.x - self.cx, pos.y - self.cy);
+          if (dist <= self.wheelR) {
+            self.aimX = null;
+            self.aimY = null;
+            self.launchDart(pos.x, pos.y);
+          }
+        });
+      };
+
+      DartWheelEngine.prototype.launchDart = function (targetX, targetY) {
+        if (this.isBusy || this.slots.length === 0) return false;
+        this.isBusy = true;
+        this.phase = 'flying';
+        this.phaseTime = 0;
+        this.pinned = false;
+        this.winningIdx = -1;
+        this.isBullseye = false;
+        this.modalOpened = false;
+        this.sparks = [];
+        this.confetti = [];
+        this.dartTrail = [];
+
+        this.dartStartX = this.cx + (targetX - this.cx) * 0.18;
+        this.dartStartY = this.VSIZE + 48;
+        this.dartTargetX = targetX;
+        this.dartTargetY = targetY;
+        this.dartCurrX = this.dartStartX;
+        this.dartCurrY = this.dartStartY;
+        this.dartScale = 2.45;
+
+        this.sound.playDartWhoosh();
+        if (typeof this.onStateChange === 'function') this.onStateChange();
+        return true;
+      };
+
+      DartWheelEngine.prototype.throwRandom = function () {
+        if (this.isBusy || this.slots.length === 0) return false;
+        var ang = Math.random() * Math.PI * 2;
+        var r = this.bullseyeR + 26 + Math.random() * (this.wheelR - this.bullseyeR - 50);
+        var tx = this.cx + Math.cos(ang) * r;
+        var ty = this.cy + Math.sin(ang) * r;
+        return this.launchDart(tx, ty);
+      };
+
+      DartWheelEngine.prototype.resetView = function (immediate) {
+        this.pinned = false;
+        this.winningIdx = -1;
+        this.isBullseye = false;
+        this.modalOpened = false;
+        this.sparks = [];
+        this.confetti = [];
+        if (immediate) {
+          this.camZoom = 1.0;
+          this.camX = this.cx;
+          this.camY = this.cy;
+          this.wheelSpeed = this.baseSpeed;
+          this.phase = 'spinning';
+          this.phaseTime = 0;
+          this.isBusy = false;
+          if (typeof this.onStateChange === 'function') this.onStateChange();
+          return;
+        }
+        if (this.phase === 'holding' || this.phase === 'zooming') {
+          this.zoomStartScale = this.camZoom;
+          this.zoomStartX = this.camX;
+          this.zoomStartY = this.camY;
+          this.phase = 'resetting';
+          this.phaseTime = 0;
+          this.isBusy = true;
+          if (typeof this.onStateChange === 'function') this.onStateChange();
+        }
+      };
+
+      DartWheelEngine.prototype.spawnSparks = function (x, y) {
+        for (var i = 0; i < 24; i++) {
+          var ang = Math.random() * Math.PI * 2;
+          var spd = 70 + Math.random() * 210;
+          this.sparks.push({
+            x: x, y: y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            size: 2.2 + Math.random() * 3.2,
+            color: i % 2 === 0 ? '#FEF08A' : '#38BDF8',
+            life: 1.0
+          });
+        }
+      };
+
+      DartWheelEngine.prototype.spawnConfetti = function (x, y) {
+        for (var i = 0; i < 56; i++) {
+          var ang = Math.random() * Math.PI * 2;
+          var spd = 90 + Math.random() * 240;
+          this.confetti.push({
+            x: x, y: y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd - 40,
+            size: 3.5 + Math.random() * 4.5,
+            color: SLOT_PALETTE[Math.floor(Math.random() * SLOT_PALETTE.length)],
+            rot: Math.random() * Math.PI * 2,
+            vRot: (Math.random() - 0.5) * 12,
+            life: 1.0
+          });
+        }
+      };
+
+      DartWheelEngine.prototype.getPinnedWorldPos = function () {
+        var worldAng = this.wheelAngle + this.pinRelAngle;
+        return {
+          x: this.cx + Math.cos(worldAng) * this.pinRadius,
+          y: this.cy + Math.sin(worldAng) * this.pinRadius,
+          worldAng: worldAng
+        };
+      };
+
+      DartWheelEngine.prototype.update = function (dt) {
+        var i;
+        if (this.slotFlash > 0) this.slotFlash = Math.max(0, this.slotFlash - dt * 2.5);
+        if (this.shakeTime > 0) this.shakeTime = Math.max(0, this.shakeTime - dt);
+        if (this.winningIdx !== -1) this.winPulse += dt * 5.6;
+
+        for (i = this.sparks.length - 1; i >= 0; i--) {
+          var sp = this.sparks[i];
+          sp.x += sp.vx * dt;
+          sp.y += sp.vy * dt;
+          sp.vx *= Math.pow(0.08, dt);
+          sp.vy *= Math.pow(0.08, dt);
+          sp.life -= dt * 2.4;
+          if (sp.life <= 0) this.sparks.splice(i, 1);
+        }
+
+        for (i = this.confetti.length - 1; i >= 0; i--) {
+          var cp = this.confetti[i];
+          cp.vy += 260 * dt;
+          cp.x += cp.vx * dt;
+          cp.y += cp.vy * dt;
+          cp.rot += cp.vRot * dt;
+          cp.life -= dt * 0.7;
+          if (cp.life <= 0) this.confetti.splice(i, 1);
+        }
+
+        var n = this.slots.length;
+        if (n === 0) return;
+        var sectorArc = (Math.PI * 2) / n;
+
+        if (this.phase === 'spinning') {
+          this.wheelAngle += this.baseSpeed * dt;
+          return;
+        }
+
+        this.phaseTime += dt;
+
+        // 階段 1：飛鏢 3D 拋物線飛行 (~260ms)，轉盤持續旋轉製造懸念
+        if (this.phase === 'flying') {
+          var durFly = 0.26;
+          var p = Math.min(1, this.phaseTime / durFly);
+          this.wheelAngle += this.baseSpeed * dt;
+
+          var ease = 1 - Math.pow(1 - p, 2.2);
+          var arcLift = Math.sin(p * Math.PI) * 56;
+          this.dartCurrX = this.dartStartX + (this.dartTargetX - this.dartStartX) * ease;
+          this.dartCurrY = this.dartStartY + (this.dartTargetY - this.dartStartY) * ease - arcLift;
+          this.dartScale = 2.45 - 1.45 * ease;
+
+          this.dartTrail.push({ x: this.dartCurrX, y: this.dartCurrY, s: this.dartScale });
+          if (this.dartTrail.length > 9) this.dartTrail.shift();
+
+          if (p >= 1) {
+            var dx = this.dartTargetX - this.cx;
+            var dy = this.dartTargetY - this.cy;
+            var dist = Math.hypot(dx, dy);
+
+            if (dist <= this.bullseyeR) {
+              this.isBullseye = true;
+              this.winningIdx = Math.floor(Math.random() * n);
+              this.pinRelAngle = (this.winningIdx + 0.5) * sectorArc;
+              this.pinRadius = this.bullseyeR * 0.45;
+            } else {
+              var relAng = normalizeAngle(Math.atan2(dy, dx) - this.wheelAngle);
+              this.winningIdx = Math.floor(relAng / sectorArc) % n;
+              this.pinRelAngle = relAng;
+              this.pinRadius = Math.min(this.wheelR - 10, dist);
+            }
+
+            this.pinned = true;
+            this.dartTrail = [];
+            this.shakeTime = 0.22;
+            this.wheelSpeed = this.baseSpeed;
+            this.phase = 'braking';
+            this.phaseTime = 0;
+
+            var hitPos = this.getPinnedWorldPos();
+            this.spawnSparks(hitPos.x, hitPos.y);
+            this.sound.playDartHit(this.isBullseye);
+          }
+          return;
+        }
+
+        // 階段 2：飛鏢釘入轉盤並隨轉盤迅速煞停 (~380ms)
+        if (this.phase === 'braking') {
+          var durBrake = 0.38;
+          var pb = Math.min(1, this.phaseTime / durBrake);
+          var speedNow = this.baseSpeed * Math.pow(1 - pb, 2.4);
+          this.wheelAngle += speedNow * dt;
+
+          if (pb >= 1) {
+            var pinPos = this.getPinnedWorldPos();
+            var midAng = this.wheelAngle + (this.winningIdx + 0.5) * sectorArc;
+            var midR = Math.max(this.pinRadius, this.wheelR * 0.58);
+            var sliceFocusX = this.cx + Math.cos(midAng) * midR;
+            var sliceFocusY = this.cy + Math.sin(midAng) * midR;
+
+            this.zoomStartScale = 1.0;
+            this.zoomStartX = this.cx;
+            this.zoomStartY = this.cy;
+            this.zoomTargetScale = 2.75;
+            this.zoomTargetX = pinPos.x * 0.62 + sliceFocusX * 0.38;
+            this.zoomTargetY = pinPos.y * 0.62 + sliceFocusY * 0.38;
+
+            this.phase = 'zooming';
+            this.phaseTime = 0;
+          }
+          return;
+        }
+
+        // 階段 3：鏡頭平滑放大拉近至命中飛鏢與中獎區塊 (0.55s)
+        if (this.phase === 'zooming') {
+          var durZoom = 0.55;
+          var pz = Math.min(1, this.phaseTime / durZoom);
+          var ez = 1 - Math.pow(1 - pz, 3.2);
+          this.camZoom = this.zoomStartScale + (this.zoomTargetScale - this.zoomStartScale) * ez;
+          this.camX = this.zoomStartX + (this.zoomTargetX - this.zoomStartX) * ez;
+          this.camY = this.zoomStartY + (this.zoomTargetY - this.zoomStartY) * ez;
+
+          if (pz >= 1) {
+            this.camZoom = this.zoomTargetScale;
+            this.camX = this.zoomTargetX;
+            this.camY = this.zoomTargetY;
+            this.phase = 'holding';
+            this.phaseTime = 0;
+            var pPos = this.getPinnedWorldPos();
+            this.spawnConfetti(pPos.x, pPos.y);
+            this.sound.playWin();
+          }
+          return;
+        }
+
+        // 階段 4：維持放大特寫 1.2 秒讓使用者欣賞命中畫面，再彈出共用開獎視窗
+        if (this.phase === 'holding') {
+          if (this.phaseTime >= 1.2 && !this.modalOpened) {
+            this.modalOpened = true;
+            this.isBusy = false;
+            if (typeof this.onStateChange === 'function') this.onStateChange();
+            var winner = this.slots[this.winningIdx];
+            if (winner && typeof this.onResult === 'function') {
+              this.onResult(winner, {
+                icon: '🎯',
+                sub: this.isBullseye ? '正中紅心！飛鏢命運揭曉' : '射飛鏢命運結果揭曉'
+              });
+            }
+          }
+          return;
+        }
+
+        // 階段 5：關閉結果視窗後平滑縮回全景並恢復旋轉 (0.38s)
+        if (this.phase === 'resetting') {
+          var durReset = 0.38;
+          var pr = Math.min(1, this.phaseTime / durReset);
+          var er = 1 - Math.pow(1 - pr, 3.0);
+          this.camZoom = this.zoomStartScale + (1.0 - this.zoomStartScale) * er;
+          this.camX = this.zoomStartX + (this.cx - this.zoomStartX) * er;
+          this.camY = this.zoomStartY + (this.cy - this.zoomStartY) * er;
+          this.wheelAngle += (this.baseSpeed * er) * dt;
+
+          if (pr >= 1) {
+            this.camZoom = 1.0;
+            this.camX = this.cx;
+            this.camY = this.cy;
+            this.phase = 'spinning';
+            this.phaseTime = 0;
+            this.isBusy = false;
+            if (typeof this.onStateChange === 'function') this.onStateChange();
+          }
+        }
+      };
+
+      DartWheelEngine.prototype.drawPinnedDart = function (ctx, x, y) {
+        ctx.save();
+        ctx.translate(x, y);
+
+        // 投射於轉盤上的立體陰影
+        ctx.save();
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.55)';
+        ctx.lineWidth = 4.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(18, 22);
+        ctx.stroke();
+        ctx.restore();
+
+        // 針孔金屬環
+        ctx.beginPath();
+        ctx.arc(0, 0, 3.2, 0, Math.PI * 2);
+        ctx.fillStyle = '#0F172A';
+        ctx.fill();
+        ctx.strokeStyle = '#FDE047';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        // 3D 斜插角度（朝右上方伸出）
+        ctx.rotate(-0.92);
+
+        // 金屬針尖
+        ctx.strokeStyle = '#E2E8F0';
+        ctx.lineWidth = 2.4;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(13, 0);
+        ctx.stroke();
+
+        // 金屬鏢身 (Barrel)
+        var bGrad = ctx.createLinearGradient(12, -4, 34, 4);
+        bGrad.addColorStop(0, '#FDE047');
+        bGrad.addColorStop(0.5, '#F59E0B');
+        bGrad.addColorStop(1, '#B45309');
+        ctx.fillStyle = bGrad;
+        ctx.beginPath();
+        ctx.moveTo(12, -2.2);
+        ctx.lineTo(28, -4.2);
+        ctx.lineTo(35, -2.4);
+        ctx.lineTo(35, 2.4);
+        ctx.lineTo(28, 4.2);
+        ctx.lineTo(12, 2.2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#FFFBEB';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+
+        // 霓虹紅金尾翼 (Flights)
+        ctx.fillStyle = '#F43F5E';
+        ctx.strokeStyle = '#FDE047';
+        ctx.lineWidth = 1.1;
+        ctx.beginPath();
+        ctx.moveTo(33, -2);
+        ctx.lineTo(50, -13);
+        ctx.lineTo(56, -5);
+        ctx.lineTo(48, 0);
+        ctx.lineTo(56, 5);
+        ctx.lineTo(50, 13);
+        ctx.lineTo(33, 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.restore();
+      };
+
+      DartWheelEngine.prototype.drawFlyingDart = function (ctx) {
+        var i;
+        if (this.dartTrail.length > 1) {
+          for (i = 1; i < this.dartTrail.length; i++) {
+            var p0 = this.dartTrail[i - 1], p1 = this.dartTrail[i];
+            var alpha = (i / this.dartTrail.length) * 0.45;
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y);
+            ctx.lineTo(p1.x, p1.y);
+            ctx.strokeStyle = 'rgba(253, 224, 71, ' + alpha + ')';
+            ctx.lineWidth = 4 * (i / this.dartTrail.length);
+            ctx.lineCap = 'round';
+            ctx.stroke();
+          }
+        }
+
+        var ang = Math.atan2(this.dartTargetY - this.dartStartY, this.dartTargetX - this.dartStartX);
+        ctx.save();
+        ctx.translate(this.dartCurrX, this.dartCurrY);
+        ctx.rotate(ang);
+        ctx.scale(this.dartScale, this.dartScale);
+
+        ctx.shadowColor = 'rgba(244, 63, 94, 0.7)';
+        ctx.shadowBlur = 12;
+
+        // 飛鏢針尖朝前進方向 (+X)
+        ctx.strokeStyle = '#F8FAFC';
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.moveTo(14, 0);
+        ctx.lineTo(0, 0);
+        ctx.stroke();
+
+        ctx.fillStyle = '#F59E0B';
+        ctx.beginPath();
+        ctx.moveTo(2, -2.2);
+        ctx.lineTo(-16, -4);
+        ctx.lineTo(-22, -2);
+        ctx.lineTo(-22, 2);
+        ctx.lineTo(-16, 4);
+        ctx.lineTo(2, 2.2);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#F43F5E';
+        ctx.strokeStyle = '#FDE047';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(-20, -2);
+        ctx.lineTo(-36, -12);
+        ctx.lineTo(-42, -4);
+        ctx.lineTo(-34, 0);
+        ctx.lineTo(-42, 4);
+        ctx.lineTo(-36, 12);
+        ctx.lineTo(-20, 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.restore();
+      };
+
+      DartWheelEngine.prototype.drawCrosshair = function (ctx, x, y) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.shadowColor = '#22D3EE';
+        ctx.shadowBlur = 12;
+        ctx.strokeStyle = '#67E8F9';
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        ctx.arc(0, 0, 18, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#FDE047';
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.moveTo(-26, 0); ctx.lineTo(-9, 0);
+        ctx.moveTo(9, 0); ctx.lineTo(26, 0);
+        ctx.moveTo(0, -26); ctx.lineTo(0, -9);
+        ctx.moveTo(0, 9); ctx.lineTo(0, 26);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(0, 0, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#F43F5E';
+        ctx.fill();
+        ctx.restore();
+      };
+
+      DartWheelEngine.prototype.drawZoomCallout = function (ctx, pinWorldX, pinWorldY) {
+        var winner = this.slots[this.winningIdx];
+        if (!winner) return;
+        var meta = getTransportMeta(winner.transport);
+        var sx = (pinWorldX - this.camX) * this.camZoom + this.cx;
+        var sy = (pinWorldY - this.camY) * this.camZoom + this.cy;
+
+        var title = winner.name;
+        var sub = (this.isBullseye ? '🎯 正中紅心！ · ' : '🎯 命中！ · ') + meta.icon + ' ' + winner.transport;
+
+        ctx.save();
+        ctx.font = '900 22px "Noto Sans TC", sans-serif';
+        var w1 = ctx.measureText(title).width;
+        ctx.font = '800 13px "Noto Sans TC", sans-serif';
+        var w2 = ctx.measureText(sub).width;
+        var boxW = Math.min(this.VSIZE - 32, Math.max(w1, w2) + 36);
+        var boxH = 66;
+
+        var boxX = Math.max(16, Math.min(this.VSIZE - 16 - boxW, sx - boxW / 2));
+        var boxY = sy - boxH - 36;
+        if (boxY < 16) boxY = Math.min(this.VSIZE - boxH - 16, sy + 42);
+
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
+        ctx.shadowBlur = 18;
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
+        ctx.strokeStyle = '#FDE047';
+        ctx.lineWidth = 2.6;
+        drawRoundRect(ctx, boxX, boxY, boxW, boxH, 14);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.stroke();
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#67E8F9';
+        ctx.font = '800 13px "Noto Sans TC", sans-serif';
+        ctx.fillText(sub, boxX + boxW / 2, boxY + 20);
+
+        ctx.fillStyle = '#FEF9C3';
+        ctx.font = '900 21px "Noto Sans TC", sans-serif';
+        ctx.fillText(title, boxX + boxW / 2, boxY + 46);
+        ctx.restore();
+      };
+
+      DartWheelEngine.prototype.draw = function () {
+        var ctx = this.ctx;
+        if (!ctx || this.canvas.width === 0 || this.canvas.height === 0) return;
+
+        ctx.save();
+        ctx.setTransform(this.canvas.width / this.VSIZE, 0, 0, this.canvas.height / this.VSIZE, 0, 0);
+
+        // 背景底色
+        var bg = ctx.createRadialGradient(this.cx, this.cy, 50, this.cx, this.cy, 360);
+        bg.addColorStop(0, '#16213e');
+        bg.addColorStop(0.68, '#0b1224');
+        bg.addColorStop(1, '#060a14');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, this.VSIZE, this.VSIZE);
+
+        // 套用鏡頭放大與命中微震動
+        ctx.save();
+        var shX = this.shakeTime > 0 ? (Math.random() - 0.5) * 9 * (this.shakeTime / 0.22) : 0;
+        var shY = this.shakeTime > 0 ? (Math.random() - 0.5) * 9 * (this.shakeTime / 0.22) : 0;
+        ctx.translate(this.cx + shX, this.cy + shY);
+        ctx.scale(this.camZoom, this.camZoom);
+        ctx.translate(-this.camX, -this.camY);
+
+        // 金屬外框與裝飾鉚釘
+        var rimGrad = ctx.createRadialGradient(this.cx, this.cy, this.wheelR, this.cx, this.cy, this.outerR);
+        rimGrad.addColorStop(0, '#1e293b');
+        rimGrad.addColorStop(0.5, '#334155');
+        rimGrad.addColorStop(0.85, '#b45309');
+        rimGrad.addColorStop(1, '#451a03');
+        ctx.beginPath();
+        ctx.arc(this.cx, this.cy, this.outerR, 0, Math.PI * 2);
+        ctx.fillStyle = rimGrad;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(253, 224, 71, 0.78)';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        for (var st = 0; st < 24; st++) {
+          var sa = this.wheelAngle + (st / 24) * Math.PI * 2;
+          var sx = this.cx + Math.cos(sa) * (this.wheelR + 15);
+          var sy = this.cy + Math.sin(sa) * (this.wheelR + 15);
+          ctx.beginPath();
+          ctx.arc(sx, sy, 3.6, 0, Math.PI * 2);
+          ctx.fillStyle = st % 2 === 0 ? '#FDE047' : '#38BDF8';
+          ctx.fill();
+        }
+
+        // 多色扇形區塊
+        var n = this.slots.length;
+        var isZoomReveal = (this.phase === 'zooming' || this.phase === 'holding');
+        if (n > 0) {
+          var sectorArc = (Math.PI * 2) / n;
+          for (var i = 0; i < n; i++) {
+            var a0 = this.wheelAngle + i * sectorArc;
+            var a1 = a0 + sectorArc;
+            var aMid = (a0 + a1) / 2;
+            var isWin = (i === this.winningIdx && this.pinned);
+
+            ctx.beginPath();
+            ctx.moveTo(this.cx, this.cy);
+            ctx.arc(this.cx, this.cy, this.wheelR, a0, a1);
+            ctx.closePath();
+
+            var sliceCol = SLOT_PALETTE[i % SLOT_PALETTE.length];
+            ctx.fillStyle = isWin ? hexToRgba(sliceCol, 1.0) : hexToRgba(sliceCol, isZoomReveal ? 0.34 : 0.86);
+            ctx.fill();
+
+            if (this.slotFlash > 0.01) {
+              ctx.fillStyle = 'rgba(254, 240, 138, ' + (this.slotFlash * 0.45) + ')';
+              ctx.fill();
+            }
+
+            ctx.strokeStyle = 'rgba(15, 23, 42, 0.72)';
+            ctx.lineWidth = 1.6;
+            ctx.stroke();
+
+            // 放射狀店名文字（依區塊數量自動縮放字級）
+            ctx.save();
+            ctx.translate(this.cx, this.cy);
+            ctx.rotate(aMid);
+            ctx.fillStyle = isWin ? '#FFFFFF' : (isZoomReveal ? 'rgba(248,250,252,0.52)' : '#FFFFFF');
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.88)';
+            ctx.shadowBlur = isWin ? 6 : 3;
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            var fontSize = n > 24 ? 10.5 : (n > 18 ? 11.8 : (n > 10 ? 13.5 : 15.5));
+            ctx.font = 'bold ' + fontSize + 'px "Noto Sans TC", sans-serif';
+            var label = this.slots[i].name;
+            var maxChars = n > 20 ? 7 : 9;
+            if (label.length > maxChars) label = label.slice(0, maxChars - 1) + '…';
+            ctx.fillText(label, this.wheelR - 12, 0);
+            ctx.restore();
+          }
+
+          // 中獎區塊亮金色脈動外框
+          if (this.winningIdx >= 0 && this.winningIdx < n && this.pinned) {
+            var wa0 = this.wheelAngle + this.winningIdx * sectorArc;
+            var wa1 = wa0 + sectorArc;
+            var pulse = 0.5 + 0.5 * Math.sin(this.winPulse);
+            ctx.save();
+            ctx.shadowColor = '#FDE047';
+            ctx.shadowBlur = 16 + pulse * 14;
+            ctx.beginPath();
+            ctx.moveTo(this.cx, this.cy);
+            ctx.arc(this.cx, this.cy, this.wheelR, wa0, wa1);
+            ctx.closePath();
+            ctx.strokeStyle = '#FEF08A';
+            ctx.lineWidth = 3.6 + pulse * 1.4;
+            ctx.stroke();
+            ctx.restore();
+          }
+        }
+
+        // 靶心紅心 (Bullseye)
+        ctx.beginPath();
+        ctx.arc(this.cx, this.cy, this.bullseyeR, 0, Math.PI * 2);
+        ctx.fillStyle = '#059669';
+        ctx.fill();
+        ctx.strokeStyle = '#FDE047';
+        ctx.lineWidth = 2.4;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(this.cx, this.cy, this.bullseyeR * 0.54, 0, Math.PI * 2);
+        ctx.fillStyle = '#E11D48';
+        ctx.fill();
+        ctx.strokeStyle = '#FFFBEB';
+        ctx.lineWidth = 1.6;
+        ctx.stroke();
+
+        // 命中火花粒子
+        for (var s = 0; s < this.sparks.length; s++) {
+          var sp = this.sparks[s];
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, sp.life);
+          ctx.fillStyle = sp.color;
+          ctx.beginPath();
+          ctx.arc(sp.x, sp.y, sp.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // 釘入轉盤上的飛鏢
+        var pinWorldPos = null;
+        if (this.pinned) {
+          pinWorldPos = this.getPinnedWorldPos();
+          this.drawPinnedDart(ctx, pinWorldPos.x, pinWorldPos.y);
+        }
+
+        // 慶祝彩帶
+        for (var c = 0; c < this.confetti.length; c++) {
+          var pt = this.confetti[c];
+          ctx.save();
+          ctx.translate(pt.x, pt.y);
+          ctx.rotate(pt.rot);
+          ctx.globalAlpha = Math.max(0, pt.life);
+          ctx.fillStyle = pt.color;
+          ctx.fillRect(-pt.size / 2, -pt.size / 2, pt.size, pt.size * 0.6);
+          ctx.restore();
+        }
+
+        ctx.restore(); // 結束鏡頭變換
+
+        // 放大特寫時的聚光燈暗角 + 清楚的浮動店名標示
+        if (isZoomReveal && pinWorldPos) {
+          var zoomFactor = Math.min(1, (this.camZoom - 1) / (this.zoomTargetScale - 1));
+          var vig = ctx.createRadialGradient(this.cx, this.cy, 110, this.cx, this.cy, 360);
+          vig.addColorStop(0, 'rgba(0, 0, 0, 0)');
+          vig.addColorStop(1, 'rgba(2, 6, 23, ' + (zoomFactor * 0.62) + ')');
+          ctx.fillStyle = vig;
+          ctx.fillRect(0, 0, this.VSIZE, this.VSIZE);
+
+          if (zoomFactor > 0.35) {
+            this.drawZoomCallout(ctx, pinWorldPos.x, pinWorldPos.y);
+          }
+        }
+
+        // 飛行中的 3D 飛鏢（繪製於鏡頭最上層）
+        if (this.phase === 'flying') {
+          this.drawFlyingDart(ctx);
+        }
+
+        // 待命狀態：顯示準星或點擊瞄準提示
+        if (this.phase === 'spinning' && n > 0) {
+          if (typeof this.aimX === 'number' && typeof this.aimY === 'number') {
+            this.drawCrosshair(ctx, this.aimX, this.aimY);
+          } else {
+            ctx.save();
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.78)';
+            ctx.strokeStyle = 'rgba(34, 211, 238, 0.45)';
+            ctx.lineWidth = 1.4;
+            drawRoundRect(ctx, this.VSIZE / 2 - 114, 12, 228, 28, 14);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#A5F3FC';
+            ctx.font = 'bold 12px "Noto Sans TC", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🎯 點擊轉盤任意位置射出飛鏢！', this.VSIZE / 2, 26);
+            ctx.restore();
+          }
+        }
+
+        ctx.restore();
+      };
+
+      DartWheelEngine.prototype.loop = function (ts) {
+        if (!this.lastTs) this.lastTs = ts;
+        var dt = Math.min(0.033, Math.max(0.001, (ts - this.lastTs) / 1000));
+        this.lastTs = ts;
+        this.update(dt);
+        this.draw();
+        var self = this;
+        requestAnimationFrame(function (nextTs) { self.loop(nextTs); });
+      };
+
+      /* =====================================================================
+       * 7. 應用程式狀態與 DOM 參考
        * ===================================================================== */
       var state = {
         restaurants: [],
         selectedTransports: new Set(),
-        searchQuery: '',
-        autoShuffle: true,
-        currentMode: 'plinko', // plinko | slot | roulette
         boardSlots: [],
+        currentMode: 'plinko',
+        autoShuffle: true,
+        searchQuery: '',
         lastWinner: null,
         pendingConfirm: null
       };
@@ -4369,6 +5299,7 @@
         modeTabPlinko: document.getElementById('modeTabPlinko'),
         modeTabSlot: document.getElementById('modeTabSlot'),
         modeTabRoulette: document.getElementById('modeTabRoulette'),
+        modeTabDart: document.getElementById('modeTabDart'),
 
         filterChips: document.getElementById('filterChips'),
         candidateCount: document.getElementById('candidateCount'),
@@ -4409,6 +5340,14 @@
         spinRouletteText: document.getElementById('spinRouletteText'),
         autoShuffleRouletteCheck: document.getElementById('autoShuffleRouletteCheck'),
         manualShuffleRouletteBtn: document.getElementById('manualShuffleRouletteBtn'),
+
+        panelDart: document.getElementById('panelDart'),
+        dartStageWrapper: document.getElementById('dartStageWrapper'),
+        dartCanvas: document.getElementById('dartCanvas'),
+        dartEmptyOverlay: document.getElementById('dartEmptyOverlay'),
+        throwDartBtn: document.getElementById('throwDartBtn'),
+        throwDartText: document.getElementById('throwDartText'),
+        manualShuffleDartBtn: document.getElementById('manualShuffleDartBtn'),
 
         formCard: document.getElementById('formCard'),
         formToggleBtn: document.getElementById('formToggleBtn'),
@@ -4560,7 +5499,8 @@
       function isAnyBusy() {
         return (plinko && plinko.isDropping) ||
                (slotMachine && slotMachine.isSpinning) ||
-               (roulette && roulette.isSpinning);
+               (roulette && roulette.isSpinning) ||
+               (dartWheel && dartWheel.isBusy);
       }
 
       var plinko = new PlinkoEngine(els.plinkoCanvas, els.plinkoStageWrapper, soundEngine, {
@@ -4601,8 +5541,14 @@
             state.boardSlots = fisherYatesShuffle(state.boardSlots);
             roulette.setSlots(state.boardSlots, true);
             plinko.setSlots(state.boardSlots, false);
+            dartWheel.setSlots(state.boardSlots, false);
           }
         },
+        onStateChange: syncControlButtons,
+        onResult: openResultModal
+      });
+
+      var dartWheel = new DartWheelEngine(els.dartCanvas, els.dartStageWrapper, soundEngine, {
         onStateChange: syncControlButtons,
         onResult: openResultModal
       });
@@ -4614,6 +5560,7 @@
         els.modeTabPlinko.disabled = busy;
         els.modeTabSlot.disabled = busy;
         els.modeTabRoulette.disabled = busy;
+        els.modeTabDart.disabled = busy;
 
         els.dropBallBtn.disabled = !hasSlots || busy;
         els.manualShuffleBtn.disabled = state.boardSlots.length < 2 || busy;
@@ -4626,6 +5573,10 @@
         els.spinRouletteBtn.disabled = !hasSlots || busy;
         els.manualShuffleRouletteBtn.disabled = state.boardSlots.length < 2 || busy;
         els.spinRouletteText.textContent = roulette.isSpinning ? '輪盤旋轉中...' : '轉動輪盤！';
+
+        els.throwDartBtn.disabled = !hasSlots || busy;
+        els.manualShuffleDartBtn.disabled = state.boardSlots.length < 2 || busy;
+        els.throwDartText.textContent = dartWheel.isBusy ? '飛鏢投擲中...' : '隨機射出飛鏢！';
       }
 
       function syncBoardSlots(shuffleNow) {
@@ -4637,9 +5588,11 @@
           plinko.setSlots([], false);
           slotMachine.setCandidates([]);
           roulette.setSlots([], false);
+          dartWheel.setSlots([], false);
           els.plinkoEmptyOverlay.classList.remove('hidden');
           els.slotEmptyOverlay.classList.remove('hidden');
           els.rouletteEmptyOverlay.classList.remove('hidden');
+          els.dartEmptyOverlay.classList.remove('hidden');
           syncControlButtons();
           return;
         }
@@ -4647,12 +5600,14 @@
         els.plinkoEmptyOverlay.classList.add('hidden');
         els.slotEmptyOverlay.classList.add('hidden');
         els.rouletteEmptyOverlay.classList.add('hidden');
+        els.dartEmptyOverlay.classList.add('hidden');
 
         var list = shuffleNow ? fisherYatesShuffle(candidates) : candidates.slice();
         state.boardSlots = list.slice(0, MAX_SLOTS);
         plinko.setSlots(state.boardSlots, shuffleNow);
         slotMachine.setCandidates(candidates);
         roulette.setSlots(state.boardSlots, shuffleNow);
+        dartWheel.setSlots(state.boardSlots, shuffleNow);
         syncControlButtons();
       }
 
@@ -4661,23 +5616,30 @@
           showToast('抽獎進行中，請稍候再切換模式！', 'info');
           return;
         }
+        if (state.currentMode === 'dart' && mode !== 'dart') {
+          dartWheel.resetView(true);
+        }
         state.currentMode = mode;
 
         els.panelPlinko.classList.toggle('hidden', mode !== 'plinko');
         els.panelSlot.classList.toggle('hidden', mode !== 'slot');
         els.panelRoulette.classList.toggle('hidden', mode !== 'roulette');
+        els.panelDart.classList.toggle('hidden', mode !== 'dart');
 
         els.modeTabPlinko.classList.toggle('active', mode === 'plinko');
         els.modeTabSlot.classList.toggle('active', mode === 'slot');
         els.modeTabRoulette.classList.toggle('active', mode === 'roulette');
+        els.modeTabDart.classList.toggle('active', mode === 'dart');
 
         els.modeTabPlinko.setAttribute('aria-selected', String(mode === 'plinko'));
         els.modeTabSlot.setAttribute('aria-selected', String(mode === 'slot'));
         els.modeTabRoulette.setAttribute('aria-selected', String(mode === 'roulette'));
+        els.modeTabDart.setAttribute('aria-selected', String(mode === 'dart'));
 
         requestAnimationFrame(function () {
           if (mode === 'plinko') plinko.resize();
           else if (mode === 'roulette') roulette.resize();
+          else if (mode === 'dart') dartWheel.resize();
           else if (mode === 'slot') slotMachine.renderIdleReels();
         });
       }
@@ -4830,6 +5792,9 @@
 
       function closeResultModal() {
         els.resultModal.classList.add('hidden');
+        if (state.currentMode === 'dart' && dartWheel.phase === 'holding') {
+          dartWheel.resetView(false);
+        }
       }
 
       function switchMobileTab(tab) {
@@ -4840,6 +5805,7 @@
           requestAnimationFrame(function () {
             if (state.currentMode === 'plinko') plinko.resize();
             else if (state.currentMode === 'roulette') roulette.resize();
+            else if (state.currentMode === 'dart') dartWheel.resize();
             else if (state.currentMode === 'slot') slotMachine.renderIdleReels();
           });
         }
@@ -4857,9 +5823,9 @@
       els.modeTabPlinko.addEventListener('click', function () { switchDrawMode('plinko'); });
       els.modeTabSlot.addEventListener('click', function () { switchDrawMode('slot'); });
       els.modeTabRoulette.addEventListener('click', function () { switchDrawMode('roulette'); });
+      els.modeTabDart.addEventListener('click', function () { switchDrawMode('dart'); });
 
       els.filterChips.addEventListener('click', function (e) {
-        if (isAnyBusy()) return;
         var btn = e.target.closest('button[data-transport]');
         if (!btn) return;
         var val = btn.getAttribute('data-transport');
@@ -4886,6 +5852,7 @@
         state.boardSlots = fisherYatesShuffle(state.boardSlots);
         plinko.setSlots(state.boardSlots, state.currentMode === 'plinko');
         roulette.setSlots(state.boardSlots, state.currentMode === 'roulette');
+        dartWheel.setSlots(state.boardSlots, state.currentMode === 'dart');
         soundEngine.playShuffle();
         showToast('已打亂抽選位置順序 🔀');
       }
@@ -4893,14 +5860,17 @@
       els.dropBallBtn.addEventListener('click', function () { plinko.dropBall(); });
       els.pullSlotBtn.addEventListener('click', function () { slotMachine.spin(); });
       els.spinRouletteBtn.addEventListener('click', function () { roulette.spin(); });
+      els.throwDartBtn.addEventListener('click', function () { dartWheel.throwRandom(); });
 
       els.autoShuffleCheck.addEventListener('change', function () { handleAutoShuffleToggle(els.autoShuffleCheck.checked); });
       els.autoShuffleRouletteCheck.addEventListener('change', function () { handleAutoShuffleToggle(els.autoShuffleRouletteCheck.checked); });
       els.manualShuffleBtn.addEventListener('click', handleManualShuffle);
       els.manualShuffleRouletteBtn.addEventListener('click', handleManualShuffle);
+      els.manualShuffleDartBtn.addEventListener('click', handleManualShuffle);
 
       els.formToggleBtn.addEventListener('click', function () {
-        setFormOpen(!els.formCard.classList.contains('open'));
+        var isOpen = els.formCard.classList.contains('open');
+        setFormOpen(!isOpen);
       });
 
       els.cancelEditBtn.addEventListener('click', function () { resetForm(true); });
@@ -5026,6 +5996,14 @@
             showToast('已暫時排除「' + found.name + '」');
           }
         }
+        if (state.currentMode === 'dart') {
+          els.resultModal.classList.add('hidden');
+          dartWheel.resetView(false);
+          if (state.boardSlots.length === 0) {
+            showToast('目前沒有剩餘的候選店家可以重抽！', 'error');
+          }
+          return;
+        }
         closeResultModal();
         if (state.boardSlots.length > 0) {
           setTimeout(function () {
@@ -5113,6 +6091,7 @@
       window.addEventListener('resize', function () {
         if (state.currentMode === 'plinko') plinko.resize();
         else if (state.currentMode === 'roulette') roulette.resize();
+        else if (state.currentMode === 'dart') dartWheel.resize();
         else if (state.currentMode === 'slot') slotMachine.renderIdleReels();
       });
 
@@ -5125,6 +6104,7 @@
       requestAnimationFrame(function () {
         plinko.resize();
         roulette.resize();
+        dartWheel.resize();
       });
     });
   </script>
