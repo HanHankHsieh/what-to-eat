@@ -633,6 +633,27 @@
       max-width: 96%;
     }
 
+    /* 拉霸機即時交通機率分佈條 */
+    .slot-prob-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(34, 211, 238, 0.3);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      max-width: 96%;
+    }
+
+    .slot-prob-sep {
+      color: rgba(148, 163, 184, 0.55);
+    }
+
     /* 互動右側拉桿（點擊或往下拖曳皆可觸發） */
     .slot-lever-zone {
       flex: 0 0 46px;
@@ -1590,6 +1611,9 @@
                 </div>
               </div>
 
+              <!-- 即時交通方式加權機率分佈條 -->
+              <div id="slotProbBar" class="slot-prob-bar"></div>
+
               <!-- 單一交通方式友善提示 -->
               <div id="slotSingleTransportHint" class="slot-single-hint hidden">
                 💡 目前候選店家皆為單一交通方式，可至「店家名單」編輯更多 Ubike / 捷運 / 其他 店家體驗雙階段抽選！
@@ -1711,7 +1735,7 @@
             </div>
             <div style="display:flex; gap:6px;">
               <button id="enableAllBtn" type="button" class="btn-ghost">全部啟用</button>
-              <button id="resetDefaultsBtn" type="button" class="btn-ghost">還原預設 23 家名單</button>
+              <button id="resetDefaultsBtn" type="button" class="btn-ghost">還原預設 25 家名單</button>
             </div>
           </div>
         </div>
@@ -1791,11 +1815,11 @@
       'use strict';
 
       /* =====================================================================
-       * 1. 常數設定、4 種交通方式與 23 家預設步行美食名單
+       * 1. 常數設定、4 種交通方式與 25 家預設美食名單
        * ===================================================================== */
-      var STORAGE_KEY = 'what_to_eat_plinko_v7';
-      var SOUND_KEY = 'what_to_eat_plinko_sound_v7';
-      var SHUFFLE_KEY = 'what_to_eat_plinko_shuffle_v7';
+      var STORAGE_KEY = 'what_to_eat_plinko_v8';
+      var SOUND_KEY = 'what_to_eat_plinko_sound_v8';
+      var SHUFFLE_KEY = 'what_to_eat_plinko_shuffle_v8';
       var MAX_SLOTS = 30;
 
       var TRANSPORTS = ['步行', 'Ubike', '捷運', '其他'];
@@ -1807,12 +1831,32 @@
         '其他': { icon: '✨', cls: 't-other' }
       };
 
-      var DEFAULT_NAMES = [
-        '鍋燒意麵', '虎記雞肉飯', '傳承牛肉麵', '三川田', '蜥蜴咖哩',
-        '兩四韓館', '正老頭炒飯', '承記鍋貼', '東引快刀手', '好心腸粉',
-        '涼麵', '泰美利', '豬腳將軍', '南港燒臘', '久越越式',
-        '牛巴達小吃', '金仙蝦捲', 'LaLaPort', '鄭州路牛肉麵', '東湖義大利麵',
-        '咔家韓式', '朱記', '中信鐵板燒'
+      var DEFAULT_ITEMS = [
+        { name: '鍋燒意麵', transport: '步行' },
+        { name: '虎記雞肉飯', transport: '步行' },
+        { name: '傳承牛肉麵', transport: '步行' },
+        { name: '三川田', transport: '步行' },
+        { name: '蜥蜴咖哩', transport: '步行' },
+        { name: '兩四韓館', transport: '步行' },
+        { name: '正老頭炒飯', transport: '步行' },
+        { name: '承記鍋貼', transport: '捷運' },
+        { name: '東引快刀手', transport: '捷運' },
+        { name: '好心腸粉', transport: '步行' },
+        { name: '涼麵', transport: 'Ubike' },
+        { name: '泰美利', transport: 'Ubike' },
+        { name: '豬腳將軍', transport: '步行' },
+        { name: '南港燒臘', transport: '步行' },
+        { name: '久越越式', transport: '步行' },
+        { name: '牛巴達小吃', transport: '步行' },
+        { name: '金仙蝦捲', transport: '步行' },
+        { name: 'LaLaPort', transport: '步行' },
+        { name: '鄭州路牛肉麵', transport: '步行' },
+        { name: '東湖義大利麵', transport: '捷運' },
+        { name: '咔家韓式', transport: '步行' },
+        { name: '朱記', transport: '步行' },
+        { name: '中信鐵板燒', transport: '步行' },
+        { name: '北大荒水餃', transport: '步行' },
+        { name: '福州傻瓜乾麵', transport: '步行' }
       ];
 
       var SLOT_PALETTE = [
@@ -1832,14 +1876,14 @@
       }
 
       function buildDefaultRestaurants() {
-        return DEFAULT_NAMES.map(function (name, idx) {
+        return DEFAULT_ITEMS.map(function (item, idx) {
           return {
             id: 'def-' + (idx + 1),
-            name: name,
-            transport: '步行',
+            name: item.name,
+            transport: item.transport,
             time: '',
             note: '',
-            mapUrl: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(name),
+            mapUrl: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(item.name),
             isActive: true
           };
         });
@@ -3322,7 +3366,58 @@
 
       SlotMachineEngine.prototype.setCandidates = function (list) {
         this.candidates = list.slice();
+        this.renderProbBar();
         if (!this.isSpinning) this.renderIdleReels();
+      };
+
+      SlotMachineEngine.prototype.getTransportStats = function () {
+        var counts = {};
+        for (var i = 0; i < this.candidates.length; i++) {
+          var t = this.candidates[i].transport;
+          counts[t] = (counts[t] || 0) + 1;
+        }
+        var total = this.candidates.length;
+        var stats = [];
+        for (var j = 0; j < TRANSPORTS.length; j++) {
+          var key = TRANSPORTS[j];
+          if (counts[key]) {
+            stats.push({
+              transport: key,
+              count: counts[key],
+              pct: total > 0 ? Math.round((counts[key] / total) * 100) : 0
+            });
+          }
+        }
+        stats.sort(function (a, b) { return b.count - a.count; });
+        return stats;
+      };
+
+      SlotMachineEngine.prototype.pickWeightedTransport = function () {
+        var total = this.candidates.length;
+        if (total === 0) return null;
+        var stats = this.getTransportStats();
+        var r = Math.random() * total;
+        var acc = 0;
+        for (var i = 0; i < stats.length; i++) {
+          acc += stats[i].count;
+          if (r < acc) return stats[i].transport;
+        }
+        return stats[stats.length - 1].transport;
+      };
+
+      SlotMachineEngine.prototype.renderProbBar = function () {
+        if (!this.dom.probBar) return;
+        var stats = this.getTransportStats();
+        if (stats.length === 0) {
+          this.dom.probBar.classList.add('hidden');
+          this.dom.probBar.innerHTML = '';
+          return;
+        }
+        this.dom.probBar.classList.remove('hidden');
+        this.dom.probBar.innerHTML = stats.map(function (s) {
+          var m = getTransportMeta(s.transport);
+          return '<span>' + m.icon + ' ' + escapeHtml(s.transport) + ' ' + s.pct + '%</span>';
+        }).join('<span class="slot-prob-sep">·</span>');
       };
 
       SlotMachineEngine.prototype.getAvailableTransports = function () {
@@ -3342,10 +3437,15 @@
         this.dom.reelWinLeft.classList.remove('locked', 'winner');
         this.dom.reelWinRight.classList.remove('locked', 'winner');
         this.dom.statusBanner.className = 'slot-status-banner';
+        this.renderProbBar();
+
+        var availTransports = this.getAvailableTransports();
+        if (this.dom.singleHint) {
+          this.dom.singleHint.classList.toggle('hidden', availTransports.length !== 1);
+        }
 
         if (this.candidates.length === 0) {
-          this.dom.singleHint.classList.add('hidden');
-          this.dom.statusBanner.textContent = '⚠️ 請先啟用或篩選至少 1 家餐廳';
+          this.dom.statusBanner.textContent = '請先選擇或啟用候選店家';
           this.dom.reelStripLeft.innerHTML = '<div class="reel-item reel-item-transport">—</div>';
           this.dom.reelStripRight.innerHTML = '<div class="reel-item reel-item-restaurant">—</div>';
           this.dom.reelStripLeft.style.transform = 'translateY(' + centerOffset + 'px)';
@@ -3353,61 +3453,67 @@
           return;
         }
 
-        var availT = this.getAvailableTransports();
-        this.dom.singleHint.classList.toggle('hidden', availT.length > 1);
+        this.dom.statusBanner.textContent = '🕹️ 拉下右側拉桿或點擊下方按鈕開抽！';
 
-        var leftSample = availT.length >= 3 ? availT.slice(0, 3) : [availT[0], availT[availT.length - 1], availT[0]];
-        this.dom.reelStripLeft.innerHTML = leftSample.map(function (t) {
+        var leftPreview = availTransports.length > 0 ? availTransports : TRANSPORTS;
+        this.dom.reelStripLeft.innerHTML = leftPreview.map(function (t) {
           var m = getTransportMeta(t);
           return '<div class="reel-item reel-item-transport">' + m.icon + ' ' + escapeHtml(t) + '</div>';
         }).join('');
-        this.dom.reelStripLeft.style.transform = 'translateY(' + (centerOffset - this.ITEM_H) + 'px)';
+        this.dom.reelStripLeft.style.transform = 'translateY(' + centerOffset + 'px)';
 
-        var r0 = this.candidates[0];
-        var r1 = this.candidates[Math.min(1, this.candidates.length - 1)];
-        var r2 = this.candidates[Math.min(2, this.candidates.length - 1)];
-        this.dom.reelStripRight.innerHTML = [r0, r1, r2].map(function (r) {
+        var rightPreview = this.candidates.slice(0, 6);
+        this.dom.reelStripRight.innerHTML = rightPreview.map(function (r) {
           return '<div class="reel-item reel-item-restaurant">' + escapeHtml(r.name) + '</div>';
         }).join('');
-        this.dom.reelStripRight.style.transform = 'translateY(' + (centerOffset - this.ITEM_H) + 'px)';
-
-        this.dom.statusBanner.textContent = '🕹️ 共 ' + availT.length + ' 種交通方式、' + this.candidates.length + ' 家候選，拉桿開抽！';
+        this.dom.reelStripRight.style.transform = 'translateY(' + centerOffset + 'px)';
       };
 
-      SlotMachineEngine.prototype.easeOutOvershoot = function (t, overshoot) {
-        var c1 = overshoot || 1.35;
-        var c3 = c1 + 1;
-        return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
-      };
-
-      SlotMachineEngine.prototype.animateStrip = function (stripEl, winEl, targetIdx, durationMs, overshoot, pitchBoost, onDone) {
-        var self = this;
+      SlotMachineEngine.prototype.animateStrip = function (stripEl, winEl, targetIdx, durationMs, overshootMult, pitchBoost, onDone) {
         var winH = winEl.clientHeight || 156;
         var centerOffset = (winH - this.ITEM_H) / 2;
         var targetScroll = targetIdx * this.ITEM_H;
-        var startTs = 0;
+        var startTs = null;
         var lastTickIdx = -1;
+        var self = this;
+
+        function easeOutBack(t, s) {
+          var c1 = s || 1.35;
+          var c3 = c1 + 1;
+          return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+        }
 
         function step(ts) {
           if (!startTs) startTs = ts;
-          var p = Math.min(1, (ts - startTs) / durationMs);
-          var eased = self.easeOutOvershoot(p, overshoot);
-          var currentScroll = eased * targetScroll;
+          var elapsed = ts - startTs;
+          var progress = Math.min(1, elapsed / durationMs);
+
+          var eased;
+          if (progress < 0.84) {
+            var p = progress / 0.84;
+            eased = (1 - Math.pow(1 - p, 3.2)) * 1.02;
+          } else {
+            var p2 = (progress - 0.84) / 0.16;
+            eased = 1.02 - 0.02 * easeOutBack(p2, overshootMult || 1.2);
+          }
+
+          var currentScroll = targetScroll * eased;
           stripEl.style.transform = 'translateY(' + (centerOffset - currentScroll) + 'px)';
 
-          var currIdx = Math.floor(currentScroll / self.ITEM_H);
-          if (currIdx !== lastTickIdx && p < 0.96) {
-            lastTickIdx = currIdx;
+          var curIdx = Math.floor(Math.max(0, currentScroll) / self.ITEM_H);
+          if (curIdx !== lastTickIdx && curIdx <= targetIdx) {
+            lastTickIdx = curIdx;
             self.sound.playSlotTick(pitchBoost);
           }
 
-          if (p < 1) {
+          if (progress < 1) {
             requestAnimationFrame(step);
           } else {
             stripEl.style.transform = 'translateY(' + (centerOffset - targetScroll) + 'px)';
             if (typeof onDone === 'function') onDone();
           }
         }
+
         requestAnimationFrame(step);
       };
 
@@ -3486,7 +3592,8 @@
         this.dom.statusBanner.className = 'slot-status-banner';
         this.dom.statusBanner.textContent = '⚡ 滾輪高速轉動中... 正在鎖定交通方式！';
 
-        var chosenTransport = availTransports[Math.floor(Math.random() * availTransports.length)];
+        // 依各交通方式店家數比例進行加權隨機抽樣，確保每家店最終機率均等 (1/N)
+        var chosenTransport = this.pickWeightedTransport();
         var chosenMeta = getTransportMeta(chosenTransport);
 
         var matchingRestaurants = this.candidates.filter(function (r) {
@@ -4281,6 +4388,7 @@
         slotBulbsTop: document.getElementById('slotBulbsTop'),
         slotBulbsBottom: document.getElementById('slotBulbsBottom'),
         slotStatusBanner: document.getElementById('slotStatusBanner'),
+        slotProbBar: document.getElementById('slotProbBar'),
         slotSingleTransportHint: document.getElementById('slotSingleTransportHint'),
         reelWinLeft: document.getElementById('reelWinLeft'),
         reelStripLeft: document.getElementById('reelStripLeft'),
@@ -4373,7 +4481,7 @@
         state.pendingConfirm = null;
       }
 
-      /* ----- 資料持久化 (what_to_eat_plinko_v7) ----- */
+      /* ----- 資料持久化 (what_to_eat_plinko_v8) ----- */
       function sanitizeList(arr) {
         return arr
           .filter(function (item) {
@@ -4418,9 +4526,9 @@
         }
 
         try {
-          var rawV7 = localStorage.getItem(STORAGE_KEY);
-          if (rawV7 !== null) {
-            var parsed = JSON.parse(rawV7);
+          var rawV8 = localStorage.getItem(STORAGE_KEY);
+          if (rawV8 !== null) {
+            var parsed = JSON.parse(rawV8);
             if (Array.isArray(parsed)) {
               state.restaurants = sanitizeList(parsed);
               return;
@@ -4473,6 +4581,7 @@
         bulbsTop: els.slotBulbsTop,
         bulbsBottom: els.slotBulbsBottom,
         statusBanner: els.slotStatusBanner,
+        probBar: els.slotProbBar,
         singleHint: els.slotSingleTransportHint,
         reelWinLeft: els.reelWinLeft,
         reelStripLeft: els.reelStripLeft,
@@ -4883,8 +4992,8 @@
 
       els.resetDefaultsBtn.addEventListener('click', function () {
         openConfirm(
-          '還原預設 23 家名單',
-          '這會將名單重設為預設的 23 家步行美食口袋名單，確定要還原嗎？',
+          '還原預設 25 家名單',
+          '這會將名單重設為預設的 25 家美食口袋名單，確定要還原嗎？',
           '確認還原',
           function () {
             state.restaurants = buildDefaultRestaurants();
@@ -4894,7 +5003,7 @@
             saveRestaurants();
             resetForm(true);
             renderAll(true);
-            showToast('已還原預設 23 家名單！', 'success');
+            showToast('已還原預設 25 家名單！', 'success');
           }
         );
       });
@@ -4948,7 +5057,7 @@
       els.exportBtn.addEventListener('click', function () {
         try {
           var payload = {
-            version: 7,
+            version: 8,
             exportedAt: new Date().toISOString(),
             restaurants: state.restaurants
           };
