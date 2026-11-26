@@ -1,0 +1,3737 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>🎰 今天吃什麼？彈珠台抽選機</title>
+  <style>
+    /* =========================================================================
+     * 1. 全域變數與基礎重設（零外部 CDN 依賴，現代暗色霓虹街機風格）
+     * ========================================================================= */
+    :root {
+      --bg-base: #0f172a;
+      --bg-deep: #090e1c;
+      --bg-panel: #131c31;
+      --bg-card: #1b2742;
+      --bg-input: #0b1222;
+      --border-subtle: rgba(148, 163, 184, 0.2);
+      --border-glow: rgba(34, 211, 238, 0.35);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-soft: #cbd5e1;
+      --cyan: #22d3ee;
+      --gold: #f59e0b;
+      --gold-bright: #fde047;
+      --pink: #ec4899;
+      --emerald: #10b981;
+      --rose: #f43f5e;
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
+      --shadow-panel: 0 10px 28px rgba(0, 0, 0, 0.42);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      background-color: var(--bg-base);
+      background-image:
+        radial-gradient(circle at 12% 10%, rgba(34, 211, 238, 0.11) 0%, transparent 36%),
+        radial-gradient(circle at 86% 12%, rgba(236, 72, 153, 0.1) 0%, transparent 35%),
+        radial-gradient(circle at 50% 95%, rgba(245, 158, 11, 0.08) 0%, transparent 40%);
+      color: var(--text-main);
+      font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
+    }
+
+    button, input, select {
+      font-family: inherit;
+      touch-action: manipulation;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* =========================================================================
+     * 2. App 外殼與精簡頂部導覽列（鎖定 100dvh）
+     * ========================================================================= */
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    .app-header {
+      flex: 0 0 auto;
+      height: 52px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: rgba(11, 18, 34, 0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(34, 211, 238, 0.25);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+      z-index: 30;
+    }
+
+    .header-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .header-title {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow: 0 0 14px rgba(34, 211, 238, 0.35);
+    }
+
+    .header-badge {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      background: rgba(245, 158, 11, 0.16);
+      color: #fde047;
+      border: 1px solid rgba(245, 158, 11, 0.42);
+      white-space: nowrap;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .hdr-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      min-height: 36px;
+      min-width: 36px;
+      padding: 6px 11px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(27, 39, 66, 0.85);
+      color: #e2e8f0;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+      user-select: none;
+    }
+
+    .hdr-btn:hover {
+      background: #253659;
+      border-color: rgba(34, 211, 238, 0.55);
+      color: #fff;
+    }
+
+    .hdr-btn:active {
+      transform: scale(0.96);
+    }
+
+    .hdr-btn.sound-on {
+      border-color: rgba(245, 158, 11, 0.55);
+      color: #fef08a;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.18);
+    }
+
+    /* =========================================================================
+     * 3. 主佈局：桌面雙欄 (>= 1024px) 與手機雙分頁 (< 1024px)
+     * ========================================================================= */
+    .app-body {
+      flex: 1 1 0;
+      min-height: 0;
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+    }
+
+    /* 左欄：彈珠台主舞台 */
+    .stage-column {
+      flex: 1 1 0;
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 14px 12px;
+      gap: 9px;
+      overflow: hidden;
+    }
+
+    /* 右欄：店家管理區（桌面 390px） */
+    .manage-column {
+      flex: 0 0 390px;
+      width: 390px;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      background: rgba(15, 23, 42, 0.72);
+      border-left: 1px solid var(--border-subtle);
+      overflow: hidden;
+    }
+
+    /* =========================================================================
+     * 4. 左欄元件：篩選列、Canvas 舞台、底部控制列
+     * ========================================================================= */
+    .filter-bar {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: var(--radius-md);
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .filter-chips {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      min-width: 0;
+      padding: 1px 0;
+    }
+
+    .filter-chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chip-btn {
+      flex: 0 0 auto;
+      min-height: 32px;
+      padding: 4px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      background: var(--bg-card);
+      color: var(--text-soft);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .chip-btn:hover {
+      background: #273759;
+      color: #fff;
+    }
+
+    .chip-btn.active {
+      background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+      color: #fff;
+      border-color: #fde047;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
+    }
+
+    .chip-btn.all-active {
+      background: linear-gradient(135deg, #06b6d4 0%, #2563eb 100%);
+      color: #fff;
+      border-color: #67e8f9;
+      box-shadow: 0 0 12px rgba(34, 211, 238, 0.32);
+    }
+
+    .candidate-pill {
+      flex: 0 0 auto;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      background: rgba(34, 211, 238, 0.14);
+      color: #67e8f9;
+      border: 1px solid rgba(34, 211, 238, 0.38);
+      white-space: nowrap;
+    }
+
+    /* Canvas 外框與動態適配容器 */
+    .cabinet-shell {
+      flex: 1 1 0;
+      min-height: 260px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(160deg, #1b2540 0%, #10182b 60%, #0b1120 100%);
+      border: 2px solid rgba(34, 211, 238, 0.32);
+      border-radius: var(--radius-lg);
+      padding: 8px 10px 10px;
+      box-shadow:
+        0 14px 34px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .cabinet-marquee {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 0 4px 6px;
+    }
+
+    .marquee-dots {
+      display: flex;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+    .dot-cyan { background: #22d3ee; box-shadow: 0 0 8px #22d3ee; }
+    .dot-gold { background: #fbbf24; box-shadow: 0 0 8px #fbbf24; }
+    .dot-pink { background: #ec4899; box-shadow: 0 0 8px #ec4899; }
+
+    .marquee-hint {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #fde68a;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .canvas-stage-wrapper {
+      flex: 1 1 0;
+      min-height: 220px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .canvas-bezel {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #070c18;
+      box-shadow:
+        0 0 0 1.5px rgba(245, 158, 11, 0.45),
+        0 10px 26px rgba(0, 0, 0, 0.6),
+        inset 0 0 24px rgba(0, 0, 0, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #plinkoCanvas {
+      display: block;
+      cursor: crosshair;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .empty-board-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      background: rgba(9, 14, 28, 0.9);
+      backdrop-filter: blur(4px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 18px;
+    }
+
+    .empty-board-overlay h3 {
+      margin: 8px 0 4px;
+      font-size: 1rem;
+      color: #fde047;
+    }
+
+    .empty-board-overlay p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      max-width: 250px;
+    }
+
+    /* 底部動作控制列 */
+    .controls-bar {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .drop-primary-btn {
+      flex: 1 1 auto;
+      min-height: 48px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fb923c 0%, #ea580c 55%, #c2410c 100%);
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      box-shadow:
+        0 4px 0 #7c2d12,
+        0 0 22px rgba(249, 115, 22, 0.4),
+        inset 0 2px 3px rgba(255, 255, 255, 0.35);
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+    }
+
+    .drop-primary-btn:hover:not(:disabled) {
+      filter: brightness(1.08);
+    }
+
+    .drop-primary-btn:active:not(:disabled) {
+      transform: translateY(3px);
+      box-shadow:
+        0 1px 0 #7c2d12,
+        0 0 12px rgba(249, 115, 22, 0.3);
+    }
+
+    .drop-primary-btn:disabled {
+      background: linear-gradient(180deg, #475569 0%, #334155 100%);
+      box-shadow: 0 3px 0 #1e293b;
+      color: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .shuffle-toggle-pill {
+      flex: 0 0 auto;
+      min-height: 48px;
+      padding: 0 12px;
+      border-radius: 14px;
+      background: rgba(34, 211, 238, 0.1);
+      border: 1px solid rgba(34, 211, 238, 0.34);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #cffafe;
+    }
+
+    .switch-box {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .switch-box input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .switch-track {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: #475569;
+      transition: background 0.2s ease;
+    }
+
+    .switch-track::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+      transition: transform 0.2s ease;
+    }
+
+    .switch-box input:checked + .switch-track {
+      background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+      box-shadow: 0 0 10px rgba(34, 211, 238, 0.45);
+    }
+
+    .switch-box input:checked + .switch-track::after {
+      transform: translateX(16px);
+    }
+
+    .manual-shuffle-btn {
+      flex: 0 0 auto;
+      min-height: 48px;
+      padding: 0 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(251, 191, 36, 0.48);
+      background: rgba(245, 158, 11, 0.15);
+      color: #fde047;
+      font-size: 0.84rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+    .manual-shuffle-btn:hover:not(:disabled) {
+      background: rgba(245, 158, 11, 0.28);
+    }
+
+    .manual-shuffle-btn:active:not(:disabled) {
+      transform: scale(0.96);
+    }
+
+    .manual-shuffle-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    /* =========================================================================
+     * 5. 右欄：店家管理面板（折疊表單 + 獨立滾動列表）
+     * ========================================================================= */
+    .manage-top {
+      flex: 0 0 auto;
+      padding: 12px 12px 10px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(19, 28, 49, 0.85);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .form-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .form-toggle-header {
+      width: 100%;
+      padding: 10px 12px;
+      border: none;
+      background: transparent;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .form-toggle-header:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .form-chevron {
+      font-size: 0.78rem;
+      color: var(--cyan);
+      transition: transform 0.2s ease;
+    }
+
+    .form-card.open .form-chevron {
+      transform: rotate(180deg);
+    }
+
+    .form-body {
+      padding: 0 12px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-top: 1px solid rgba(148, 163, 184, 0.12);
+      padding-top: 10px;
+    }
+
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--text-soft);
+      margin-bottom: 3px;
+    }
+
+    .req-star {
+      color: #fb923c;
+    }
+
+    .field-input, .field-select {
+      width: 100%;
+      min-height: 38px;
+      padding: 7px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      background: var(--bg-input);
+      color: #fff;
+      font-size: 0.85rem;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .field-input:focus, .field-select:focus {
+      outline: none;
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2);
+    }
+
+    .field-input::placeholder {
+      color: #64748b;
+    }
+
+    .form-btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .btn-submit {
+      flex: 1;
+      min-height: 40px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #1c1008;
+      font-size: 0.88rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .btn-submit:hover { filter: brightness(1.08); }
+
+    .btn-ghost {
+      min-height: 36px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      background: var(--bg-card);
+      color: var(--text-soft);
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .btn-ghost:hover {
+      background: #273759;
+      color: #fff;
+      border-color: rgba(34, 211, 238, 0.45);
+    }
+
+    .list-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .list-count-title {
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .count-chip {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      background: rgba(245, 158, 11, 0.18);
+      color: #fde047;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .list-scroll-area {
+      flex: 1 1 0;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 10px 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .list-scroll-area::-webkit-scrollbar {
+      width: 6px;
+    }
+    .list-scroll-area::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .list-scroll-area::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.28);
+      border-radius: 999px;
+    }
+
+    .rest-card {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 11px;
+      border-radius: 12px;
+      background: var(--bg-panel);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      transition: border-color 0.15s ease, opacity 0.15s ease;
+    }
+
+    .rest-card:hover {
+      border-color: rgba(34, 211, 238, 0.42);
+    }
+
+    .rest-card.excluded {
+      opacity: 0.48;
+      background: #0d1425;
+    }
+
+    .rest-info {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .rest-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .rest-name {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #fff;
+      word-break: break-word;
+    }
+
+    .rest-card.excluded .rest-name {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .t-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      border: 1px solid transparent;
+    }
+    .t-walk { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.36); }
+    .t-scooter { background: rgba(14, 165, 233, 0.18); color: #7dd3fc; border-color: rgba(14, 165, 233, 0.36); }
+    .t-car { background: rgba(99, 102, 241, 0.22); color: #a5b4fc; border-color: rgba(99, 102, 241, 0.4); }
+    .t-transit { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border-color: rgba(168, 85, 247, 0.4); }
+    .t-delivery { background: rgba(249, 115, 22, 0.2); color: #fdba74; border-color: rgba(249, 115, 22, 0.4); }
+    .t-custom { background: rgba(245, 158, 11, 0.2); color: #fde047; border-color: rgba(245, 158, 11, 0.42); }
+
+    .time-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 0.69rem;
+      font-weight: 700;
+      background: rgba(34, 211, 238, 0.12);
+      color: #a5f3fc;
+      border: 1px solid rgba(34, 211, 238, 0.28);
+    }
+
+    .rest-note {
+      margin: 4px 0 0;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      word-break: break-word;
+    }
+
+    .rest-actions {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .act-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      background: rgba(11, 18, 34, 0.85);
+      color: #e2e8f0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .act-btn:hover {
+      border-color: var(--cyan);
+      background: rgba(34, 211, 238, 0.16);
+    }
+
+    .act-btn.danger:hover {
+      border-color: var(--rose);
+      background: rgba(244, 63, 94, 0.2);
+    }
+
+    .active-toggle {
+      width: 36px;
+      height: 20px;
+      border-radius: 999px;
+      border: none;
+      padding: 2px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: background 0.2s ease;
+    }
+
+    .active-toggle.on {
+      background: var(--emerald);
+      justify-content: flex-end;
+    }
+
+    .active-toggle.off {
+      background: #475569;
+      justify-content: flex-start;
+    }
+
+    .active-toggle span {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    }
+
+    .empty-list-msg {
+      text-align: center;
+      padding: 28px 14px;
+      border-radius: 12px;
+      border: 1px dashed rgba(148, 163, 184, 0.24);
+      color: var(--text-muted);
+      font-size: 0.84rem;
+    }
+
+    /* =========================================================================
+     * 6. 手機 / 平板 底部雙分頁列 (< 1024px)
+     * ========================================================================= */
+    .mobile-tabbar {
+      display: none;
+      flex: 0 0 auto;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px));
+      background: rgba(11, 18, 34, 0.96);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(34, 211, 238, 0.28);
+      z-index: 35;
+    }
+
+    .mob-tab-btn {
+      min-height: 44px;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      background: rgba(27, 39, 66, 0.72);
+      color: var(--text-soft);
+      font-size: 0.88rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .mob-tab-btn.active {
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.22) 0%, rgba(245, 158, 11, 0.22) 100%);
+      border-color: var(--cyan);
+      color: #fff;
+      box-shadow: 0 0 14px rgba(34, 211, 238, 0.22);
+    }
+
+    /* =========================================================================
+     * 7. 彈窗（結果揭曉 & 確認刪除）與 Toast 提示
+     * ========================================================================= */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(6, 10, 20, 0.82);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 410px;
+      max-height: 90dvh;
+      overflow-y: auto;
+      background: #141e35;
+      border: 2px solid rgba(251, 191, 36, 0.65);
+      border-radius: 22px;
+      padding: 22px 18px 18px;
+      position: relative;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.72), 0 0 32px rgba(245, 158, 11, 0.22);
+      animation: modalPop 0.24s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .modal-accent {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, #22d3ee, #fde047, #ec4899);
+    }
+
+    @keyframes modalPop {
+      0% { opacity: 0; transform: scale(0.9) translateY(12px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .result-wrap {
+      text-align: center;
+      padding-top: 4px;
+    }
+
+    .result-icon {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 10px;
+      border-radius: 16px;
+      background: rgba(245, 158, 11, 0.16);
+      border: 1px solid rgba(251, 191, 36, 0.48);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+    }
+
+    .result-sub {
+      margin: 0 0 4px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      color: var(--cyan);
+    }
+
+    .result-title {
+      margin: 0 0 10px;
+      font-size: 1.7rem;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    .result-tags {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .result-note {
+      margin: 0 0 14px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      font-size: 0.85rem;
+      color: #e2e8f0;
+    }
+
+    .nav-map-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .nav-map-btn:hover { filter: brightness(1.1); }
+
+    .decide-btn {
+      width: 100%;
+      min-height: 46px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+      color: #fff;
+      font-size: 0.98rem;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(234, 88, 12, 0.35);
+    }
+
+    .decide-btn:hover { filter: brightness(1.08); }
+
+    .redraw-panel {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 9px 11px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+    }
+
+    .exclude-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .exclude-label input {
+      width: 17px;
+      height: 17px;
+      accent-color: #f59e0b;
+      cursor: pointer;
+    }
+
+    .redraw-btn {
+      min-height: 38px;
+      padding: 7px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(34, 211, 238, 0.45);
+      background: rgba(34, 211, 238, 0.16);
+      color: #cffafe;
+      font-size: 0.84rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .redraw-btn:hover { background: rgba(34, 211, 238, 0.28); }
+
+    .confirm-btns {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .btn-danger {
+      min-height: 38px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 10px;
+      background: var(--rose);
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .toast-stack {
+      position: fixed;
+      right: 14px;
+      top: 60px;
+      z-index: 80;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      max-width: 300px;
+      pointer-events: none;
+    }
+
+    .toast-item {
+      pointer-events: auto;
+      padding: 9px 13px;
+      border-radius: 11px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      animation: modalPop 0.2s ease forwards;
+    }
+
+    .toast-info { background: #1e293b; color: #fef3c7; border-color: rgba(245, 158, 11, 0.55); }
+    .toast-success { background: #065f46; color: #ecfdf5; border-color: rgba(52, 211, 153, 0.55); }
+    .toast-error { background: #9f1239; color: #fff1f2; border-color: rgba(251, 113, 133, 0.55); }
+
+    /* =========================================================================
+     * 8. RWD 斷點調整 (< 1024px 手機與平板分頁模式)
+     * ========================================================================= */
+    @media (max-width: 1023px) {
+      .app-header {
+        height: 48px;
+        padding: 0 12px;
+      }
+
+      .header-badge,
+      .hdr-btn .btn-txt {
+        display: none;
+      }
+
+      .app-body {
+        flex-direction: column;
+      }
+
+      .app-shell[data-tab="board"] .stage-column {
+        display: flex;
+      }
+      .app-shell[data-tab="board"] .manage-column {
+        display: none;
+      }
+
+      .app-shell[data-tab="list"] .stage-column {
+        display: none;
+      }
+      .app-shell[data-tab="list"] .manage-column {
+        display: flex;
+        flex: 1 1 0;
+        width: 100%;
+        border-left: none;
+      }
+
+      .stage-column {
+        padding: 7px 9px 7px;
+        gap: 7px;
+      }
+
+      .cabinet-shell {
+        padding: 6px 7px 7px;
+        border-radius: 15px;
+      }
+
+      .cabinet-marquee {
+        padding-bottom: 4px;
+      }
+
+      .marquee-hint {
+        font-size: 0.67rem;
+      }
+
+      .controls-bar {
+        gap: 6px;
+      }
+
+      .drop-primary-btn {
+        min-height: 46px;
+        font-size: 0.96rem;
+        padding: 8px 12px;
+      }
+
+      .shuffle-toggle-pill {
+        min-height: 46px;
+        padding: 0 9px;
+        font-size: 0.76rem;
+        gap: 6px;
+      }
+
+      .manual-shuffle-btn {
+        min-height: 46px;
+        padding: 0 11px;
+        font-size: 0.8rem;
+      }
+
+      .mobile-tabbar {
+        display: grid;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .header-title {
+        font-size: 0.98rem;
+      }
+      .shuffle-toggle-pill .long-txt {
+        display: none;
+      }
+      .manual-shuffle-btn .shuf-txt {
+        display: none;
+      }
+      .form-row-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="appShell" class="app-shell" data-tab="board">
+
+    <!-- ================= 頂部導覽列 ================= -->
+    <header class="app-header">
+      <div class="header-title-wrap">
+        <h1 class="header-title">🎰 今天吃什麼？</h1>
+        <span class="header-badge">高隨機公平彈珠台</span>
+      </div>
+
+      <div class="header-actions">
+        <button id="soundToggleBtn" type="button" class="hdr-btn sound-on" title="切換音效開關">
+          <span id="soundIcon">🔊</span>
+          <span id="soundText" class="btn-txt">音效</span>
+        </button>
+        <button id="exportBtn" type="button" class="hdr-btn" title="匯出 JSON 備份">
+          <span>⬇️</span>
+          <span class="btn-txt">匯出</span>
+        </button>
+        <label for="importInput" class="hdr-btn" title="匯入 JSON 備份">
+          <span>⬆️</span>
+          <span class="btn-txt">匯入</span>
+        </label>
+        <input id="importInput" type="file" accept=".json,application/json" class="hidden" />
+      </div>
+    </header>
+
+    <!-- ================= 主內容區 ================= -->
+    <main class="app-body">
+
+      <!-- 左欄／手機分頁 1：彈珠台抽選區 -->
+      <section class="stage-column" aria-label="彈珠台抽選區">
+
+        <!-- 交通方式篩選列 -->
+        <div class="filter-bar">
+          <div id="filterChips" class="filter-chips"></div>
+          <span id="candidateCount" class="candidate-pill">候選 0 家</span>
+        </div>
+
+        <!-- 彈珠台機台與自適應畫布 -->
+        <div class="cabinet-shell">
+          <div class="cabinet-marquee">
+            <div class="marquee-dots">
+              <span class="dot dot-cyan"></span>
+              <span class="dot dot-gold"></span>
+              <span class="dot dot-pink"></span>
+            </div>
+            <div class="marquee-hint">點擊／拖曳頂部投球區自選落點，或點擊下方按鈕全寬隨機投球</div>
+            <div class="marquee-dots">
+              <span class="dot dot-pink"></span>
+              <span class="dot dot-gold"></span>
+              <span class="dot dot-cyan"></span>
+            </div>
+          </div>
+
+          <div id="canvasStageWrapper" class="canvas-stage-wrapper">
+            <div id="canvasBezel" class="canvas-bezel">
+              <canvas id="plinkoCanvas"></canvas>
+              <div id="emptyOverlay" class="empty-board-overlay hidden">
+                <div style="font-size:2.2rem;">🍽️</div>
+                <h3>目前沒有符合條件的店家</h3>
+                <p>請調整上方交通方式篩選，或在店家名單中啟用／新增餐廳。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 底部動作控制列 -->
+        <div class="controls-bar">
+          <button id="dropBallBtn" type="button" class="drop-primary-btn">
+            <span>🎯</span>
+            <span id="dropBallText">投下彈珠！</span>
+          </button>
+
+          <label class="shuffle-toggle-pill" for="autoShuffleCheck" title="每次投球前自動洗牌底部順序">
+            <span class="switch-box">
+              <input id="autoShuffleCheck" type="checkbox" checked />
+              <span class="switch-track"></span>
+            </span>
+            <span>🎲 <span class="long-txt">抽前</span>洗牌</span>
+          </label>
+
+          <button id="manualShuffleBtn" type="button" class="manual-shuffle-btn" title="手動打亂底部順序">
+            <span>🔀</span>
+            <span class="shuf-txt">洗牌</span>
+          </button>
+        </div>
+
+      </section>
+
+      <!-- 右欄／手機分頁 2：店家管理區 -->
+      <aside class="manage-column" aria-label="店家管理區">
+
+        <div class="manage-top">
+          <!-- 可折疊的新增 / 編輯表單 -->
+          <div id="formCard" class="form-card">
+            <button id="formToggleBtn" type="button" class="form-toggle-header" aria-expanded="false">
+              <span id="formHeaderTitle">➕ 新增口袋店家</span>
+              <span class="form-chevron">▼</span>
+            </button>
+
+            <form id="restaurantForm" class="form-body hidden" novalidate>
+              <input type="hidden" id="editIdInput" value="" />
+
+              <div>
+                <label class="field-label" for="nameInput">店家名稱 <span class="req-star">*</span></label>
+                <input id="nameInput" type="text" maxlength="30" class="field-input" placeholder="例如：阿明牛肉麵" required />
+              </div>
+
+              <div class="form-row-2">
+                <div>
+                  <label class="field-label" for="transportSelect">交通方式 <span class="req-star">*</span></label>
+                  <select id="transportSelect" class="field-select">
+                    <option value="步行">🚶 步行</option>
+                    <option value="騎車">🛵 騎車</option>
+                    <option value="開車">🚗 開車</option>
+                    <option value="大眾運輸">🚇 大眾運輸</option>
+                    <option value="外送">📦 外送</option>
+                    <option value="__custom__">✏️ 自訂...</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="field-label" for="timeInput">預估時間（選填）</label>
+                  <input id="timeInput" type="text" maxlength="20" class="field-input" placeholder="例如：步行 5 分鐘" />
+                </div>
+              </div>
+
+              <div id="customTransportWrap" class="hidden">
+                <label class="field-label" for="customTransportInput">自訂交通方式 <span class="req-star">*</span></label>
+                <input id="customTransportInput" type="text" maxlength="12" class="field-input" placeholder="例如：YouBike、散步" />
+              </div>
+
+              <div>
+                <label class="field-label" for="noteInput">備註（選填）</label>
+                <input id="noteInput" type="text" maxlength="80" class="field-input" placeholder="例如：週一公休、必點招牌滷味" />
+              </div>
+
+              <div>
+                <label class="field-label" for="mapUrlInput">Google Maps 連結（選填）</label>
+                <input id="mapUrlInput" type="url" class="field-input" placeholder="留空將自動產生 Google Maps 搜尋連結" />
+              </div>
+
+              <div class="form-btn-row">
+                <button type="submit" class="btn-submit" id="submitFormBtn">新增店家</button>
+                <button type="button" class="btn-ghost hidden" id="cancelEditBtn">取消編輯</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- 搜尋與名單工具列 -->
+          <input id="searchInput" type="search" class="field-input" placeholder="🔍 搜尋店名、交通方式或備註..." />
+
+          <div class="list-toolbar">
+            <div class="list-count-title">
+              <span>🍽️ 口袋名單</span>
+              <span id="listTotalBadge" class="count-chip">0</span>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button id="enableAllBtn" type="button" class="btn-ghost">全部啟用</button>
+              <button id="resetDefaultsBtn" type="button" class="btn-ghost">還原預設 23 家</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 獨立滾動的店家卡片清單 -->
+        <div id="restaurantList" class="list-scroll-area"></div>
+
+      </aside>
+
+    </main>
+
+    <!-- ================= 手機 / 平板 底部導覽分頁列 ================= -->
+    <nav class="mobile-tabbar" aria-label="功能分頁">
+      <button id="mobTabBoard" type="button" class="mob-tab-btn active" data-tab="board">
+        <span>🎰</span>
+        <span>彈珠台</span>
+      </button>
+      <button id="mobTabList" type="button" class="mob-tab-btn" data-tab="list">
+        <span>🍽️</span>
+        <span>店家名單 (<span id="mobTabCount">0</span>)</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- ================= 中獎結果揭曉彈窗 ================= -->
+  <div id="resultModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-accent"></div>
+      <div class="result-wrap">
+        <div class="result-icon">🎉</div>
+        <p class="result-sub">命運彈珠結果揭曉</p>
+        <h2 id="resName" class="result-title">店家名稱</h2>
+        <div class="result-tags">
+          <span id="resTransport" class="t-badge t-walk">🚶 步行</span>
+          <span id="resTime" class="time-chip hidden">⏱️ 5 分鐘</span>
+        </div>
+        <p id="resNote" class="result-note hidden"></p>
+
+        <a id="resMapLink" href="#" target="_blank" rel="noopener noreferrer" class="nav-map-btn hidden">
+          <span>🗺️</span>
+          <span>開啟 Google Maps 導航</span>
+        </a>
+
+        <button id="resDecideBtn" type="button" class="decide-btn">😋 就決定是你了！</button>
+
+        <div class="redraw-panel">
+          <label class="exclude-label" for="resExcludeCheck">
+            <input id="resExcludeCheck" type="checkbox" />
+            <span>本次暫時排除這家店</span>
+          </label>
+          <button id="resRedrawBtn" type="button" class="redraw-btn">🎯 重抽一次</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 通用確認彈窗（取代瀏覽器 confirm） ================= -->
+  <div id="confirmModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card" style="max-width:350px;">
+      <div class="modal-accent"></div>
+      <h3 id="confirmTitle" style="margin:6px 0 8px; font-size:1rem; color:#fff;">確認操作</h3>
+      <p id="confirmMessage" style="margin:0; font-size:0.85rem; color:#cbd5e1;">確定要執行此操作嗎？</p>
+      <div class="confirm-btns">
+        <button id="confirmCancelBtn" type="button" class="btn-ghost">取消</button>
+        <button id="confirmOkBtn" type="button" class="btn-danger">確認</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 浮動提示 Toast 容器 ================= -->
+  <div id="toastStack" class="toast-stack" aria-live="polite"></div>
+
+  <!-- ================= 完整零依賴應用程式腳本 ================= -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      'use strict';
+
+      /* =====================================================================
+       * 1. 常數設定與 23 家預設步行美食名單
+       * ===================================================================== */
+      var STORAGE_KEY = 'what_to_eat_plinko_v6';
+      var SOUND_KEY = 'what_to_eat_plinko_sound_v6';
+      var SHUFFLE_KEY = 'what_to_eat_plinko_shuffle_v6';
+      var MAX_SLOTS = 30;
+      var BUILTIN_TRANSPORTS = ['步行', '騎車', '開車', '大眾運輸', '外送'];
+
+      var DEFAULT_NAMES = [
+        '鍋燒意麵',
+        '虎記雞肉飯',
+        '傳承牛肉麵',
+        '三川田',
+        '蜥蜴咖哩',
+        '兩四韓館',
+        '正老頭炒飯',
+        '承記鍋貼',
+        '東引快刀手',
+        '好心腸粉',
+        '涼麵',
+        '泰美利',
+        '豬腳將軍',
+        '南港燒臘',
+        '久越越式',
+        '牛巴達小吃',
+        '金仙蝦捲',
+        'LaLaPort',
+        '鄭州路牛肉麵',
+        '東湖義大利麵',
+        '咔家韓式',
+        '朱記',
+        '中信鐵板燒'
+      ];
+
+      var TRANSPORT_META = {
+        '步行': { icon: '🚶', cls: 't-walk' },
+        '騎車': { icon: '🛵', cls: 't-scooter' },
+        '開車': { icon: '🚗', cls: 't-car' },
+        '大眾運輸': { icon: '🚇', cls: 't-transit' },
+        '外送': { icon: '📦', cls: 't-delivery' }
+      };
+
+      var SLOT_PALETTE = [
+        '#F59E0B', '#EC4899', '#10B981', '#06B6D4', '#8B5CF6',
+        '#EF4444', '#14B8A6', '#F97316', '#6366F1', '#84CC16',
+        '#3B82F6', '#E11D48', '#D97706', '#DB2777', '#059669',
+        '#0891B2', '#7C3AED', '#DC2626', '#0D9488', '#EA580C',
+        '#4F46E5', '#65A30D', '#2563EB', '#BE123C'
+      ];
+
+      function buildDefaultRestaurants() {
+        return DEFAULT_NAMES.map(function (name, idx) {
+          return {
+            id: 'def-' + (idx + 1),
+            name: name,
+            transport: '步行',
+            time: '',
+            note: '',
+            mapUrl: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(name),
+            isActive: true
+          };
+        });
+      }
+
+      /* =====================================================================
+       * 2. 輔助工具函式
+       * ===================================================================== */
+      function generateId() {
+        return 'r-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
+      }
+
+      function escapeHtml(str) {
+        return String(str == null ? '' : str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function getTransportMeta(t) {
+        return TRANSPORT_META[t] || { icon: '🚩', cls: 't-custom' };
+      }
+
+      function hexToRgba(hex, alpha) {
+        var c = hex.replace('#', '');
+        var r = parseInt(c.slice(0, 2), 16);
+        var g = parseInt(c.slice(2, 4), 16);
+        var b = parseInt(c.slice(4, 6), 16);
+        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+      }
+
+      function fisherYatesShuffle(arr) {
+        var copy = arr.slice();
+        for (var i = copy.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var tmp = copy[i];
+          copy[i] = copy[j];
+          copy[j] = tmp;
+        }
+        return copy;
+      }
+
+      /* =====================================================================
+       * 3. Web Audio API 即時合成音效引擎（全程 try/catch 防呆）
+       * ===================================================================== */
+      function SoundEngine() {
+        this.enabled = true;
+        this.ctx = null;
+        this.pentatonic = [523.25, 587.33, 659.25, 783.99, 880.0, 1046.5, 1174.66];
+        try {
+          if (localStorage.getItem(SOUND_KEY) === 'false') {
+            this.enabled = false;
+          }
+        } catch (e) {
+          this.enabled = true;
+        }
+      }
+
+      SoundEngine.prototype.ensureContext = function () {
+        if (!this.enabled) return null;
+        try {
+          if (!this.ctx) {
+            var AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return null;
+            this.ctx = new AudioCtx();
+          }
+          if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
+          return this.ctx;
+        } catch (e) {
+          return null;
+        }
+      };
+
+      SoundEngine.prototype.toggle = function () {
+        this.enabled = !this.enabled;
+        try {
+          localStorage.setItem(SOUND_KEY, String(this.enabled));
+        } catch (e) {
+          // 忽略儲存限制
+        }
+        if (this.enabled) {
+          this.playPeg(1, 2);
+        }
+        return this.enabled;
+      };
+
+      SoundEngine.prototype.playDrop = function () {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(560, now);
+          osc.frequency.exponentialRampToValueAtTime(220, now + 0.14);
+          gain.gain.setValueAtTime(0.14, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.16);
+        } catch (e) {}
+      };
+
+      SoundEngine.prototype.playShuffle = function () {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          [340, 440, 560, 700].forEach(function (f, idx) {
+            var t = now + idx * 0.03;
+            var osc = ctx.createOscillator();
+            var gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, t);
+            osc.frequency.exponentialRampToValueAtTime(f * 1.22, t + 0.04);
+            gain.gain.setValueAtTime(0.07, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.055);
+          });
+        } catch (e) {}
+      };
+
+      SoundEngine.prototype.playPeg = function (row, col) {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var freq = this.pentatonic[(row + col) % this.pentatonic.length] * (0.97 + Math.random() * 0.06);
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(0.085, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.085);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.09);
+        } catch (e) {}
+      };
+
+      SoundEngine.prototype.playBumper = function () {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var bass = ctx.createOscillator();
+          var bGain = ctx.createGain();
+          bass.type = 'sine';
+          bass.frequency.setValueAtTime(135, now);
+          bass.frequency.exponentialRampToValueAtTime(340, now + 0.07);
+          bass.frequency.exponentialRampToValueAtTime(150, now + 0.22);
+          bGain.gain.setValueAtTime(0.22, now);
+          bGain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+          bass.connect(bGain);
+          bGain.connect(ctx.destination);
+          bass.start(now);
+          bass.stop(now + 0.25);
+
+          var hi = ctx.createOscillator();
+          var hGain = ctx.createGain();
+          hi.type = 'triangle';
+          hi.frequency.setValueAtTime(860, now);
+          hi.frequency.exponentialRampToValueAtTime(1320, now + 0.07);
+          hGain.gain.setValueAtTime(0.065, now);
+          hGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+          hi.connect(hGain);
+          hGain.connect(ctx.destination);
+          hi.start(now);
+          hi.stop(now + 0.1);
+        } catch (e) {}
+      };
+
+      SoundEngine.prototype.playSpinner = function () {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(280, now);
+          osc.frequency.exponentialRampToValueAtTime(480, now + 0.06);
+          gain.gain.setValueAtTime(0.055, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.075);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } catch (e) {}
+      };
+
+      SoundEngine.prototype.playWin = function () {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          [523.25, 659.25, 783.99, 1046.5].forEach(function (freq, idx) {
+            var t = now + idx * 0.085;
+            var osc = ctx.createOscillator();
+            var gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.15, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.36);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.38);
+          });
+        } catch (e) {}
+      };
+
+      /* =====================================================================
+       * 4. 高隨機公平 2D 彈珠台物理與繪圖引擎
+       *    - 虛擬座標：VW = 600，VH ∈ [700, 1050] 動態自適應
+       *    - 支援最多 30 槽位同時顯示、動態縮放彈珠與隔板防卡球
+       * ===================================================================== */
+      function PlinkoEngine(canvas, wrapper, sound, callbacks) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.wrapper = wrapper;
+        this.sound = sound;
+        this.onBeforeDrop = callbacks.onBeforeDrop;
+        this.onStateChange = callbacks.onStateChange;
+        this.onResult = callbacks.onResult;
+
+        this.VW = 600;
+        this.VH = 820;
+        this.wallPad = 14;
+        this.dropZoneH = 66;
+        this.slotH = 114;
+
+        // 動態尺寸（隨槽位數量自適應）
+        this.ballR = 8.5;
+        this.divHalfW = 2.0;
+        this.divTipR = 3.5;
+        this.pegR = 5.2;
+
+        // 溫和懸疑物理參數（5~9 秒落球體驗）
+        this.baseGravity = 580;
+        this.maxSpeed = 445;
+        this.airFriction = 0.996;
+        this.pegBounce = 0.72;
+
+        // 場地元件
+        this.pegs = [];
+        this.bumpers = [];
+        this.spinners = [];
+        this.deflectors = [];
+        this.dividers = [];
+        this.slots = [];
+
+        // 動態與互動狀態
+        this.ball = null;
+        this.trail = [];
+        this.confetti = [];
+        this.isDropping = false;
+        this.slotFlash = 0;
+        this.winningIdx = -1;
+        this.winPulse = 0;
+        this.hoveredSlotIdx = -1;
+        this.touchTipTimer = null;
+
+        // 瞄準狀態
+        this.aimX = null;
+        this.isAiming = false;
+        this.lastTs = 0;
+
+        this.buildLayout();
+        this.bindEvents();
+        this.resize();
+
+        var self = this;
+        requestAnimationFrame(function (ts) {
+          self.loop(ts);
+        });
+      }
+
+      PlinkoEngine.prototype.buildLayout = function () {
+        var W = this.VW;
+        var H = this.VH;
+        this.dropZoneH = Math.round(Math.max(54, Math.min(72, H * 0.08)));
+        this.slotH = Math.round(Math.max(102, Math.min(130, H * 0.145)));
+
+        var playTop = this.dropZoneH + 22;
+        var playBot = H - this.slotH - 28;
+        var playH = playBot - playTop;
+
+        // 1. 2 個旋轉小風車（上中段）
+        var spY = playTop + playH * 0.27;
+        var prevSp = this.spinners;
+        this.spinners = [
+          {
+            x: W * 0.33,
+            y: spY,
+            armLen: 33,
+            halfW: 4.0,
+            angle: prevSp[0] ? prevSp[0].angle : 0.4,
+            omega: prevSp[0] ? prevSp[0].omega : 1.5,
+            glow: 0,
+            cooldown: 0,
+            color: '#22D3EE'
+          },
+          {
+            x: W * 0.67,
+            y: spY,
+            armLen: 33,
+            halfW: 4.0,
+            angle: prevSp[1] ? prevSp[1].angle : 1.2,
+            omega: prevSp[1] ? prevSp[1].omega : -1.5,
+            glow: 0,
+            cooldown: 0,
+            color: '#A78BFA'
+          }
+        ];
+
+        // 2. 3 個霓虹高彈性蘑菇頭（上中段兩側 + 下中段中央）
+        var bUpperY = playTop + playH * 0.54;
+        var bLowerY = playTop + playH * 0.78;
+        this.bumpers = [
+          { x: W * 0.27, y: bUpperY, r: 21, glow: 0, ripple: 0, scale: 1, cooldown: 0, color: '#F43F5E', core: '#FDA4AF' },
+          { x: W * 0.73, y: bUpperY, r: 21, glow: 0, ripple: 0, scale: 1, cooldown: 0, color: '#EC4899', core: '#F9A8D4' },
+          { x: W * 0.50, y: bLowerY, r: 23, glow: 0, ripple: 0, scale: 1, cooldown: 0, color: '#10B981', core: '#6EE7B7' }
+        ];
+
+        // 3. 左右兩側 4 對斜角反彈導流板
+        this.deflectors = [];
+        var defFracs = [0.14, 0.39, 0.64, 0.87];
+        var protrude = 20;
+        var halfH = Math.max(20, Math.min(30, playH * 0.046));
+        var rightWall = W - this.wallPad;
+        for (var d = 0; d < defFracs.length; d++) {
+          var cy = playTop + playH * defFracs[d];
+          this.deflectors.push({
+            pTop: { x: this.wallPad, y: cy - halfH },
+            pTip: { x: this.wallPad + protrude, y: cy },
+            pBot: { x: this.wallPad, y: cy + halfH },
+            glow: 0,
+            cooldown: 0
+          });
+          this.deflectors.push({
+            pTop: { x: rightWall, y: cy - halfH },
+            pTip: { x: rightWall - protrude, y: cy },
+            pBot: { x: rightWall, y: cy + halfH },
+            glow: 0,
+            cooldown: 0
+          });
+        }
+
+        // 4. 12 層交錯發光釘陣（自動避讓蘑菇頭、風車與導流板）
+        this.pegs = [];
+        var rows = 12;
+        var rowGap = playH / (rows - 1);
+        var usableW = W - this.wallPad * 2;
+        for (var r = 0; r < rows; r++) {
+          var cols = (r % 2 === 0) ? 8 : 9;
+          var colGap = usableW / (cols + 0.65);
+          var startX = this.wallPad + (usableW - colGap * (cols - 1)) / 2;
+          for (var c = 0; c < cols; c++) {
+            var px = startX + c * colGap;
+            var py = playTop + r * rowGap;
+
+            var blocked = false;
+            for (var bi = 0; bi < this.bumpers.length; bi++) {
+              if (Math.hypot(px - this.bumpers[bi].x, py - this.bumpers[bi].y) < this.bumpers[bi].r + 24) {
+                blocked = true;
+                break;
+              }
+            }
+            if (!blocked) {
+              for (var si = 0; si < this.spinners.length; si++) {
+                if (Math.hypot(px - this.spinners[si].x, py - this.spinners[si].y) < this.spinners[si].armLen + 16) {
+                  blocked = true;
+                  break;
+                }
+              }
+            }
+            if (!blocked) {
+              for (var ki = 0; ki < this.deflectors.length; ki++) {
+                if (Math.hypot(px - this.deflectors[ki].pTip.x, py - this.deflectors[ki].pTip.y) < 28) {
+                  blocked = true;
+                  break;
+                }
+              }
+            }
+            if (!blocked) {
+              this.pegs.push({
+                x: px,
+                y: py,
+                row: r,
+                col: c,
+                glow: 0,
+                ripple: 0,
+                cooldown: 0
+              });
+            }
+          }
+        }
+
+        this.rebuildDividers();
+      };
+
+      PlinkoEngine.prototype.rebuildDividers = function () {
+        this.dividers = [];
+        var n = this.slots.length;
+        if (n <= 0) {
+          this.ballR = 10.0;
+          this.divHalfW = 2.4;
+          this.divTipR = 4.2;
+          return;
+        }
+        var usableW = this.VW - this.wallPad * 2;
+        var slotW = usableW / n;
+        var topY = this.VH - this.slotH;
+
+        // 依槽位寬度動態調整彈珠半徑與隔板厚度，確保 23~30 家時流暢落槽
+        this.ballR = Math.min(10.5, Math.max(5.5, slotW * 0.28));
+        this.divHalfW = Math.max(1.2, Math.min(2.5, slotW * 0.08));
+        this.divTipR = Math.max(2.2, Math.min(4.8, this.divHalfW * 1.75));
+
+        for (var i = 1; i < n; i++) {
+          this.dividers.push({
+            x: this.wallPad + i * slotW,
+            topY: topY,
+            botY: this.VH
+          });
+        }
+      };
+
+      PlinkoEngine.prototype.setSlots = function (list, withFlash) {
+        this.slots = list.slice(0, MAX_SLOTS);
+        this.winningIdx = -1;
+        this.hoveredSlotIdx = -1;
+        if (withFlash) {
+          this.slotFlash = 1.0;
+        }
+        this.rebuildDividers();
+      };
+
+      PlinkoEngine.prototype.randomizeSpinners = function () {
+        for (var i = 0; i < this.spinners.length; i++) {
+          var dir = Math.random() < 0.5 ? 1 : -1;
+          this.spinners[i].omega = dir * (1.2 + Math.random() * 1.5);
+          this.spinners[i].angle = Math.random() * Math.PI * 2;
+          this.spinners[i].glow = 0.8;
+        }
+      };
+
+      /** 安全自適應縮放：防止 0x0 容器崩潰，並維持 0.56~0.85 寬高比與 HiDPI 清晰度 */
+      PlinkoEngine.prototype.resize = function () {
+        if (!this.wrapper || !this.canvas) return;
+        var availW = this.wrapper.clientWidth;
+        var availH = this.wrapper.clientHeight;
+        if (availW < 40 || availH < 40) return;
+
+        var maxW = Math.max(200, availW - 4);
+        var maxH = Math.max(220, availH - 4);
+        var MIN_RATIO = 0.56;
+        var MAX_RATIO = 0.85;
+        var rawRatio = maxW / maxH;
+
+        var dispW, dispH;
+        if (rawRatio > MAX_RATIO) {
+          dispH = maxH;
+          dispW = Math.floor(maxH * MAX_RATIO);
+        } else if (rawRatio < MIN_RATIO) {
+          dispW = maxW;
+          dispH = Math.floor(maxW / MIN_RATIO);
+        } else {
+          dispW = maxW;
+          dispH = maxH;
+        }
+
+        dispW = Math.max(200, dispW);
+        dispH = Math.max(220, dispH);
+
+        var dpr = window.devicePixelRatio || 1;
+        this.canvas.style.width = dispW + 'px';
+        this.canvas.style.height = dispH + 'px';
+        this.canvas.width = Math.round(dispW * dpr);
+        this.canvas.height = Math.round(dispH * dpr);
+
+        var aspect = dispW / dispH;
+        var newVH = Math.max(700, Math.min(1050, Math.round(this.VW / aspect)));
+        if (Math.abs(newVH - this.VH) >= 6) {
+          var scaleY = newVH / this.VH;
+          this.VH = newVH;
+          if (this.ball) {
+            this.ball.y *= scaleY;
+            for (var i = 0; i < this.trail.length; i++) {
+              this.trail[i].y *= scaleY;
+            }
+          }
+          for (var j = 0; j < this.confetti.length; j++) {
+            this.confetti[j].y *= scaleY;
+          }
+          this.buildLayout();
+        }
+      };
+
+      PlinkoEngine.prototype.bindEvents = function () {
+        var self = this;
+
+        if (typeof ResizeObserver !== 'undefined') {
+          try {
+            this.ro = new ResizeObserver(function () {
+              self.resize();
+            });
+            this.ro.observe(this.wrapper);
+          } catch (e) {}
+        }
+
+        window.addEventListener('resize', function () {
+          self.resize();
+        });
+        window.addEventListener('orientationchange', function () {
+          setTimeout(function () { self.resize(); }, 120);
+        });
+
+        function toVirtual(clientX, clientY) {
+          var rect = self.canvas.getBoundingClientRect();
+          if (rect.width <= 0 || rect.height <= 0) return { x: 0, y: 0 };
+          return {
+            x: ((clientX - rect.left) / rect.width) * self.VW,
+            y: ((clientY - rect.top) / rect.height) * self.VH
+          };
+        }
+
+        function clampDropX(x) {
+          return Math.max(self.wallPad + 18, Math.min(self.VW - self.wallPad - 18, x));
+        }
+
+        function slotIndexAt(pos) {
+          if (self.slots.length === 0) return -1;
+          var topY = self.VH - self.slotH;
+          if (pos.y < topY || pos.x < self.wallPad || pos.x > self.VW - self.wallPad) {
+            return -1;
+          }
+          var usableW = self.VW - self.wallPad * 2;
+          var slotW = usableW / self.slots.length;
+          var idx = Math.floor((pos.x - self.wallPad) / slotW);
+          return Math.max(0, Math.min(self.slots.length - 1, idx));
+        }
+
+        this.canvas.addEventListener('pointerdown', function (e) {
+          var pos = toVirtual(e.clientX, e.clientY);
+
+          // 觸碰底部槽位：浮現完整店名 Tooltip
+          var sIdx = slotIndexAt(pos);
+          if (sIdx !== -1) {
+            self.hoveredSlotIdx = sIdx;
+            if (self.touchTipTimer) clearTimeout(self.touchTipTimer);
+            if (e.pointerType !== 'mouse') {
+              self.touchTipTimer = setTimeout(function () {
+                self.hoveredSlotIdx = -1;
+              }, 2400);
+            }
+            return;
+          }
+
+          if (self.isDropping || self.slots.length === 0) return;
+
+          // 點擊或拖曳頂部投球區自選落點
+          if (pos.y <= self.dropZoneH + 100) {
+            self.hoveredSlotIdx = -1;
+            self.isAiming = true;
+            self.aimX = clampDropX(pos.x);
+            try {
+              self.canvas.setPointerCapture(e.pointerId);
+            } catch (err) {}
+          }
+        });
+
+        this.canvas.addEventListener('pointermove', function (e) {
+          var pos = toVirtual(e.clientX, e.clientY);
+          if (self.isAiming) {
+            self.aimX = clampDropX(pos.x);
+            return;
+          }
+
+          var sIdx = slotIndexAt(pos);
+          if (sIdx !== -1) {
+            self.hoveredSlotIdx = sIdx;
+            self.aimX = null;
+            return;
+          }
+
+          if (e.pointerType === 'mouse') {
+            self.hoveredSlotIdx = -1;
+            if (!self.isDropping && pos.y <= self.dropZoneH + 60) {
+              self.aimX = clampDropX(pos.x);
+            } else {
+              self.aimX = null;
+            }
+          }
+        });
+
+        this.canvas.addEventListener('pointerup', function (e) {
+          if (!self.isAiming) return;
+          var dropX = self.aimX;
+          self.isAiming = false;
+          if (e.pointerType !== 'mouse') {
+            self.aimX = null;
+          }
+          try {
+            self.canvas.releasePointerCapture(e.pointerId);
+          } catch (err) {}
+
+          if (typeof dropX === 'number' && !self.isDropping && self.slots.length > 0) {
+            self.dropBall(dropX);
+          }
+        });
+
+        this.canvas.addEventListener('pointercancel', function () {
+          self.isAiming = false;
+          self.aimX = null;
+          self.hoveredSlotIdx = -1;
+        });
+
+        this.canvas.addEventListener('pointerleave', function (e) {
+          if (!self.isAiming && e.pointerType === 'mouse') {
+            self.aimX = null;
+            self.hoveredSlotIdx = -1;
+          }
+        });
+      };
+
+      PlinkoEngine.prototype.dropBall = function (customX) {
+        if (this.isDropping || this.slots.length === 0) return false;
+
+        if (typeof this.onBeforeDrop === 'function') {
+          this.onBeforeDrop();
+        }
+
+        this.randomizeSpinners();
+
+        var usableW = this.VW - this.wallPad * 2;
+        var minX = this.wallPad + usableW * 0.08;
+        var maxX = this.wallPad + usableW * 0.92;
+        var startX;
+        if (typeof customX === 'number' && !isNaN(customX)) {
+          startX = Math.max(this.wallPad + 16, Math.min(this.VW - this.wallPad - 16, customX));
+        } else {
+          startX = minX + Math.random() * (maxX - minX);
+        }
+
+        this.isDropping = true;
+        this.winningIdx = -1;
+        this.winPulse = 0;
+        this.hoveredSlotIdx = -1;
+        this.trail = [];
+        this.confetti = [];
+
+        this.ball = {
+          x: startX,
+          y: Math.round(this.dropZoneH * 0.52),
+          vx: (Math.random() - 0.5) * 190,
+          vy: 15 + Math.random() * 30,
+          elapsed: 0,
+          settled: 0,
+          stuck: 0
+        };
+
+        this.sound.playDrop();
+        if (typeof this.onStateChange === 'function') {
+          this.onStateChange();
+        }
+        return true;
+      };
+
+      PlinkoEngine.prototype.collideSegment = function (b, x1, y1, x2, y2, thickness, bounce, extraVx, extraVy) {
+        var sx = x2 - x1;
+        var sy = y2 - y1;
+        var lenSq = sx * sx + sy * sy;
+        if (lenSq < 0.0001) return false;
+
+        var t = ((b.x - x1) * sx + (b.y - y1) * sy) / lenSq;
+        if (t < 0) t = 0;
+        if (t > 1) t = 1;
+
+        var px = x1 + t * sx;
+        var py = y1 + t * sy;
+        var dx = b.x - px;
+        var dy = b.y - py;
+        var minD = this.ballR + thickness;
+        var distSq = dx * dx + dy * dy;
+
+        if (distSq < minD * minD && distSq > 0.0001) {
+          var dist = Math.sqrt(distSq);
+          var nx = dx / dist;
+          var ny = dy / dist;
+
+          b.x += nx * (minD - dist + 0.3);
+          b.y += ny * (minD - dist + 0.3);
+
+          var rvx = b.vx - extraVx;
+          var rvy = b.vy - extraVy;
+          var vn = rvx * nx + rvy * ny;
+          if (vn < 0) {
+            var nvx = rvx - (1 + bounce) * vn * nx + extraVx;
+            var nvy = rvy - (1 + bounce) * vn * ny + extraVy;
+            var jitter = (Math.random() - 0.5) * 0.32;
+            var cosJ = Math.cos(jitter);
+            var sinJ = Math.sin(jitter);
+            b.vx = nvx * cosJ - nvy * sinJ;
+            b.vy = nvx * sinJ + nvy * cosJ;
+          }
+          return true;
+        }
+        return false;
+      };
+
+      PlinkoEngine.prototype.spawnConfetti = function (cx, cy) {
+        for (var i = 0; i < 72; i++) {
+          var ang = -Math.PI / 2 + (Math.random() - 0.5) * 2.1;
+          var spd = 180 + Math.random() * 340;
+          this.confetti.push({
+            x: cx,
+            y: cy,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd - 65,
+            size: 4 + Math.random() * 5,
+            color: SLOT_PALETTE[Math.floor(Math.random() * SLOT_PALETTE.length)],
+            rot: Math.random() * Math.PI * 2,
+            vRot: (Math.random() - 0.5) * 12,
+            life: 1.0
+          });
+        }
+      };
+
+      PlinkoEngine.prototype.finalizeResult = function () {
+        if (!this.ball || this.slots.length === 0) return;
+        var usableW = this.VW - this.wallPad * 2;
+        var slotW = usableW / this.slots.length;
+        var idx = Math.floor((this.ball.x - this.wallPad) / slotW);
+        idx = Math.max(0, Math.min(this.slots.length - 1, idx));
+
+        this.winningIdx = idx;
+        this.isDropping = false;
+        if (typeof this.onStateChange === 'function') {
+          this.onStateChange();
+        }
+
+        var winner = this.slots[idx];
+        var cx = this.wallPad + (idx + 0.5) * slotW;
+        this.spawnConfetti(cx, this.VH - this.slotH + 12);
+        this.sound.playWin();
+
+        var self = this;
+        if (typeof this.onResult === 'function') {
+          setTimeout(function () {
+            self.onResult(winner);
+          }, 420);
+        }
+      };
+
+      PlinkoEngine.prototype.update = function (dt) {
+        var i;
+        if (this.slotFlash > 0) {
+          this.slotFlash = Math.max(0, this.slotFlash - dt * 2.5);
+        }
+        if (this.winningIdx !== -1) {
+          this.winPulse += dt * 5.2;
+        }
+
+        // 元件動畫衰減與風車旋轉
+        for (i = 0; i < this.pegs.length; i++) {
+          var p = this.pegs[i];
+          if (p.glow > 0) p.glow = Math.max(0, p.glow - dt * 2.8);
+          if (p.ripple > 0) {
+            p.ripple += dt * 3.6;
+            if (p.ripple >= 1) p.ripple = 0;
+          }
+          if (p.cooldown > 0) p.cooldown = Math.max(0, p.cooldown - dt);
+        }
+
+        for (i = 0; i < this.bumpers.length; i++) {
+          var bm = this.bumpers[i];
+          if (bm.glow > 0) bm.glow = Math.max(0, bm.glow - dt * 2.5);
+          if (bm.ripple > 0) {
+            bm.ripple += dt * 3.0;
+            if (bm.ripple >= 1) bm.ripple = 0;
+          }
+          if (bm.scale > 1) bm.scale = Math.max(1, bm.scale - dt * 2.6);
+          if (bm.cooldown > 0) bm.cooldown = Math.max(0, bm.cooldown - dt);
+        }
+
+        for (i = 0; i < this.spinners.length; i++) {
+          var sp = this.spinners[i];
+          sp.angle += sp.omega * dt;
+          if (sp.glow > 0) sp.glow = Math.max(0, sp.glow - dt * 2.6);
+          if (sp.cooldown > 0) sp.cooldown = Math.max(0, sp.cooldown - dt);
+        }
+
+        for (i = 0; i < this.deflectors.length; i++) {
+          var df = this.deflectors[i];
+          if (df.glow > 0) df.glow = Math.max(0, df.glow - dt * 2.8);
+          if (df.cooldown > 0) df.cooldown = Math.max(0, df.cooldown - dt);
+        }
+
+        // 彩帶粒子更新
+        for (i = this.confetti.length - 1; i >= 0; i--) {
+          var cp = this.confetti[i];
+          cp.vy += 420 * dt;
+          cp.x += cp.vx * dt;
+          cp.y += cp.vy * dt;
+          cp.rot += cp.vRot * dt;
+          cp.life -= dt * 0.65;
+          if (cp.life <= 0) {
+            this.confetti.splice(i, 1);
+          }
+        }
+
+        if (!this.ball || !this.isDropping) return;
+
+        var b = this.ball;
+        b.elapsed += dt;
+
+        // 10 秒防卡死保護：逐步減少反彈並溫和引導落入槽位
+        var overtime = Math.max(0, b.elapsed - 10.0);
+        var gravity = this.baseGravity * (this.VH / 820) + overtime * 120;
+        var slotTopY = this.VH - this.slotH;
+        var floorY = this.VH - 4;
+
+        var subSteps = 4;
+        var subDt = dt / subSteps;
+
+        for (var s = 0; s < subSteps; s++) {
+          b.vy += gravity * subDt;
+          b.vx *= Math.pow(this.airFriction, subDt * 60);
+          b.vy *= Math.pow(this.airFriction, subDt * 60);
+
+          // 終端速度上限，營造輕盈緩降的懸念感
+          var spd = Math.hypot(b.vx, b.vy);
+          if (spd > this.maxSpeed) {
+            var ratio = this.maxSpeed / spd;
+            b.vx *= ratio;
+            b.vy *= ratio;
+          }
+
+          b.x += b.vx * subDt;
+          b.y += b.vy * subDt;
+
+          // 左右邊牆反彈
+          var leftBound = this.wallPad + this.ballR;
+          var rightBound = this.VW - this.wallPad - this.ballR;
+          if (b.x < leftBound) {
+            b.x = leftBound;
+            b.vx = Math.abs(b.vx) * 0.72 + 24;
+          } else if (b.x > rightBound) {
+            b.x = rightBound;
+            b.vx = -Math.abs(b.vx) * 0.72 - 24;
+          }
+
+          if (b.y < this.ballR + 4) {
+            b.y = this.ballR + 4;
+            b.vy = Math.abs(b.vy) * 0.5;
+          }
+
+          // A. 釘子碰撞（附隨機微角度擾動）
+          var pegMinD = this.ballR + this.pegR;
+          var pegMinSq = pegMinD * pegMinD;
+          for (i = 0; i < this.pegs.length; i++) {
+            var peg = this.pegs[i];
+            var dx = b.x - peg.x;
+            var dy = b.y - peg.y;
+            var dSq = dx * dx + dy * dy;
+            if (dSq < pegMinSq && dSq > 0.0001) {
+              var d = Math.sqrt(dSq);
+              var nx = dx / d;
+              var ny = dy / d;
+              b.x += nx * (pegMinD - d + 0.25);
+              b.y += ny * (pegMinD - d + 0.25);
+
+              var vn = b.vx * nx + b.vy * ny;
+              if (vn < 0) {
+                var bounce = overtime > 0 ? 0.45 : this.pegBounce;
+                var rvx = b.vx - (1 + bounce) * vn * nx;
+                var rvy = b.vy - (1 + bounce) * vn * ny;
+                var jitter = (Math.random() - 0.5) * 0.42;
+                var cJ = Math.cos(jitter);
+                var sJ = Math.sin(jitter);
+                b.vx = rvx * cJ - rvy * sJ + (Math.random() - 0.5) * 28;
+                b.vy = rvx * sJ + rvy * cJ;
+
+                // 防止垂直正撞釘頂停滯
+                if (Math.abs(nx) < 0.16 && b.vy < 45) {
+                  b.vx += (Math.random() < 0.5 ? -1 : 1) * 58;
+                }
+              }
+
+              if (peg.cooldown <= 0) {
+                peg.glow = 1.0;
+                peg.ripple = 0.01;
+                peg.cooldown = 0.12;
+                this.sound.playPeg(peg.row, peg.col);
+              }
+            }
+          }
+
+          // B. 3 個高彈性霓虹蘑菇頭
+          for (i = 0; i < this.bumpers.length; i++) {
+            var bump = this.bumpers[i];
+            var bMinD = this.ballR + bump.r;
+            var bdx = b.x - bump.x;
+            var bdy = b.y - bump.y;
+            var bdSq = bdx * bdx + bdy * bdy;
+            if (bdSq < bMinD * bMinD && bdSq > 0.0001) {
+              var bd = Math.sqrt(bdSq);
+              var bnx = bdx / bd;
+              var bny = bdy / bd;
+              b.x += bnx * (bMinD - bd + 0.5);
+              b.y += bny * (bMinD - bd + 0.5);
+
+              var kickSpd = overtime > 0 ? 180 : (305 + Math.random() * 85);
+              var bAngle = Math.atan2(bny, bnx) + (Math.random() - 0.5) * 0.36;
+              b.vx = Math.cos(bAngle) * kickSpd;
+              b.vy = Math.sin(bAngle) * kickSpd;
+
+              if (bump.cooldown <= 0) {
+                bump.glow = 1.0;
+                bump.ripple = 0.01;
+                bump.scale = 1.24;
+                bump.cooldown = 0.16;
+                this.sound.playBumper();
+              }
+            }
+          }
+
+          // C. 2 個動態旋轉風車
+          for (i = 0; i < this.spinners.length; i++) {
+            var spin = this.spinners[i];
+            var cosA = Math.cos(spin.angle);
+            var sinA = Math.sin(spin.angle);
+            var ex = cosA * spin.armLen;
+            var ey = sinA * spin.armLen;
+            var px1 = -sinA * spin.armLen;
+            var py1 = cosA * spin.armLen;
+
+            var hit1 = this.collideSegment(
+              b, spin.x - ex, spin.y - ey, spin.x + ex, spin.y + ey,
+              spin.halfW, overtime > 0 ? 0.45 : 0.85,
+              -sinA * spin.omega * 28, cosA * spin.omega * 28
+            );
+            var hit2 = this.collideSegment(
+              b, spin.x - px1, spin.y - py1, spin.x + px1, spin.y + py1,
+              spin.halfW, overtime > 0 ? 0.45 : 0.85,
+              -cosA * spin.omega * 28, -sinA * spin.omega * 28
+            );
+            if ((hit1 || hit2) && spin.cooldown <= 0) {
+              spin.glow = 1.0;
+              spin.cooldown = 0.14;
+              this.sound.playSpinner();
+            }
+          }
+
+          // D. 4 對左右側壁斜角反彈導流板
+          for (i = 0; i < this.deflectors.length; i++) {
+            var def = this.deflectors[i];
+            var hTop = this.collideSegment(
+              b, def.pTop.x, def.pTop.y, def.pTip.x, def.pTip.y,
+              2.8, overtime > 0 ? 0.5 : 0.88, 0, 0
+            );
+            var hBot = this.collideSegment(
+              b, def.pTip.x, def.pTip.y, def.pBot.x, def.pBot.y,
+              2.8, overtime > 0 ? 0.5 : 0.88, 0, 0
+            );
+            if ((hTop || hBot) && def.cooldown <= 0) {
+              def.glow = 1.0;
+              def.cooldown = 0.14;
+              this.sound.playPeg(3, i);
+            }
+          }
+
+          // E. 底部圓頭槽位隔板（動態半徑防卡球）
+          var tipMinD = this.ballR + this.divTipR;
+          var tipMinSq = tipMinD * tipMinD;
+          for (i = 0; i < this.dividers.length; i++) {
+            var div = this.dividers[i];
+            var tdx = b.x - div.x;
+            var tdy = b.y - div.topY;
+            var tdSq = tdx * tdx + tdy * tdy;
+
+            if (tdSq < tipMinSq && tdSq > 0.0001) {
+              var td = Math.sqrt(tdSq);
+              var tnx = tdx / td;
+              var tny = tdy / td;
+              b.x += tnx * (tipMinD - td + 0.2);
+              b.y += tny * (tipMinD - td + 0.2);
+
+              var tvn = b.vx * tnx + b.vy * tny;
+              if (tvn < 0) {
+                var tipBounce = overtime > 0 ? 0.35 : 0.78;
+                b.vx -= (1 + tipBounce) * tvn * tnx;
+                b.vy -= (1 + tipBounce) * tvn * tny;
+                // 若球幾乎正停在隔板圓頂，強制推向左右任一槽口
+                if (Math.abs(tnx) < 0.35) {
+                  b.vx += (Math.random() < 0.5 ? -1 : 1) * 70;
+                }
+              }
+            } else if (b.y > div.topY) {
+              var sdx = b.x - div.x;
+              var minSep = this.ballR + this.divHalfW;
+              if (Math.abs(sdx) < minSep) {
+                if (sdx >= 0) {
+                  b.x = div.x + minSep;
+                  b.vx = Math.abs(b.vx) * 0.4;
+                } else {
+                  b.x = div.x - minSep;
+                  b.vx = -Math.abs(b.vx) * 0.4;
+                }
+              }
+            }
+          }
+
+          // F. 底部地板
+          if (b.y + this.ballR > floorY) {
+            b.y = floorY - this.ballR;
+            b.vy = -Math.abs(b.vy) * 0.28;
+            b.vx *= 0.8;
+            if (Math.abs(b.vy) < 22) b.vy = 0;
+          }
+        }
+
+        // 金色彗星拖尾紀錄
+        this.trail.push({ x: b.x, y: b.y });
+        if (this.trail.length > 26) this.trail.shift();
+
+        // 防卡死推進器（包含槽口隔板上方）
+        var curSpeed = Math.hypot(b.vx, b.vy);
+        if (b.y < slotTopY + 16 && curSpeed < 28) {
+          b.stuck += dt;
+          if (b.stuck > 0.45) {
+            b.vx += (Math.random() < 0.5 ? -1 : 1) * 105;
+            b.vy += 60;
+            b.stuck = 0;
+          }
+        } else {
+          b.stuck = 0;
+        }
+
+        // 13 秒強制收尾保障
+        if (b.elapsed > 13.0 && b.y < slotTopY + 20) {
+          b.vy += 180 * dt;
+        }
+
+        // 落入槽位穩定後觸發開獎
+        if (b.y > slotTopY + 20 && curSpeed < 38 && this.winningIdx === -1) {
+          b.settled += dt;
+          if (b.settled > 0.3) {
+            this.finalizeResult();
+          }
+        }
+      };
+
+      PlinkoEngine.prototype.drawSlotLabel = function (ctx, name, slotX, slotTopY, slotW, slotH, isWinner) {
+        ctx.save();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = isWinner ? 'rgba(0,0,0,0.95)' : 'rgba(0,0,0,0.8)';
+        ctx.shadowBlur = isWinner ? 6 : 4;
+
+        var cx = slotX + slotW / 2;
+        var cy = slotTopY + slotH / 2 + 2;
+        var isAscii = /^[A-Za-z0-9\s\-&'.]+$/.test(name);
+
+        if (slotW >= 80) {
+          // 寬槽位：橫排最多 2 行
+          var fs = Math.min(15, Math.max(12, Math.floor(slotW / 6)));
+          ctx.font = 'bold ' + fs + 'px "Noto Sans TC", sans-serif';
+          var maxPerLine = Math.max(3, Math.floor((slotW - 10) / (fs * 0.96)));
+          if (name.length <= maxPerLine) {
+            ctx.fillText(name, cx, cy);
+          } else {
+            var l1 = name.slice(0, maxPerLine);
+            var l2 = name.slice(maxPerLine);
+            if (l2.length > maxPerLine) l2 = l2.slice(0, maxPerLine - 1) + '…';
+            ctx.fillText(l1, cx, cy - fs * 0.65);
+            ctx.fillText(l2, cx, cy + fs * 0.65);
+          }
+        } else if (isAscii) {
+          // 英文／數字店名（例如 LaLaPort）：順時針旋轉 90° 直排
+          var availLen = slotH - 16;
+          var efs = Math.min(13.5, Math.max(9.5, slotW * 0.56));
+          ctx.font = 'bold ' + efs + 'px "Noto Sans TC", sans-serif';
+          var tw = ctx.measureText(name).width;
+          if (tw > availLen && tw > 0) {
+            efs = Math.max(8.5, efs * (availLen / tw));
+            ctx.font = 'bold ' + efs + 'px "Noto Sans TC", sans-serif';
+          }
+          ctx.translate(cx, cy);
+          ctx.rotate(Math.PI / 2);
+          ctx.fillText(name, 0, 0);
+        } else {
+          // 窄槽位繁體中文：由上往下直排，最多顯示 5 字
+          var chars = Array.from(name);
+          var availH = slotH - 14;
+          var maxChars = slotH >= 112 ? 5 : 4;
+          var cfs = Math.min(14, Math.max(10, Math.floor(slotW * 0.56)));
+          var lineH = cfs * 1.15;
+          var fit = Math.min(maxChars, Math.max(2, Math.floor(availH / lineH)));
+
+          if (chars.length > fit && cfs > 10) {
+            cfs = Math.max(10, Math.min(cfs, Math.floor(availH / (Math.min(chars.length, maxChars) * 1.14))));
+            lineH = cfs * 1.13;
+            fit = Math.min(maxChars, Math.max(2, Math.floor(availH / lineH)));
+          }
+
+          var disp = chars.length > fit ? chars.slice(0, fit - 1).concat(['…']) : chars;
+          ctx.font = 'bold ' + cfs + 'px "Noto Sans TC", sans-serif';
+          var totalH = (disp.length - 1) * lineH;
+          var sy = cy - totalH / 2;
+          for (var k = 0; k < disp.length; k++) {
+            ctx.fillText(disp[k], cx, sy + k * lineH);
+          }
+        }
+        ctx.restore();
+      };
+
+      PlinkoEngine.prototype.drawTooltip = function (ctx, slotIdx) {
+        var item = this.slots[slotIdx];
+        if (!item) return;
+
+        var usableW = this.VW - this.wallPad * 2;
+        var slotW = usableW / this.slots.length;
+        var cx = this.wallPad + (slotIdx + 0.5) * slotW;
+        var slotTopY = this.VH - this.slotH;
+
+        var meta = getTransportMeta(item.transport);
+        var text = item.name + ' · ' + meta.icon + ' ' + item.transport;
+
+        ctx.save();
+        ctx.font = 'bold 13.5px "Noto Sans TC", sans-serif';
+        var padX = 12;
+        var boxH = 32;
+        var boxW = Math.min(this.VW - 20, ctx.measureText(text).width + padX * 2);
+        var boxX = Math.max(10, Math.min(this.VW - 10 - boxW, cx - boxW / 2));
+        var boxY = slotTopY - boxH - 12;
+        var r = 10;
+
+        ctx.shadowColor = 'rgba(0,0,0,0.75)';
+        ctx.shadowBlur = 12;
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.96)';
+        ctx.strokeStyle = '#FDE047';
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        ctx.moveTo(boxX + r, boxY);
+        ctx.lineTo(boxX + boxW - r, boxY);
+        ctx.quadraticCurveTo(boxX + boxW, boxY, boxX + boxW, boxY + r);
+        ctx.lineTo(boxX + boxW, boxY + boxH - r);
+        ctx.quadraticCurveTo(boxX + boxW, boxY + boxH, boxX + boxW - r, boxY + boxH);
+        ctx.lineTo(boxX + r, boxY + boxH);
+        ctx.quadraticCurveTo(boxX, boxY + boxH, boxX, boxY + boxH - r);
+        ctx.lineTo(boxX, boxY + r);
+        ctx.quadraticCurveTo(boxX, boxY, boxX + r, boxY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.stroke();
+
+        var triX = Math.max(boxX + 12, Math.min(boxX + boxW - 12, cx));
+        ctx.fillStyle = '#FDE047';
+        ctx.beginPath();
+        ctx.moveTo(triX - 6, boxY + boxH);
+        ctx.lineTo(triX + 6, boxY + boxH);
+        ctx.lineTo(triX, boxY + boxH + 7);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#FEF9C3';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, boxX + boxW / 2, boxY + boxH / 2 + 0.5);
+        ctx.restore();
+      };
+
+      PlinkoEngine.prototype.draw = function () {
+        var ctx = this.ctx;
+        if (!ctx || this.canvas.width === 0 || this.canvas.height === 0) return;
+
+        ctx.save();
+        ctx.setTransform(this.canvas.width / this.VW, 0, 0, this.canvas.height / this.VH, 0, 0);
+
+        // 1. 深藍街機背景與微妙網格
+        var bg = ctx.createLinearGradient(0, 0, 0, this.VH);
+        bg.addColorStop(0, '#0b1326');
+        bg.addColorStop(0.55, '#091020');
+        bg.addColorStop(1, '#060a14');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, this.VW, this.VH);
+
+        // 2. 頂部投球區背景與虛線分隔
+        ctx.fillStyle = 'rgba(34, 211, 238, 0.05)';
+        ctx.fillRect(this.wallPad, 0, this.VW - this.wallPad * 2, this.dropZoneH);
+
+        ctx.save();
+        ctx.strokeStyle = 'rgba(34, 211, 238, 0.28)';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([6, 6]);
+        ctx.beginPath();
+        ctx.moveTo(this.wallPad, this.dropZoneH);
+        ctx.lineTo(this.VW - this.wallPad, this.dropZoneH);
+        ctx.stroke();
+        ctx.restore();
+
+        // 投球區瞄準光束與預覽彈珠
+        if (!this.isDropping && this.slots.length > 0 && typeof this.aimX === 'number') {
+          ctx.save();
+          var beam = ctx.createLinearGradient(this.aimX, this.dropZoneH * 0.5, this.aimX, this.VH - this.slotH);
+          beam.addColorStop(0, 'rgba(253, 224, 71, 0.45)');
+          beam.addColorStop(1, 'rgba(253, 224, 71, 0.02)');
+          ctx.strokeStyle = beam;
+          ctx.lineWidth = 2;
+          ctx.setLineDash([5, 5]);
+          ctx.beginPath();
+          ctx.moveTo(this.aimX, this.dropZoneH * 0.5);
+          ctx.lineTo(this.aimX, this.VH - this.slotH);
+          ctx.stroke();
+
+          ctx.setLineDash([]);
+          ctx.shadowColor = '#FDE047';
+          ctx.shadowBlur = 14;
+          ctx.beginPath();
+          ctx.arc(this.aimX, this.dropZoneH * 0.52, this.ballR, 0, Math.PI * 2);
+          ctx.fillStyle = '#FDE047';
+          ctx.fill();
+          ctx.restore();
+        } else if (!this.isDropping && this.slots.length > 0) {
+          ctx.save();
+          ctx.fillStyle = 'rgba(148, 163, 184, 0.65)';
+          ctx.font = 'bold 12px "Noto Sans TC", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('▼ 點擊或拖曳此處自選落點 ▼', this.VW / 2, this.dropZoneH / 2);
+          ctx.restore();
+        }
+
+        // 3. 左右側邊霓虹牆柱
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(0, 0, this.wallPad, this.VH);
+        ctx.fillRect(this.VW - this.wallPad, 0, this.wallPad, this.VH);
+        ctx.strokeStyle = 'rgba(34, 211, 238, 0.35)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(this.wallPad, 0);
+        ctx.lineTo(this.wallPad, this.VH);
+        ctx.moveTo(this.VW - this.wallPad, 0);
+        ctx.lineTo(this.VW - this.wallPad, this.VH);
+        ctx.stroke();
+
+        // 4. 4 對左右斜角導流板
+        var i;
+        for (i = 0; i < this.deflectors.length; i++) {
+          var df = this.deflectors[i];
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(df.pTop.x, df.pTop.y);
+          ctx.lineTo(df.pTip.x, df.pTip.y);
+          ctx.lineTo(df.pBot.x, df.pBot.y);
+          ctx.closePath();
+          ctx.fillStyle = df.glow > 0.1 ? 'rgba(253, 224, 71, 0.55)' : 'rgba(34, 211, 238, 0.24)';
+          ctx.fill();
+          ctx.strokeStyle = df.glow > 0.1 ? '#FEF08A' : '#22D3EE';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // 5. 底部店家槽位與隔板
+        var n = this.slots.length;
+        var slotTopY = this.VH - this.slotH;
+        if (n > 0) {
+          var usableW = this.VW - this.wallPad * 2;
+          var slotW = usableW / n;
+
+          for (i = 0; i < n; i++) {
+            var sx = this.wallPad + i * slotW;
+            var col = SLOT_PALETTE[i % SLOT_PALETTE.length];
+            var isWin = (i === this.winningIdx);
+            var isHov = (i === this.hoveredSlotIdx);
+
+            var grad = ctx.createLinearGradient(sx, slotTopY, sx, this.VH);
+            grad.addColorStop(0, hexToRgba(col, isWin ? 0.88 : isHov ? 0.58 : 0.34));
+            grad.addColorStop(1, hexToRgba(col, isWin ? 1.0 : isHov ? 0.82 : 0.62));
+            ctx.fillStyle = grad;
+            ctx.fillRect(sx, slotTopY, slotW, this.slotH);
+
+            if (this.slotFlash > 0.01) {
+              ctx.fillStyle = 'rgba(254, 240, 138, ' + (this.slotFlash * 0.48) + ')';
+              ctx.fillRect(sx, slotTopY, slotW, this.slotH);
+            }
+
+            if (isHov && !isWin) {
+              ctx.strokeStyle = 'rgba(254, 240, 138, 0.85)';
+              ctx.lineWidth = 2;
+              ctx.strokeRect(sx + 1, slotTopY + 1, slotW - 2, this.slotH - 2);
+            }
+
+            this.drawSlotLabel(ctx, this.slots[i].name, sx, slotTopY, slotW, this.slotH, isWin);
+          }
+
+          // 槽位隔板與圓頭門檻
+          var divW = Math.max(2, this.divHalfW * 2);
+          for (i = 0; i < this.dividers.length; i++) {
+            var div = this.dividers[i];
+            ctx.strokeStyle = '#CBD5E1';
+            ctx.lineWidth = divW;
+            ctx.beginPath();
+            ctx.moveTo(div.x, div.topY);
+            ctx.lineTo(div.x, div.botY);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(div.x, div.topY, this.divTipR, 0, Math.PI * 2);
+            ctx.fillStyle = '#FBBF24';
+            ctx.fill();
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = Math.max(1, this.divTipR * 0.3);
+            ctx.stroke();
+          }
+
+          // 中獎槽位脈動金色光暈
+          if (this.winningIdx >= 0 && this.winningIdx < n) {
+            var wi = this.winningIdx;
+            var wx = this.wallPad + wi * slotW;
+            var pulse = 0.5 + 0.5 * Math.sin(this.winPulse);
+            var pad = 2 + pulse * 2.5;
+            ctx.save();
+            ctx.shadowColor = '#FDE047';
+            ctx.shadowBlur = 18 + pulse * 14;
+            ctx.fillStyle = 'rgba(254, 240, 138, ' + (0.18 + pulse * 0.16) + ')';
+            ctx.fillRect(wx - pad * 0.5, slotTopY - pad, slotW + pad, this.slotH + pad);
+            ctx.strokeStyle = '#FEF08A';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(wx - pad * 0.5, slotTopY - pad, slotW + pad, this.slotH + pad);
+            ctx.restore();
+            this.drawSlotLabel(ctx, this.slots[wi].name, wx, slotTopY, slotW, this.slotH, true);
+          }
+        }
+
+        // 6. 12 層交錯發光釘子
+        for (i = 0; i < this.pegs.length; i++) {
+          var peg = this.pegs[i];
+          if (peg.ripple > 0) {
+            ctx.beginPath();
+            ctx.arc(peg.x, peg.y, this.pegR + peg.ripple * 18, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(253, 224, 71, ' + ((1 - peg.ripple) * 0.75) + ')';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          }
+          var pg = ctx.createRadialGradient(peg.x - 1.5, peg.y - 1.5, 1, peg.x, peg.y, this.pegR);
+          if (peg.glow > 0.15) {
+            pg.addColorStop(0, '#FFFFFF');
+            pg.addColorStop(0.5, '#FDE047');
+            pg.addColorStop(1, '#F59E0B');
+          } else {
+            pg.addColorStop(0, '#E2E8F0');
+            pg.addColorStop(0.55, '#94A3B8');
+            pg.addColorStop(1, '#475569');
+          }
+          ctx.beginPath();
+          ctx.arc(peg.x, peg.y, this.pegR, 0, Math.PI * 2);
+          ctx.fillStyle = pg;
+          ctx.fill();
+        }
+
+        // 7. 2 個旋轉小風車
+        for (i = 0; i < this.spinners.length; i++) {
+          var sp = this.spinners[i];
+          ctx.save();
+          ctx.translate(sp.x, sp.y);
+          ctx.rotate(sp.angle);
+          ctx.shadowColor = sp.color;
+          ctx.shadowBlur = 10 + sp.glow * 14;
+          ctx.strokeStyle = sp.glow > 0.2 ? '#FFFFFF' : sp.color;
+          ctx.lineWidth = sp.halfW * 2;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(-sp.armLen, 0);
+          ctx.lineTo(sp.armLen, 0);
+          ctx.moveTo(0, -sp.armLen);
+          ctx.lineTo(0, sp.armLen);
+          ctx.stroke();
+
+          ctx.shadowBlur = 0;
+          ctx.beginPath();
+          ctx.arc(0, 0, 6.4, 0, Math.PI * 2);
+          ctx.fillStyle = '#F8FAFC';
+          ctx.fill();
+          ctx.strokeStyle = sp.color;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // 8. 3 個霓虹強力彈跳蘑菇頭
+        for (i = 0; i < this.bumpers.length; i++) {
+          var bm = this.bumpers[i];
+          var drawR = bm.r * bm.scale;
+          if (bm.ripple > 0) {
+            ctx.beginPath();
+            ctx.arc(bm.x, bm.y, bm.r + bm.ripple * 34, 0, Math.PI * 2);
+            ctx.strokeStyle = hexToRgba(bm.color, (1 - bm.ripple) * 0.88);
+            ctx.lineWidth = 3;
+            ctx.stroke();
+          }
+
+          ctx.save();
+          ctx.shadowColor = bm.color;
+          ctx.shadowBlur = 14 + bm.glow * 16;
+          var bgd = ctx.createRadialGradient(bm.x - 4, bm.y - 4, 2.5, bm.x, bm.y, drawR);
+          bgd.addColorStop(0, bm.glow > 0.25 ? '#FFFFFF' : bm.core);
+          bgd.addColorStop(0.55, bm.color);
+          bgd.addColorStop(1, '#1E1B4B');
+
+          ctx.beginPath();
+          ctx.arc(bm.x, bm.y, drawR, 0, Math.PI * 2);
+          ctx.fillStyle = bgd;
+          ctx.fill();
+          ctx.lineWidth = 2.4;
+          ctx.strokeStyle = bm.glow > 0.2 ? '#FEF08A' : '#F8FAFC';
+          ctx.stroke();
+
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = '#FFFFFF';
+          ctx.font = 'bold 13px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('★', bm.x, bm.y + 1);
+          ctx.restore();
+        }
+
+        // 9. 金色彗星拖尾與彈珠
+        if (this.ball) {
+          if (this.trail.length > 2) {
+            for (i = 1; i < this.trail.length; i++) {
+              var prev = this.trail[i - 1];
+              var curr = this.trail[i];
+              var ratio = i / this.trail.length;
+              ctx.beginPath();
+              ctx.moveTo(prev.x, prev.y);
+              ctx.lineTo(curr.x, curr.y);
+              ctx.strokeStyle = 'rgba(251, 191, 36, ' + (ratio * 0.65) + ')';
+              ctx.lineWidth = this.ballR * 1.5 * ratio;
+              ctx.lineCap = 'round';
+              ctx.stroke();
+            }
+          }
+
+          ctx.save();
+          ctx.shadowColor = '#FBBF24';
+          ctx.shadowBlur = 16;
+          var blg = ctx.createRadialGradient(
+            this.ball.x - 2.5, this.ball.y - 2.5, 1,
+            this.ball.x, this.ball.y, this.ballR
+          );
+          blg.addColorStop(0, '#FFFBEB');
+          blg.addColorStop(0.4, '#FDE047');
+          blg.addColorStop(0.85, '#F59E0B');
+          blg.addColorStop(1, '#B45309');
+
+          ctx.beginPath();
+          ctx.arc(this.ball.x, this.ball.y, this.ballR, 0, Math.PI * 2);
+          ctx.fillStyle = blg;
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // 10. 中獎彩帶粒子
+        for (i = 0; i < this.confetti.length; i++) {
+          var pt = this.confetti[i];
+          ctx.save();
+          ctx.translate(pt.x, pt.y);
+          ctx.rotate(pt.rot);
+          ctx.globalAlpha = Math.max(0, pt.life);
+          ctx.fillStyle = pt.color;
+          ctx.fillRect(-pt.size / 2, -pt.size / 2, pt.size, pt.size * 0.6);
+          ctx.restore();
+        }
+
+        // 11. 底部槽位即時完整店名 Tooltip
+        if (this.hoveredSlotIdx >= 0 && this.hoveredSlotIdx < this.slots.length) {
+          this.drawTooltip(ctx, this.hoveredSlotIdx);
+        }
+
+        ctx.restore();
+      };
+
+      PlinkoEngine.prototype.loop = function (ts) {
+        if (!this.lastTs) this.lastTs = ts;
+        var dt = Math.min(0.033, Math.max(0.001, (ts - this.lastTs) / 1000));
+        this.lastTs = ts;
+
+        this.update(dt);
+        this.draw();
+
+        var self = this;
+        requestAnimationFrame(function (nextTs) {
+          self.loop(nextTs);
+        });
+      };
+
+      /* =====================================================================
+       * 5. 應用程式狀態、DOM 參照與 UI 邏輯
+       * ===================================================================== */
+      var state = {
+        restaurants: [],
+        selectedTransports: new Set(),
+        searchQuery: '',
+        autoShuffle: true,
+        boardSlots: [],
+        lastWinner: null,
+        pendingConfirm: null
+      };
+
+      var els = {
+        appShell: document.getElementById('appShell'),
+        soundToggleBtn: document.getElementById('soundToggleBtn'),
+        soundIcon: document.getElementById('soundIcon'),
+        soundText: document.getElementById('soundText'),
+        exportBtn: document.getElementById('exportBtn'),
+        importInput: document.getElementById('importInput'),
+
+        filterChips: document.getElementById('filterChips'),
+        candidateCount: document.getElementById('candidateCount'),
+        canvasStageWrapper: document.getElementById('canvasStageWrapper'),
+        plinkoCanvas: document.getElementById('plinkoCanvas'),
+        emptyOverlay: document.getElementById('emptyOverlay'),
+        dropBallBtn: document.getElementById('dropBallBtn'),
+        dropBallText: document.getElementById('dropBallText'),
+        autoShuffleCheck: document.getElementById('autoShuffleCheck'),
+        manualShuffleBtn: document.getElementById('manualShuffleBtn'),
+
+        formCard: document.getElementById('formCard'),
+        formToggleBtn: document.getElementById('formToggleBtn'),
+        formHeaderTitle: document.getElementById('formHeaderTitle'),
+        restaurantForm: document.getElementById('restaurantForm'),
+        editIdInput: document.getElementById('editIdInput'),
+        nameInput: document.getElementById('nameInput'),
+        transportSelect: document.getElementById('transportSelect'),
+        customTransportWrap: document.getElementById('customTransportWrap'),
+        customTransportInput: document.getElementById('customTransportInput'),
+        timeInput: document.getElementById('timeInput'),
+        noteInput: document.getElementById('noteInput'),
+        mapUrlInput: document.getElementById('mapUrlInput'),
+        submitFormBtn: document.getElementById('submitFormBtn'),
+        cancelEditBtn: document.getElementById('cancelEditBtn'),
+
+        searchInput: document.getElementById('searchInput'),
+        listTotalBadge: document.getElementById('listTotalBadge'),
+        enableAllBtn: document.getElementById('enableAllBtn'),
+        resetDefaultsBtn: document.getElementById('resetDefaultsBtn'),
+        restaurantList: document.getElementById('restaurantList'),
+
+        mobTabBoard: document.getElementById('mobTabBoard'),
+        mobTabList: document.getElementById('mobTabList'),
+        mobTabCount: document.getElementById('mobTabCount'),
+
+        resultModal: document.getElementById('resultModal'),
+        resName: document.getElementById('resName'),
+        resTransport: document.getElementById('resTransport'),
+        resTime: document.getElementById('resTime'),
+        resNote: document.getElementById('resNote'),
+        resMapLink: document.getElementById('resMapLink'),
+        resDecideBtn: document.getElementById('resDecideBtn'),
+        resExcludeCheck: document.getElementById('resExcludeCheck'),
+        resRedrawBtn: document.getElementById('resRedrawBtn'),
+
+        confirmModal: document.getElementById('confirmModal'),
+        confirmTitle: document.getElementById('confirmTitle'),
+        confirmMessage: document.getElementById('confirmMessage'),
+        confirmCancelBtn: document.getElementById('confirmCancelBtn'),
+        confirmOkBtn: document.getElementById('confirmOkBtn'),
+
+        toastStack: document.getElementById('toastStack')
+      };
+
+      /* ----- Toast 提示 ----- */
+      function showToast(msg, type) {
+        var div = document.createElement('div');
+        div.className = 'toast-item toast-' + (type || 'info');
+        div.textContent = msg;
+        els.toastStack.appendChild(div);
+        setTimeout(function () {
+          div.style.opacity = '0';
+          div.style.transition = 'opacity 0.25s ease';
+          setTimeout(function () {
+            if (div.parentNode) div.parentNode.removeChild(div);
+          }, 260);
+        }, 2400);
+      }
+
+      /* ----- 自訂確認彈窗 ----- */
+      function openConfirm(title, message, okLabel, onConfirm) {
+        els.confirmTitle.textContent = title;
+        els.confirmMessage.textContent = message;
+        els.confirmOkBtn.textContent = okLabel || '確認';
+        state.pendingConfirm = onConfirm;
+        els.confirmModal.classList.remove('hidden');
+      }
+
+      function closeConfirm() {
+        els.confirmModal.classList.add('hidden');
+        state.pendingConfirm = null;
+      }
+
+      /* ----- 持久化載入與儲存（v6 全新鍵值） ----- */
+      function sanitizeList(arr) {
+        return arr
+          .filter(function (item) {
+            return item && typeof item.name === 'string' && item.name.trim() !== '';
+          })
+          .map(function (item) {
+            var name = item.name.trim();
+            var timeVal = typeof item.time === 'string'
+              ? item.time.trim()
+              : (typeof item.estTime === 'string' ? item.estTime.trim() : '');
+            var mapVal = typeof item.mapUrl === 'string' && item.mapUrl.trim()
+              ? item.mapUrl.trim()
+              : ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(name));
+            return {
+              id: item.id || generateId(),
+              name: name,
+              transport: (item.transport || '步行').trim(),
+              time: timeVal,
+              note: typeof item.note === 'string' ? item.note.trim() : '',
+              mapUrl: mapVal,
+              isActive: item.isActive !== false
+            };
+          });
+      }
+
+      function saveRestaurants() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state.restaurants));
+        } catch (e) {
+          showToast('瀏覽器儲存空間受限，變更僅保留於本次瀏覽', 'error');
+        }
+      }
+
+      function loadInitialData() {
+        try {
+          var savedShuffle = localStorage.getItem(SHUFFLE_KEY);
+          state.autoShuffle = savedShuffle === null ? true : savedShuffle !== 'false';
+          els.autoShuffleCheck.checked = state.autoShuffle;
+        } catch (e) {
+          state.autoShuffle = true;
+        }
+
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (raw === null) {
+            state.restaurants = buildDefaultRestaurants();
+            saveRestaurants();
+            return;
+          }
+          var parsed = JSON.parse(raw);
+          if (!Array.isArray(parsed)) {
+            state.restaurants = buildDefaultRestaurants();
+            saveRestaurants();
+            return;
+          }
+          state.restaurants = sanitizeList(parsed);
+        } catch (e) {
+          state.restaurants = buildDefaultRestaurants();
+          saveRestaurants();
+        }
+      }
+
+      /* ----- 取得所有交通方式與篩選後候選名單 ----- */
+      function getAllTransports() {
+        var list = BUILTIN_TRANSPORTS.slice();
+        state.restaurants.forEach(function (r) {
+          if (r.transport && list.indexOf(r.transport) === -1) {
+            list.push(r.transport);
+          }
+        });
+        return list;
+      }
+
+      function getFilteredCandidates() {
+        return state.restaurants.filter(function (r) {
+          if (!r.isActive) return false;
+          if (state.selectedTransports.size === 0) return true;
+          return state.selectedTransports.has(r.transport);
+        });
+      }
+
+      /* ----- 初始化音效與彈珠台引擎 ----- */
+      var soundEngine = new SoundEngine();
+
+      function syncSoundUI() {
+        els.soundIcon.textContent = soundEngine.enabled ? '🔊' : '🔇';
+        els.soundText.textContent = soundEngine.enabled ? '音效' : '靜音';
+        els.soundToggleBtn.classList.toggle('sound-on', soundEngine.enabled);
+      }
+
+      var plinko = new PlinkoEngine(els.plinkoCanvas, els.canvasStageWrapper, soundEngine, {
+        onBeforeDrop: function () {
+          if (state.autoShuffle && state.boardSlots.length > 1) {
+            state.boardSlots = fisherYatesShuffle(state.boardSlots);
+            plinko.setSlots(state.boardSlots, true);
+          }
+        },
+        onStateChange: function () {
+          syncControlButtons();
+        },
+        onResult: function (winner) {
+          openResultModal(winner);
+        }
+      });
+
+      function syncControlButtons() {
+        var hasSlots = state.boardSlots.length > 0;
+        var dropping = plinko.isDropping;
+        els.dropBallBtn.disabled = !hasSlots || dropping;
+        els.manualShuffleBtn.disabled = state.boardSlots.length < 2 || dropping;
+        els.dropBallText.textContent = dropping ? '彈珠彈跳中...' : '投下彈珠！';
+      }
+
+      function syncBoardSlots(shuffleNow) {
+        var candidates = getFilteredCandidates();
+        els.candidateCount.textContent = '候選 ' + candidates.length + ' 家';
+
+        if (candidates.length === 0) {
+          state.boardSlots = [];
+          plinko.setSlots([], false);
+          els.emptyOverlay.classList.remove('hidden');
+          syncControlButtons();
+          return;
+        }
+
+        els.emptyOverlay.classList.add('hidden');
+        var list = shuffleNow ? fisherYatesShuffle(candidates) : candidates.slice();
+        state.boardSlots = list.slice(0, MAX_SLOTS);
+        plinko.setSlots(state.boardSlots, shuffleNow);
+        syncControlButtons();
+      }
+
+      /* ----- 渲染交通方式篩選列 ----- */
+      function renderFilters() {
+        var transports = getAllTransports();
+        var isAll = state.selectedTransports.size === 0;
+        var html = '<button type="button" class="chip-btn ' + (isAll ? 'all-active' : '') + '" data-transport="__all__">全部</button>';
+
+        transports.forEach(function (t) {
+          var meta = getTransportMeta(t);
+          var active = state.selectedTransports.has(t);
+          html += '<button type="button" class="chip-btn ' + (active ? 'active' : '') + '" data-transport="' + escapeHtml(t) + '">' +
+            meta.icon + ' ' + escapeHtml(t) + '</button>';
+        });
+        els.filterChips.innerHTML = html;
+      }
+
+      /* ----- 渲染店家管理列表 ----- */
+      function renderRestaurantList() {
+        var total = state.restaurants.length;
+        els.listTotalBadge.textContent = String(total);
+        els.mobTabCount.textContent = String(total);
+
+        var q = state.searchQuery.trim().toLowerCase();
+        var filtered = state.restaurants.filter(function (r) {
+          if (!q) return true;
+          return (
+            r.name.toLowerCase().indexOf(q) !== -1 ||
+            r.transport.toLowerCase().indexOf(q) !== -1 ||
+            (r.note && r.note.toLowerCase().indexOf(q) !== -1)
+          );
+        });
+
+        if (filtered.length === 0) {
+          els.restaurantList.innerHTML = '<div class="empty-list-msg">' +
+            (total === 0 ? '目前沒有任何店家，請點上方「新增口袋店家」建立名單！' : '找不到符合搜尋條件的店家') +
+            '</div>';
+          return;
+        }
+
+        var html = filtered.map(function (r) {
+          var meta = getTransportMeta(r.transport);
+          var cardCls = r.isActive ? 'rest-card' : 'rest-card excluded';
+          var timeHtml = r.time ? '<span class="time-chip">⏱️ ' + escapeHtml(r.time) + '</span>' : '';
+          var noteHtml = r.note ? '<p class="rest-note">' + escapeHtml(r.note) + '</p>' : '';
+          var mapBtn = r.mapUrl
+            ? '<a class="act-btn" href="' + escapeHtml(r.mapUrl) + '" target="_blank" rel="noopener noreferrer" title="Google Maps 導航">🗺️</a>'
+            : '';
+
+          return (
+            '<div class="' + cardCls + '">' +
+              '<div class="rest-info">' +
+                '<div class="rest-head">' +
+                  '<span class="rest-name">' + escapeHtml(r.name) + '</span>' +
+                  '<span class="t-badge ' + meta.cls + '">' + meta.icon + ' ' + escapeHtml(r.transport) + '</span>' +
+                  timeHtml +
+                '</div>' +
+                noteHtml +
+              '</div>' +
+              '<div class="rest-actions">' +
+                mapBtn +
+                '<button type="button" class="active-toggle ' + (r.isActive ? 'on' : 'off') + '" data-action="toggle" data-id="' + escapeHtml(r.id) + '" title="' + (r.isActive ? '點擊暫時排除' : '點擊重新啟用') + '"><span></span></button>' +
+                '<button type="button" class="act-btn" data-action="edit" data-id="' + escapeHtml(r.id) + '" title="編輯店家">✏️</button>' +
+                '<button type="button" class="act-btn danger" data-action="delete" data-id="' + escapeHtml(r.id) + '" title="刪除店家">🗑️</button>' +
+              '</div>' +
+            '</div>'
+          );
+        }).join('');
+
+        els.restaurantList.innerHTML = html;
+      }
+
+      function renderAll(shuffleBoard) {
+        renderFilters();
+        renderRestaurantList();
+        syncBoardSlots(Boolean(shuffleBoard));
+      }
+
+      /* ----- 折疊表單控制 ----- */
+      function setFormOpen(open) {
+        els.formCard.classList.toggle('open', open);
+        els.restaurantForm.classList.toggle('hidden', !open);
+        els.formToggleBtn.setAttribute('aria-expanded', String(open));
+      }
+
+      function resetForm(collapse) {
+        els.editIdInput.value = '';
+        els.nameInput.value = '';
+        els.transportSelect.value = '步行';
+        els.customTransportWrap.classList.add('hidden');
+        els.customTransportInput.value = '';
+        els.timeInput.value = '';
+        els.noteInput.value = '';
+        els.mapUrlInput.value = '';
+        els.formHeaderTitle.textContent = '➕ 新增口袋店家';
+        els.submitFormBtn.textContent = '新增店家';
+        els.cancelEditBtn.classList.add('hidden');
+        if (collapse) setFormOpen(false);
+      }
+
+      function startEdit(id) {
+        var target = state.restaurants.find(function (r) { return r.id === id; });
+        if (!target) return;
+
+        els.editIdInput.value = target.id;
+        els.nameInput.value = target.name;
+        if (BUILTIN_TRANSPORTS.indexOf(target.transport) !== -1) {
+          els.transportSelect.value = target.transport;
+          els.customTransportWrap.classList.add('hidden');
+          els.customTransportInput.value = '';
+        } else {
+          els.transportSelect.value = '__custom__';
+          els.customTransportWrap.classList.remove('hidden');
+          els.customTransportInput.value = target.transport;
+        }
+        els.timeInput.value = target.time || '';
+        els.noteInput.value = target.note || '';
+        els.mapUrlInput.value = target.mapUrl || '';
+
+        els.formHeaderTitle.textContent = '✏️ 編輯店家：' + target.name;
+        els.submitFormBtn.textContent = '儲存變更';
+        els.cancelEditBtn.classList.remove('hidden');
+        setFormOpen(true);
+        els.nameInput.focus();
+      }
+
+      /* ----- 結果揭曉彈窗 ----- */
+      function openResultModal(winner) {
+        if (!winner) return;
+        state.lastWinner = winner;
+        els.resName.textContent = winner.name;
+
+        var meta = getTransportMeta(winner.transport);
+        els.resTransport.className = 't-badge ' + meta.cls;
+        els.resTransport.textContent = meta.icon + ' ' + winner.transport;
+
+        if (winner.time) {
+          els.resTime.textContent = '⏱️ ' + winner.time;
+          els.resTime.classList.remove('hidden');
+        } else {
+          els.resTime.classList.add('hidden');
+        }
+
+        if (winner.note) {
+          els.resNote.textContent = winner.note;
+          els.resNote.classList.remove('hidden');
+        } else {
+          els.resNote.classList.add('hidden');
+        }
+
+        if (winner.mapUrl) {
+          els.resMapLink.href = winner.mapUrl;
+          els.resMapLink.classList.remove('hidden');
+        } else {
+          els.resMapLink.classList.add('hidden');
+        }
+
+        els.resExcludeCheck.checked = false;
+        els.resultModal.classList.remove('hidden');
+      }
+
+      function closeResultModal() {
+        els.resultModal.classList.add('hidden');
+      }
+
+      /* ----- 手機雙分頁切換（切換回彈珠台時立即安全觸發 Resize） ----- */
+      function switchMobileTab(tab) {
+        els.appShell.setAttribute('data-tab', tab);
+        els.mobTabBoard.classList.toggle('active', tab === 'board');
+        els.mobTabList.classList.toggle('active', tab === 'list');
+        if (tab === 'board') {
+          requestAnimationFrame(function () {
+            plinko.resize();
+          });
+        }
+      }
+
+      /* =====================================================================
+       * 6. 綁定所有 UI 事件監聽
+       * ===================================================================== */
+      els.soundToggleBtn.addEventListener('click', function () {
+        soundEngine.toggle();
+        syncSoundUI();
+        showToast(soundEngine.enabled ? '音效已開啟 🔊' : '已切換為靜音 🔇');
+      });
+
+      els.filterChips.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-transport]');
+        if (!btn) return;
+        var val = btn.getAttribute('data-transport');
+        if (val === '__all__') {
+          state.selectedTransports.clear();
+        } else {
+          if (state.selectedTransports.has(val)) {
+            state.selectedTransports.delete(val);
+          } else {
+            state.selectedTransports.add(val);
+          }
+        }
+        renderFilters();
+        syncBoardSlots(false);
+      });
+
+      els.dropBallBtn.addEventListener('click', function () {
+        plinko.dropBall();
+      });
+
+      els.autoShuffleCheck.addEventListener('change', function () {
+        state.autoShuffle = els.autoShuffleCheck.checked;
+        try {
+          localStorage.setItem(SHUFFLE_KEY, String(state.autoShuffle));
+        } catch (e) {}
+        showToast(state.autoShuffle ? '已開啟：每次抽前自動洗牌 🎲' : '已關閉自動洗牌');
+      });
+
+      els.manualShuffleBtn.addEventListener('click', function () {
+        if (plinko.isDropping || state.boardSlots.length < 2) return;
+        state.boardSlots = fisherYatesShuffle(state.boardSlots);
+        plinko.setSlots(state.boardSlots, true);
+        soundEngine.playShuffle();
+        showToast('已打亂底部店家順序 🔀');
+      });
+
+      els.formToggleBtn.addEventListener('click', function () {
+        var isOpen = els.formCard.classList.contains('open');
+        setFormOpen(!isOpen);
+      });
+
+      els.transportSelect.addEventListener('change', function () {
+        var isCustom = els.transportSelect.value === '__custom__';
+        els.customTransportWrap.classList.toggle('hidden', !isCustom);
+        if (isCustom) els.customTransportInput.focus();
+      });
+
+      els.cancelEditBtn.addEventListener('click', function () {
+        resetForm(true);
+      });
+
+      els.restaurantForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var name = els.nameInput.value.trim();
+        if (!name) {
+          showToast('請輸入店家名稱！', 'error');
+          els.nameInput.focus();
+          return;
+        }
+
+        var transport = els.transportSelect.value;
+        if (transport === '__custom__') {
+          transport = els.customTransportInput.value.trim();
+          if (!transport) {
+            showToast('請輸入自訂交通方式！', 'error');
+            els.customTransportInput.focus();
+            return;
+          }
+        }
+
+        var time = els.timeInput.value.trim();
+        var note = els.noteInput.value.trim();
+        var mapUrl = els.mapUrlInput.value.trim() || ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(name));
+        var editId = els.editIdInput.value;
+
+        if (editId) {
+          var target = state.restaurants.find(function (r) { return r.id === editId; });
+          if (target) {
+            target.name = name;
+            target.transport = transport;
+            target.time = time;
+            target.note = note;
+            target.mapUrl = mapUrl;
+            showToast('已更新「' + name + '」', 'success');
+          }
+        } else {
+          state.restaurants.unshift({
+            id: generateId(),
+            name: name,
+            transport: transport,
+            time: time,
+            note: note,
+            mapUrl: mapUrl,
+            isActive: true
+          });
+          showToast('已新增「' + name + '」至口袋名單！', 'success');
+        }
+
+        saveRestaurants();
+        resetForm(true);
+        renderAll(false);
+      });
+
+      els.searchInput.addEventListener('input', function () {
+        state.searchQuery = els.searchInput.value;
+        renderRestaurantList();
+      });
+
+      els.restaurantList.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        var action = btn.getAttribute('data-action');
+        var id = btn.getAttribute('data-id');
+        var target = state.restaurants.find(function (r) { return r.id === id; });
+        if (!target) return;
+
+        if (action === 'toggle') {
+          target.isActive = !target.isActive;
+          saveRestaurants();
+          renderAll(false);
+          showToast(target.isActive ? '已啟用「' + target.name + '」' : '已暫時排除「' + target.name + '」');
+        } else if (action === 'edit') {
+          startEdit(id);
+        } else if (action === 'delete') {
+          openConfirm(
+            '確認刪除店家',
+            '確定要永久刪除「' + target.name + '」嗎？',
+            '確認刪除',
+            function () {
+              state.restaurants = state.restaurants.filter(function (r) { return r.id !== id; });
+              if (els.editIdInput.value === id) resetForm(true);
+              saveRestaurants();
+              renderAll(false);
+              showToast('已刪除「' + target.name + '」');
+            }
+          );
+        }
+      });
+
+      els.enableAllBtn.addEventListener('click', function () {
+        state.restaurants.forEach(function (r) { r.isActive = true; });
+        saveRestaurants();
+        renderAll(false);
+        showToast('已啟用所有口袋店家！', 'success');
+      });
+
+      els.resetDefaultsBtn.addEventListener('click', function () {
+        openConfirm(
+          '還原預設 23 家名單',
+          '這會將名單重設為預設的 23 家步行美食口袋名單，確定要還原嗎？',
+          '確認還原',
+          function () {
+            state.restaurants = buildDefaultRestaurants();
+            state.selectedTransports.clear();
+            state.searchQuery = '';
+            els.searchInput.value = '';
+            saveRestaurants();
+            resetForm(true);
+            renderAll(false);
+            showToast('已還原 23 家預設口袋名單！', 'success');
+          }
+        );
+      });
+
+      els.mobTabBoard.addEventListener('click', function () { switchMobileTab('board'); });
+      els.mobTabList.addEventListener('click', function () { switchMobileTab('list'); });
+
+      els.resDecideBtn.addEventListener('click', function () {
+        var name = state.lastWinner ? state.lastWinner.name : '';
+        closeResultModal();
+        showToast('就決定吃「' + name + '」啦！祝用餐愉快 🍽️', 'success');
+      });
+
+      els.resRedrawBtn.addEventListener('click', function () {
+        if (els.resExcludeCheck.checked && state.lastWinner) {
+          var target = state.restaurants.find(function (r) { return r.id === state.lastWinner.id; });
+          if (target) {
+            target.isActive = false;
+            saveRestaurants();
+            showToast('已暫時排除「' + target.name + '」');
+          }
+          renderAll(false);
+        }
+        closeResultModal();
+        if (state.boardSlots.length > 0) {
+          setTimeout(function () {
+            plinko.dropBall();
+          }, 160);
+        } else {
+          showToast('目前沒有其他候選店家，請調整篩選或啟用名單！', 'error');
+        }
+      });
+
+      els.resultModal.addEventListener('click', function (e) {
+        if (e.target === els.resultModal) closeResultModal();
+      });
+
+      els.confirmCancelBtn.addEventListener('click', closeConfirm);
+      els.confirmOkBtn.addEventListener('click', function () {
+        var fn = state.pendingConfirm;
+        closeConfirm();
+        if (typeof fn === 'function') fn();
+      });
+      els.confirmModal.addEventListener('click', function (e) {
+        if (e.target === els.confirmModal) closeConfirm();
+      });
+
+      /* ----- JSON 匯出與匯入 ----- */
+      els.exportBtn.addEventListener('click', function () {
+        try {
+          var payload = {
+            version: 6,
+            exportedAt: new Date().toISOString(),
+            restaurants: state.restaurants
+          };
+          var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement('a');
+          a.href = url;
+          a.download = 'what-to-eat-restaurants.json';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          showToast('已匯出 JSON 備份檔 ⬇️', 'success');
+        } catch (e) {
+          showToast('匯出失敗，請稍後再試', 'error');
+        }
+      });
+
+      els.importInput.addEventListener('change', function (e) {
+        var file = e.target.files && e.target.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+          try {
+            var parsed = JSON.parse(String(ev.target.result || ''));
+            var list = Array.isArray(parsed) ? parsed : parsed.restaurants;
+            if (!Array.isArray(list) || list.length === 0) {
+              throw new Error('Invalid format');
+            }
+            state.restaurants = sanitizeList(list);
+            state.selectedTransports.clear();
+            state.searchQuery = '';
+            els.searchInput.value = '';
+            saveRestaurants();
+            resetForm(true);
+            renderAll(false);
+            showToast('成功匯入 ' + state.restaurants.length + ' 家店家！', 'success');
+          } catch (err) {
+            showToast('匯入失敗：JSON 檔案格式不正確', 'error');
+          } finally {
+            els.importInput.value = '';
+          }
+        };
+        reader.readAsText(file, 'utf-8');
+      });
+
+      /* =====================================================================
+       * 7. 啟動初始化
+       * ===================================================================== */
+      loadInitialData();
+      syncSoundUI();
+      renderAll(false);
+      requestAnimationFrame(function () {
+        plinko.resize();
+      });
+    });
+  </script>
+</body>
+</html>
