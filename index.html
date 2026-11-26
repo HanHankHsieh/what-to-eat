@@ -3,32 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>🎰 今天吃什麼？彈珠台抽選機</title>
+  <title>🎰 今天吃什麼？多模式趣味抽選機</title>
   <style>
     /* =========================================================================
-     * 1. 全域變數與基礎重設（零外部 CDN 依賴，現代暗色霓虹街機風格）
+     * 1. 全域設計變數與基礎重設（零外部 CDN 依賴，深色現代街機霓虹風）
      * ========================================================================= */
     :root {
-      --bg-base: #0f172a;
-      --bg-deep: #090e1c;
+      --bg-base: #0b1120;
       --bg-panel: #131c31;
       --bg-card: #1b2742;
-      --bg-input: #0b1222;
+      --bg-input: #0a101f;
       --border-subtle: rgba(148, 163, 184, 0.2);
-      --border-glow: rgba(34, 211, 238, 0.35);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --text-soft: #cbd5e1;
       --cyan: #22d3ee;
       --gold: #f59e0b;
       --gold-bright: #fde047;
-      --pink: #ec4899;
+      --coral: #f43f5e;
       --emerald: #10b981;
-      --rose: #f43f5e;
-      --radius-sm: 10px;
       --radius-md: 14px;
       --radius-lg: 18px;
-      --shadow-panel: 0 10px 28px rgba(0, 0, 0, 0.42);
     }
 
     *, *::before, *::after {
@@ -44,9 +39,9 @@
       overflow: hidden;
       background-color: var(--bg-base);
       background-image:
-        radial-gradient(circle at 12% 10%, rgba(34, 211, 238, 0.11) 0%, transparent 36%),
-        radial-gradient(circle at 86% 12%, rgba(236, 72, 153, 0.1) 0%, transparent 35%),
-        radial-gradient(circle at 50% 95%, rgba(245, 158, 11, 0.08) 0%, transparent 40%);
+        radial-gradient(circle at 12% 10%, rgba(34, 211, 238, 0.13) 0%, transparent 36%),
+        radial-gradient(circle at 86% 12%, rgba(244, 63, 94, 0.12) 0%, transparent 36%),
+        radial-gradient(circle at 50% 94%, rgba(245, 158, 11, 0.1) 0%, transparent 42%);
       color: var(--text-main);
       font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       line-height: 1.45;
@@ -65,7 +60,7 @@
     }
 
     /* =========================================================================
-     * 2. App 外殼與精簡頂部導覽列（鎖定 100dvh）
+     * 2. App 外殼與頂部導覽列（鎖定 100dvh）
      * ========================================================================= */
     .app-shell {
       display: flex;
@@ -84,10 +79,10 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      background: rgba(11, 18, 34, 0.94);
+      background: rgba(9, 14, 28, 0.95);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(34, 211, 238, 0.25);
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.42);
       z-index: 30;
     }
 
@@ -100,7 +95,7 @@
 
     .header-title {
       margin: 0;
-      font-size: 1.08rem;
+      font-size: 1.05rem;
       font-weight: 900;
       letter-spacing: 0.03em;
       color: #fff;
@@ -138,7 +133,7 @@
       padding: 6px 11px;
       border-radius: 10px;
       border: 1px solid var(--border-subtle);
-      background: rgba(27, 39, 66, 0.85);
+      background: rgba(27, 39, 66, 0.86);
       color: #e2e8f0;
       font-size: 0.8rem;
       font-weight: 700;
@@ -160,7 +155,7 @@
     .hdr-btn.sound-on {
       border-color: rgba(245, 158, 11, 0.55);
       color: #fef08a;
-      box-shadow: 0 0 10px rgba(245, 158, 11, 0.18);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
     }
 
     /* =========================================================================
@@ -175,33 +170,79 @@
       overflow: hidden;
     }
 
-    /* 左欄：彈珠台主舞台 */
     .stage-column {
       flex: 1 1 0;
       min-width: 0;
       min-height: 0;
       display: flex;
       flex-direction: column;
-      padding: 10px 14px 12px;
-      gap: 9px;
+      padding: 9px 14px 11px;
+      gap: 8px;
       overflow: hidden;
     }
 
-    /* 右欄：店家管理區（桌面 390px） */
     .manage-column {
       flex: 0 0 390px;
       width: 390px;
       min-height: 0;
       display: flex;
       flex-direction: column;
-      background: rgba(15, 23, 42, 0.72);
+      background: rgba(15, 23, 42, 0.78);
       border-left: 1px solid var(--border-subtle);
       overflow: hidden;
     }
 
     /* =========================================================================
-     * 4. 左欄元件：篩選列、Canvas 舞台、底部控制列
+     * 4. 頂部三模式切換 Tab 與交通方式篩選列
      * ========================================================================= */
+    .mode-tabs-bar {
+      flex: 0 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      padding: 5px;
+      border-radius: var(--radius-md);
+      background: rgba(10, 16, 31, 0.92);
+      border: 1px solid rgba(34, 211, 238, 0.28);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    }
+
+    .mode-tab-btn {
+      min-height: 38px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.86rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: all 0.18s ease;
+    }
+
+    .mode-tab-btn:hover:not(:disabled):not(.active) {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    .mode-tab-btn.active {
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.24) 0%, rgba(245, 158, 11, 0.26) 100%);
+      border-color: rgba(253, 224, 71, 0.65);
+      color: #fff;
+      text-shadow: 0 0 10px rgba(253, 224, 71, 0.35);
+      box-shadow: 0 0 16px rgba(34, 211, 238, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    }
+
+    .mode-tab-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     .filter-bar {
       flex: 0 0 auto;
       display: flex;
@@ -277,60 +318,38 @@
       white-space: nowrap;
     }
 
-    /* Canvas 外框與動態適配容器 */
+    /* =========================================================================
+     * 5. 抽選機台共用外框與 Canvas 容器
+     * ========================================================================= */
+    .mode-panel {
+      flex: 1 1 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow: hidden;
+    }
+
     .cabinet-shell {
       flex: 1 1 0;
-      min-height: 260px;
+      min-height: 210px;
       width: 100%;
       display: flex;
       flex-direction: column;
       background: linear-gradient(160deg, #1b2540 0%, #10182b 60%, #0b1120 100%);
       border: 2px solid rgba(34, 211, 238, 0.32);
       border-radius: var(--radius-lg);
-      padding: 8px 10px 10px;
+      padding: 8px;
       box-shadow:
         0 14px 34px rgba(0, 0, 0, 0.55),
         inset 0 1px 0 rgba(255, 255, 255, 0.08);
       overflow: hidden;
-    }
-
-    .cabinet-marquee {
-      flex: 0 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 0 4px 6px;
-    }
-
-    .marquee-dots {
-      display: flex;
-      gap: 5px;
-      flex-shrink: 0;
-    }
-
-    .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-    }
-    .dot-cyan { background: #22d3ee; box-shadow: 0 0 8px #22d3ee; }
-    .dot-gold { background: #fbbf24; box-shadow: 0 0 8px #fbbf24; }
-    .dot-pink { background: #ec4899; box-shadow: 0 0 8px #ec4899; }
-
-    .marquee-hint {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: #fde68a;
-      text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      position: relative;
     }
 
     .canvas-stage-wrapper {
       flex: 1 1 0;
-      min-height: 220px;
+      min-height: 170px;
       width: 100%;
       display: flex;
       align-items: center;
@@ -353,19 +372,26 @@
       justify-content: center;
     }
 
-    #plinkoCanvas {
+    .canvas-bezel.round-bezel {
+      border-radius: 22px;
+      background: radial-gradient(circle at center, #111b33 0%, #070c18 100%);
+    }
+
+    #plinkoCanvas, #rouletteCanvas {
       display: block;
-      cursor: crosshair;
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
     }
 
+    #plinkoCanvas { cursor: crosshair; }
+    #rouletteCanvas { cursor: pointer; }
+
     .empty-board-overlay {
       position: absolute;
       inset: 0;
-      z-index: 10;
-      background: rgba(9, 14, 28, 0.9);
+      z-index: 12;
+      background: rgba(9, 14, 28, 0.92);
       backdrop-filter: blur(4px);
       display: flex;
       flex-direction: column;
@@ -388,7 +414,314 @@
       max-width: 250px;
     }
 
-    /* 底部動作控制列 */
+    /* =========================================================================
+     * 6. 雙階段拉霸機專屬樣式（Slot Machine）
+     * ========================================================================= */
+    .slot-stage-wrapper {
+      flex: 1 1 0;
+      min-height: 190px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      padding: 4px;
+      overflow: hidden;
+    }
+
+    .slot-machine-body {
+      width: 100%;
+      max-width: 580px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      position: relative;
+    }
+
+    .slot-chassis {
+      flex: 1 1 auto;
+      min-width: 0;
+      background: linear-gradient(180deg, #271a3f 0%, #17122b 45%, #0e1326 100%);
+      border: 2.5px solid #f59e0b;
+      border-radius: 22px;
+      padding: 13px 14px 15px;
+      box-shadow:
+        0 0 28px rgba(245, 158, 11, 0.25),
+        0 16px 36px rgba(0, 0, 0, 0.65),
+        inset 0 2px 0 rgba(255, 255, 255, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      position: relative;
+    }
+
+    .slot-bulbs-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 6px;
+    }
+
+    .slot-bulb {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #475569;
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3);
+      transition: background 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    .slot-bulb.lit-gold {
+      background: #fde047;
+      box-shadow: 0 0 10px #fde047, 0 0 18px #f59e0b;
+    }
+    .slot-bulb.lit-coral {
+      background: #fb7185;
+      box-shadow: 0 0 10px #fb7185, 0 0 18px #f43f5e;
+    }
+    .slot-bulb.lit-cyan {
+      background: #67e8f9;
+      box-shadow: 0 0 10px #67e8f9, 0 0 18px #06b6d4;
+    }
+
+    .slot-status-banner {
+      min-height: 34px;
+      padding: 6px 12px;
+      border-radius: 10px;
+      background: rgba(7, 12, 24, 0.85);
+      border: 1px solid rgba(34, 211, 238, 0.35);
+      color: #a5f3fc;
+      font-size: 0.83rem;
+      font-weight: 800;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: 0.03em;
+      transition: all 0.2s ease;
+    }
+
+    .slot-status-banner.locked {
+      border-color: #fde047;
+      color: #fef08a;
+      background: rgba(245, 158, 11, 0.16);
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);
+    }
+
+    .slot-status-banner.winner {
+      border-color: #34d399;
+      color: #6ee7b7;
+      background: rgba(16, 185, 129, 0.18);
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.35);
+    }
+
+    .slot-reels-grid {
+      display: grid;
+      grid-template-columns: 0.9fr 1.35fr;
+      gap: 10px;
+    }
+
+    .reel-column {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .reel-label {
+      font-size: 0.74rem;
+      font-weight: 800;
+      text-align: center;
+      color: #fde68a;
+      letter-spacing: 0.06em;
+    }
+
+    .reel-window {
+      position: relative;
+      height: 156px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #060a14 0%, #10192e 50%, #060a14 100%);
+      border: 2px solid rgba(148, 163, 184, 0.38);
+      overflow: hidden;
+      box-shadow: inset 0 12px 22px rgba(0, 0, 0, 0.82), inset 0 -12px 22px rgba(0, 0, 0, 0.82);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .reel-window.locked {
+      border-color: #fde047;
+      box-shadow:
+        0 0 18px rgba(253, 224, 71, 0.45),
+        inset 0 10px 18px rgba(0, 0, 0, 0.72),
+        inset 0 -10px 18px rgba(0, 0, 0, 0.72);
+    }
+
+    .reel-window.winner {
+      border-color: #34d399;
+      box-shadow:
+        0 0 24px rgba(52, 211, 153, 0.55),
+        inset 0 10px 18px rgba(0, 0, 0, 0.65),
+        inset 0 -10px 18px rgba(0, 0, 0, 0.65);
+    }
+
+    .reel-window::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 62px;
+      transform: translateY(-50%);
+      border-top: 2px solid rgba(253, 224, 71, 0.55);
+      border-bottom: 2px solid rgba(253, 224, 71, 0.55);
+      background: rgba(253, 224, 71, 0.06);
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    .reel-window::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(6, 10, 20, 0.88) 0%,
+        rgba(6, 10, 20, 0.18) 28%,
+        rgba(6, 10, 20, 0) 50%,
+        rgba(6, 10, 20, 0.18) 72%,
+        rgba(6, 10, 20, 0.88) 100%
+      );
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .reel-strip {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      will-change: transform;
+      z-index: 2;
+    }
+
+    .reel-item {
+      height: 62px;
+      padding: 0 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-align: center;
+      font-weight: 900;
+      color: #f8fafc;
+      user-select: none;
+    }
+
+    .reel-item-transport { font-size: 1.04rem; }
+    .reel-item-restaurant { font-size: 1rem; line-height: 1.2; word-break: break-word; }
+
+    .slot-single-hint {
+      font-size: 0.74rem;
+      color: #fde68a;
+      background: rgba(245, 158, 11, 0.14);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 999px;
+      padding: 4px 12px;
+      text-align: center;
+      max-width: 96%;
+    }
+
+    /* 互動右側拉桿（點擊或往下拖曳皆可觸發） */
+    .slot-lever-zone {
+      flex: 0 0 46px;
+      height: 184px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .slot-lever-zone:active { cursor: grabbing; }
+    .slot-lever-zone.disabled { opacity: 0.45; pointer-events: none; }
+
+    .lever-mount {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 44px;
+      border-radius: 0 8px 8px 0;
+      background: linear-gradient(180deg, #94a3b8 0%, #475569 50%, #1e293b 100%);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .lever-track {
+      position: relative;
+      width: 12px;
+      height: 136px;
+      margin-left: 10px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #0b1222 0%, #1e293b 100%);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .lever-shaft {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 6px;
+      height: 62px;
+      transform: translate(-50%, -100%);
+      transform-origin: bottom center;
+      background: linear-gradient(90deg, #e2e8f0, #94a3b8, #cbd5e1);
+      border-radius: 999px;
+      transition: transform 0.14s ease;
+    }
+
+    .lever-knob {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 34px;
+      height: 34px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(circle at 32% 30%, #fda4af 0%, #f43f5e 45%, #9f1239 100%);
+      border: 2px solid rgba(255, 255, 255, 0.45);
+      box-shadow: 0 0 16px rgba(244, 63, 94, 0.55), 0 4px 10px rgba(0, 0, 0, 0.5);
+      transition: top 0.12s ease;
+    }
+
+    .lever-tip {
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-35%);
+      font-size: 0.64rem;
+      font-weight: 800;
+      color: #fde68a;
+      white-space: nowrap;
+    }
+
+    .slot-confetti-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    /* =========================================================================
+     * 7. 底部動作控制列
+     * ========================================================================= */
     .controls-bar {
       flex: 0 0 auto;
       display: flex;
@@ -404,7 +737,7 @@
       border-radius: 14px;
       background: linear-gradient(180deg, #fb923c 0%, #ea580c 55%, #c2410c 100%);
       color: #fff;
-      font-size: 1.05rem;
+      font-size: 1.02rem;
       font-weight: 900;
       letter-spacing: 0.05em;
       cursor: pointer;
@@ -419,17 +752,24 @@
       transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
     }
 
-    .drop-primary-btn:hover:not(:disabled) {
-      filter: brightness(1.08);
-    }
-
-    .drop-primary-btn:active:not(:disabled) {
-      transform: translateY(3px);
+    .drop-primary-btn.slot-btn {
+      background: linear-gradient(180deg, #f43f5e 0%, #e11d48 55%, #9f1239 100%);
       box-shadow:
-        0 1px 0 #7c2d12,
-        0 0 12px rgba(249, 115, 22, 0.3);
+        0 4px 0 #6b0f26,
+        0 0 22px rgba(244, 63, 94, 0.42),
+        inset 0 2px 3px rgba(255, 255, 255, 0.35);
     }
 
+    .drop-primary-btn.roulette-btn {
+      background: linear-gradient(180deg, #10b981 0%, #059669 55%, #047857 100%);
+      box-shadow:
+        0 4px 0 #064e3b,
+        0 0 22px rgba(16, 185, 129, 0.42),
+        inset 0 2px 3px rgba(255, 255, 255, 0.35);
+    }
+
+    .drop-primary-btn:hover:not(:disabled) { filter: brightness(1.08); }
+    .drop-primary-btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.6); }
     .drop-primary-btn:disabled {
       background: linear-gradient(180deg, #475569 0%, #334155 100%);
       box-shadow: 0 3px 0 #1e293b;
@@ -516,30 +856,21 @@
       transition: background 0.15s ease, transform 0.1s ease;
     }
 
-    .manual-shuffle-btn:hover:not(:disabled) {
-      background: rgba(245, 158, 11, 0.28);
-    }
-
-    .manual-shuffle-btn:active:not(:disabled) {
-      transform: scale(0.96);
-    }
-
-    .manual-shuffle-btn:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
+    .manual-shuffle-btn:hover:not(:disabled) { background: rgba(245, 158, 11, 0.28); }
+    .manual-shuffle-btn:active:not(:disabled) { transform: scale(0.96); }
+    .manual-shuffle-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
     /* =========================================================================
-     * 5. 右欄：店家管理面板（折疊表單 + 獨立滾動列表）
+     * 8. 右欄：店家管理面板（折疊表單 + 獨立滾動列表）
      * ========================================================================= */
     .manage-top {
       flex: 0 0 auto;
       padding: 12px 12px 10px;
       border-bottom: 1px solid var(--border-subtle);
-      background: rgba(19, 28, 49, 0.85);
+      background: rgba(19, 28, 49, 0.86);
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 9px;
     }
 
     .form-card {
@@ -564,9 +895,7 @@
       text-align: left;
     }
 
-    .form-toggle-header:hover {
-      background: rgba(255, 255, 255, 0.04);
-    }
+    .form-toggle-header:hover { background: rgba(255, 255, 255, 0.04); }
 
     .form-chevron {
       font-size: 0.78rem;
@@ -574,17 +903,14 @@
       transition: transform 0.2s ease;
     }
 
-    .form-card.open .form-chevron {
-      transform: rotate(180deg);
-    }
+    .form-card.open .form-chevron { transform: rotate(180deg); }
 
     .form-body {
-      padding: 0 12px 12px;
+      padding: 10px 12px 12px;
       display: flex;
       flex-direction: column;
       gap: 8px;
       border-top: 1px solid rgba(148, 163, 184, 0.12);
-      padding-top: 10px;
     }
 
     .form-row-2 {
@@ -601,9 +927,7 @@
       margin-bottom: 3px;
     }
 
-    .req-star {
-      color: #fb923c;
-    }
+    .req-star { color: #fb923c; }
 
     .field-input, .field-select {
       width: 100%;
@@ -623,9 +947,7 @@
       box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2);
     }
 
-    .field-input::placeholder {
-      color: #64748b;
-    }
+    .field-input::placeholder { color: #64748b; }
 
     .form-btn-row {
       display: flex;
@@ -706,16 +1028,9 @@
       -webkit-overflow-scrolling: touch;
     }
 
-    .list-scroll-area::-webkit-scrollbar {
-      width: 6px;
-    }
-    .list-scroll-area::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    .list-scroll-area::-webkit-scrollbar-thumb {
-      background: rgba(148, 163, 184, 0.28);
-      border-radius: 999px;
-    }
+    .list-scroll-area::-webkit-scrollbar { width: 6px; }
+    .list-scroll-area::-webkit-scrollbar-track { background: transparent; }
+    .list-scroll-area::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.28); border-radius: 999px; }
 
     .rest-card {
       display: flex;
@@ -729,19 +1044,10 @@
       transition: border-color 0.15s ease, opacity 0.15s ease;
     }
 
-    .rest-card:hover {
-      border-color: rgba(34, 211, 238, 0.42);
-    }
+    .rest-card:hover { border-color: rgba(34, 211, 238, 0.42); }
+    .rest-card.excluded { opacity: 0.48; background: #0d1425; }
 
-    .rest-card.excluded {
-      opacity: 0.48;
-      background: #0d1425;
-    }
-
-    .rest-info {
-      min-width: 0;
-      flex: 1;
-    }
+    .rest-info { min-width: 0; flex: 1; }
 
     .rest-head {
       display: flex;
@@ -766,18 +1072,16 @@
       display: inline-flex;
       align-items: center;
       gap: 3px;
-      padding: 2px 7px;
+      padding: 2px 8px;
       border-radius: 999px;
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       font-weight: 800;
       border: 1px solid transparent;
     }
-    .t-walk { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.36); }
-    .t-scooter { background: rgba(14, 165, 233, 0.18); color: #7dd3fc; border-color: rgba(14, 165, 233, 0.36); }
-    .t-car { background: rgba(99, 102, 241, 0.22); color: #a5b4fc; border-color: rgba(99, 102, 241, 0.4); }
-    .t-transit { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border-color: rgba(168, 85, 247, 0.4); }
-    .t-delivery { background: rgba(249, 115, 22, 0.2); color: #fdba74; border-color: rgba(249, 115, 22, 0.4); }
-    .t-custom { background: rgba(245, 158, 11, 0.2); color: #fde047; border-color: rgba(245, 158, 11, 0.42); }
+    .t-walk { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.42); }
+    .t-ubike { background: rgba(245, 158, 11, 0.2); color: #fde047; border-color: rgba(251, 191, 36, 0.48); }
+    .t-mrt { background: rgba(14, 165, 233, 0.2); color: #7dd3fc; border-color: rgba(56, 189, 248, 0.45); }
+    .t-other { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border-color: rgba(192, 132, 252, 0.45); }
 
     .time-chip {
       display: inline-flex;
@@ -822,15 +1126,8 @@
       transition: all 0.15s ease;
     }
 
-    .act-btn:hover {
-      border-color: var(--cyan);
-      background: rgba(34, 211, 238, 0.16);
-    }
-
-    .act-btn.danger:hover {
-      border-color: var(--rose);
-      background: rgba(244, 63, 94, 0.2);
-    }
+    .act-btn:hover { border-color: var(--cyan); background: rgba(34, 211, 238, 0.16); }
+    .act-btn.danger:hover { border-color: var(--coral); background: rgba(244, 63, 94, 0.2); }
 
     .active-toggle {
       width: 36px;
@@ -844,15 +1141,8 @@
       transition: background 0.2s ease;
     }
 
-    .active-toggle.on {
-      background: var(--emerald);
-      justify-content: flex-end;
-    }
-
-    .active-toggle.off {
-      background: #475569;
-      justify-content: flex-start;
-    }
+    .active-toggle.on { background: var(--emerald); justify-content: flex-end; }
+    .active-toggle.off { background: #475569; justify-content: flex-start; }
 
     .active-toggle span {
       width: 16px;
@@ -872,7 +1162,7 @@
     }
 
     /* =========================================================================
-     * 6. 手機 / 平板 底部雙分頁列 (< 1024px)
+     * 9. 手機 / 平板 底部雙分頁列 (< 1024px)
      * ========================================================================= */
     .mobile-tabbar {
       display: none;
@@ -910,7 +1200,7 @@
     }
 
     /* =========================================================================
-     * 7. 彈窗（結果揭曉 & 確認刪除）與 Toast 提示
+     * 10. 彈窗（結果揭曉 & 確認操作）與 Toast 提示
      * ========================================================================= */
     .modal-backdrop {
       position: fixed;
@@ -944,7 +1234,7 @@
       left: 0;
       right: 0;
       height: 5px;
-      background: linear-gradient(90deg, #22d3ee, #fde047, #ec4899);
+      background: linear-gradient(90deg, #22d3ee, #fde047, #f43f5e);
     }
 
     @keyframes modalPop {
@@ -952,10 +1242,7 @@
       100% { opacity: 1; transform: scale(1) translateY(0); }
     }
 
-    .result-wrap {
-      text-align: center;
-      padding-top: 4px;
-    }
+    .result-wrap { text-align: center; padding-top: 4px; }
 
     .result-icon {
       width: 56px;
@@ -972,9 +1259,9 @@
 
     .result-sub {
       margin: 0 0 4px;
-      font-size: 0.74rem;
+      font-size: 0.76rem;
       font-weight: 800;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.1em;
       color: var(--cyan);
     }
 
@@ -1022,7 +1309,6 @@
       font-weight: 800;
       text-decoration: none;
     }
-
     .nav-map-btn:hover { filter: brightness(1.1); }
 
     .decide-btn {
@@ -1039,7 +1325,6 @@
       cursor: pointer;
       box-shadow: 0 8px 20px rgba(234, 88, 12, 0.35);
     }
-
     .decide-btn:hover { filter: brightness(1.08); }
 
     .redraw-panel {
@@ -1083,7 +1368,6 @@
       font-weight: 800;
       cursor: pointer;
     }
-
     .redraw-btn:hover { background: rgba(34, 211, 238, 0.28); }
 
     .confirm-btns {
@@ -1098,7 +1382,7 @@
       padding: 8px 16px;
       border: none;
       border-radius: 10px;
-      background: var(--rose);
+      background: var(--coral);
       color: #fff;
       font-size: 0.85rem;
       font-weight: 800;
@@ -1133,33 +1417,16 @@
     .toast-error { background: #9f1239; color: #fff1f2; border-color: rgba(251, 113, 133, 0.55); }
 
     /* =========================================================================
-     * 8. RWD 斷點調整 (< 1024px 手機與平板分頁模式)
+     * 11. RWD 響應式斷點 (< 1024px 手機與平板分頁模式)
      * ========================================================================= */
     @media (max-width: 1023px) {
-      .app-header {
-        height: 48px;
-        padding: 0 12px;
-      }
+      .app-header { height: 48px; padding: 0 12px; }
+      .header-badge, .hdr-btn .btn-txt { display: none; }
+      .app-body { flex-direction: column; }
 
-      .header-badge,
-      .hdr-btn .btn-txt {
-        display: none;
-      }
-
-      .app-body {
-        flex-direction: column;
-      }
-
-      .app-shell[data-tab="board"] .stage-column {
-        display: flex;
-      }
-      .app-shell[data-tab="board"] .manage-column {
-        display: none;
-      }
-
-      .app-shell[data-tab="list"] .stage-column {
-        display: none;
-      }
+      .app-shell[data-tab="board"] .stage-column { display: flex; }
+      .app-shell[data-tab="board"] .manage-column { display: none; }
+      .app-shell[data-tab="list"] .stage-column { display: none; }
       .app-shell[data-tab="list"] .manage-column {
         display: flex;
         flex: 1 1 0;
@@ -1167,65 +1434,27 @@
         border-left: none;
       }
 
-      .stage-column {
-        padding: 7px 9px 7px;
-        gap: 7px;
-      }
-
-      .cabinet-shell {
-        padding: 6px 7px 7px;
-        border-radius: 15px;
-      }
-
-      .cabinet-marquee {
-        padding-bottom: 4px;
-      }
-
-      .marquee-hint {
-        font-size: 0.67rem;
-      }
-
-      .controls-bar {
-        gap: 6px;
-      }
-
-      .drop-primary-btn {
-        min-height: 46px;
-        font-size: 0.96rem;
-        padding: 8px 12px;
-      }
-
-      .shuffle-toggle-pill {
-        min-height: 46px;
-        padding: 0 9px;
-        font-size: 0.76rem;
-        gap: 6px;
-      }
-
-      .manual-shuffle-btn {
-        min-height: 46px;
-        padding: 0 11px;
-        font-size: 0.8rem;
-      }
-
-      .mobile-tabbar {
-        display: grid;
-      }
+      .stage-column { padding: 6px 8px 6px; gap: 6px; }
+      .mode-tabs-bar { padding: 4px; gap: 4px; }
+      .mode-tab-btn { min-height: 36px; padding: 4px 6px; font-size: 0.8rem; gap: 4px; }
+      .cabinet-shell { padding: 6px; border-radius: 15px; }
+      .controls-bar { gap: 6px; }
+      .drop-primary-btn { min-height: 46px; font-size: 0.94rem; padding: 8px 12px; }
+      .shuffle-toggle-pill { min-height: 46px; padding: 0 9px; font-size: 0.76rem; gap: 6px; }
+      .manual-shuffle-btn { min-height: 46px; padding: 0 11px; font-size: 0.8rem; }
+      .slot-chassis { padding: 10px 10px 12px; gap: 8px; }
+      .reel-window { height: 138px; }
+      .mobile-tabbar { display: grid; }
     }
 
     @media (max-width: 480px) {
-      .header-title {
-        font-size: 0.98rem;
-      }
-      .shuffle-toggle-pill .long-txt {
-        display: none;
-      }
-      .manual-shuffle-btn .shuf-txt {
-        display: none;
-      }
-      .form-row-2 {
-        grid-template-columns: 1fr;
-      }
+      .header-title { font-size: 0.95rem; }
+      .shuffle-toggle-pill .long-txt, .manual-shuffle-btn .shuf-txt { display: none; }
+      .form-row-2 { grid-template-columns: 1fr; }
+      .slot-lever-zone { flex: 0 0 38px; height: 154px; }
+      .lever-track { height: 112px; }
+      .lever-knob { width: 28px; height: 28px; }
+      .reel-item-transport, .reel-item-restaurant { font-size: 0.9rem; }
     }
   </style>
 </head>
@@ -1237,7 +1466,7 @@
     <header class="app-header">
       <div class="header-title-wrap">
         <h1 class="header-title">🎰 今天吃什麼？</h1>
-        <span class="header-badge">高隨機公平彈珠台</span>
+        <span class="header-badge">多模式趣味抽選機</span>
       </div>
 
       <div class="header-actions">
@@ -1260,62 +1489,162 @@
     <!-- ================= 主內容區 ================= -->
     <main class="app-body">
 
-      <!-- 左欄／手機分頁 1：彈珠台抽選區 -->
-      <section class="stage-column" aria-label="彈珠台抽選區">
+      <!-- 左欄／手機分頁 1：多模式抽選主舞台 -->
+      <section class="stage-column" aria-label="趣味抽選機台">
 
-        <!-- 交通方式篩選列 -->
-        <div class="filter-bar">
-          <div id="filterChips" class="filter-chips"></div>
-          <span id="candidateCount" class="candidate-pill">候選 0 家</span>
+        <!-- 頂部 3 種抽獎方式切換分頁（Mode Tabs） -->
+        <div class="mode-tabs-bar" role="tablist" aria-label="抽選模式切換">
+          <button id="modeTabPlinko" type="button" role="tab" aria-selected="true" class="mode-tab-btn active" data-mode="plinko">
+            <span>🎰</span><span>彈珠台</span>
+          </button>
+          <button id="modeTabSlot" type="button" role="tab" aria-selected="false" class="mode-tab-btn" data-mode="slot">
+            <span>🕹️</span><span>拉霸機</span>
+          </button>
+          <button id="modeTabRoulette" type="button" role="tab" aria-selected="false" class="mode-tab-btn" data-mode="roulette">
+            <span>🎡</span><span>俄羅斯輪盤</span>
+          </button>
         </div>
 
-        <!-- 彈珠台機台與自適應畫布 -->
-        <div class="cabinet-shell">
-          <div class="cabinet-marquee">
-            <div class="marquee-dots">
-              <span class="dot dot-cyan"></span>
-              <span class="dot dot-gold"></span>
-              <span class="dot dot-pink"></span>
-            </div>
-            <div class="marquee-hint">點擊／拖曳頂部投球區自選落點，或點擊下方按鈕全寬隨機投球</div>
-            <div class="marquee-dots">
-              <span class="dot dot-pink"></span>
-              <span class="dot dot-gold"></span>
-              <span class="dot dot-cyan"></span>
+        <!-- 單行橫向可捲動：交通方式篩選列 -->
+        <div class="filter-bar">
+          <div id="filterChips" class="filter-chips"></div>
+          <span id="candidateCount" class="candidate-pill">目前候選：0 家</span>
+        </div>
+
+        <!-- ========== 模式一：🎰 彈珠台 (Plinko) ========== -->
+        <div id="panelPlinko" class="mode-panel">
+          <div class="cabinet-shell">
+            <div id="plinkoStageWrapper" class="canvas-stage-wrapper">
+              <div class="canvas-bezel">
+                <canvas id="plinkoCanvas"></canvas>
+                <div id="plinkoEmptyOverlay" class="empty-board-overlay hidden">
+                  <div style="font-size:2.2rem;">🍽️</div>
+                  <h3>目前沒有符合條件的店家</h3>
+                  <p>請調整上方交通方式篩選，或在店家名單中啟用／新增餐廳。</p>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div id="canvasStageWrapper" class="canvas-stage-wrapper">
-            <div id="canvasBezel" class="canvas-bezel">
-              <canvas id="plinkoCanvas"></canvas>
-              <div id="emptyOverlay" class="empty-board-overlay hidden">
-                <div style="font-size:2.2rem;">🍽️</div>
+          <div class="controls-bar">
+            <button id="dropBallBtn" type="button" class="drop-primary-btn">
+              <span>🎯</span>
+              <span id="dropBallText">投下彈珠！</span>
+            </button>
+
+            <label class="shuffle-toggle-pill" for="autoShuffleCheck" title="每次抽前自動洗牌位置">
+              <span class="switch-box">
+                <input id="autoShuffleCheck" type="checkbox" checked />
+                <span class="switch-track"></span>
+              </span>
+              <span>🎲 <span class="long-txt">抽前自動</span>洗牌</span>
+            </label>
+
+            <button id="manualShuffleBtn" type="button" class="manual-shuffle-btn" title="手動打亂底部順序">
+              <span>🔀</span>
+              <span class="shuf-txt">洗牌</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ========== 模式二：🕹️ 雙階段拉霸機 (Slot Machine) ========== -->
+        <div id="panelSlot" class="mode-panel hidden">
+          <div class="cabinet-shell">
+            <div id="slotStageWrapper" class="slot-stage-wrapper">
+              <canvas id="slotConfettiCanvas" class="slot-confetti-canvas"></canvas>
+
+              <div class="slot-machine-body">
+                <div class="slot-chassis">
+                  <div id="slotBulbsTop" class="slot-bulbs-row"></div>
+
+                  <div id="slotStatusBanner" class="slot-status-banner">
+                    🕹️ 拉下右側拉桿或點擊下方按鈕開抽！
+                  </div>
+
+                  <div class="slot-reels-grid">
+                    <div class="reel-column">
+                      <div class="reel-label">STEP 1 · 交通方式</div>
+                      <div id="reelWinLeft" class="reel-window">
+                        <div id="reelStripLeft" class="reel-strip"></div>
+                      </div>
+                    </div>
+                    <div class="reel-column">
+                      <div class="reel-label">STEP 2 · 店家名稱</div>
+                      <div id="reelWinRight" class="reel-window">
+                        <div id="reelStripRight" class="reel-strip"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div id="slotBulbsBottom" class="slot-bulbs-row"></div>
+                </div>
+
+                <!-- 互動右側拉桿 -->
+                <div id="slotLeverZone" class="slot-lever-zone" title="點擊或往下拖曳拉桿開抽">
+                  <div class="lever-mount"></div>
+                  <div class="lever-track">
+                    <div id="leverShaft" class="lever-shaft"></div>
+                    <div id="leverKnob" class="lever-knob"></div>
+                  </div>
+                  <span class="lever-tip">下拉！</span>
+                </div>
+              </div>
+
+              <!-- 單一交通方式友善提示 -->
+              <div id="slotSingleTransportHint" class="slot-single-hint hidden">
+                💡 目前候選店家皆為單一交通方式，可至「店家名單」編輯更多 Ubike / 捷運 / 其他 店家體驗雙階段抽選！
+              </div>
+
+              <div id="slotEmptyOverlay" class="empty-board-overlay hidden">
+                <div style="font-size:2.2rem;">🕹️</div>
                 <h3>目前沒有符合條件的店家</h3>
                 <p>請調整上方交通方式篩選，或在店家名單中啟用／新增餐廳。</p>
               </div>
             </div>
           </div>
+
+          <div class="controls-bar">
+            <button id="pullSlotBtn" type="button" class="drop-primary-btn slot-btn">
+              <span>🕹️</span>
+              <span id="pullSlotText">拉下拉桿！</span>
+            </button>
+          </div>
         </div>
 
-        <!-- 底部動作控制列 -->
-        <div class="controls-bar">
-          <button id="dropBallBtn" type="button" class="drop-primary-btn">
-            <span>🎯</span>
-            <span id="dropBallText">投下彈珠！</span>
-          </button>
+        <!-- ========== 模式三：🎡 俄羅斯輪盤 (Roulette Wheel) ========== -->
+        <div id="panelRoulette" class="mode-panel hidden">
+          <div class="cabinet-shell">
+            <div id="rouletteStageWrapper" class="canvas-stage-wrapper">
+              <div class="canvas-bezel round-bezel">
+                <canvas id="rouletteCanvas"></canvas>
+                <div id="rouletteEmptyOverlay" class="empty-board-overlay hidden">
+                  <div style="font-size:2.2rem;">🎡</div>
+                  <h3>目前沒有符合條件的店家</h3>
+                  <p>請調整上方交通方式篩選，或在店家名單中啟用／新增餐廳。</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-          <label class="shuffle-toggle-pill" for="autoShuffleCheck" title="每次投球前自動洗牌底部順序">
-            <span class="switch-box">
-              <input id="autoShuffleCheck" type="checkbox" checked />
-              <span class="switch-track"></span>
-            </span>
-            <span>🎲 <span class="long-txt">抽前</span>洗牌</span>
-          </label>
+          <div class="controls-bar">
+            <button id="spinRouletteBtn" type="button" class="drop-primary-btn roulette-btn">
+              <span>🎡</span>
+              <span id="spinRouletteText">轉動輪盤！</span>
+            </button>
 
-          <button id="manualShuffleBtn" type="button" class="manual-shuffle-btn" title="手動打亂底部順序">
-            <span>🔀</span>
-            <span class="shuf-txt">洗牌</span>
-          </button>
+            <label class="shuffle-toggle-pill" for="autoShuffleRouletteCheck" title="每次轉動前自動洗牌位置">
+              <span class="switch-box">
+                <input id="autoShuffleRouletteCheck" type="checkbox" checked />
+                <span class="switch-track"></span>
+              </span>
+              <span>🎲 <span class="long-txt">抽前自動</span>洗牌</span>
+            </label>
+
+            <button id="manualShuffleRouletteBtn" type="button" class="manual-shuffle-btn" title="手動打亂輪盤順序">
+              <span>🔀</span>
+              <span class="shuf-txt">洗牌</span>
+            </button>
+          </div>
         </div>
 
       </section>
@@ -1344,22 +1673,15 @@
                   <label class="field-label" for="transportSelect">交通方式 <span class="req-star">*</span></label>
                   <select id="transportSelect" class="field-select">
                     <option value="步行">🚶 步行</option>
-                    <option value="騎車">🛵 騎車</option>
-                    <option value="開車">🚗 開車</option>
-                    <option value="大眾運輸">🚇 大眾運輸</option>
-                    <option value="外送">📦 外送</option>
-                    <option value="__custom__">✏️ 自訂...</option>
+                    <option value="Ubike">🚲 Ubike</option>
+                    <option value="捷運">🚇 捷運</option>
+                    <option value="其他">✨ 其他</option>
                   </select>
                 </div>
                 <div>
                   <label class="field-label" for="timeInput">預估時間（選填）</label>
                   <input id="timeInput" type="text" maxlength="20" class="field-input" placeholder="例如：步行 5 分鐘" />
                 </div>
-              </div>
-
-              <div id="customTransportWrap" class="hidden">
-                <label class="field-label" for="customTransportInput">自訂交通方式 <span class="req-star">*</span></label>
-                <input id="customTransportInput" type="text" maxlength="12" class="field-input" placeholder="例如：YouBike、散步" />
               </div>
 
               <div>
@@ -1379,7 +1701,7 @@
             </form>
           </div>
 
-          <!-- 搜尋與名單工具列 -->
+          <!-- 關鍵字搜尋列 -->
           <input id="searchInput" type="search" class="field-input" placeholder="🔍 搜尋店名、交通方式或備註..." />
 
           <div class="list-toolbar">
@@ -1389,7 +1711,7 @@
             </div>
             <div style="display:flex; gap:6px;">
               <button id="enableAllBtn" type="button" class="btn-ghost">全部啟用</button>
-              <button id="resetDefaultsBtn" type="button" class="btn-ghost">還原預設 23 家</button>
+              <button id="resetDefaultsBtn" type="button" class="btn-ghost">還原預設 23 家名單</button>
             </div>
           </div>
         </div>
@@ -1404,8 +1726,8 @@
     <!-- ================= 手機 / 平板 底部導覽分頁列 ================= -->
     <nav class="mobile-tabbar" aria-label="功能分頁">
       <button id="mobTabBoard" type="button" class="mob-tab-btn active" data-tab="board">
-        <span>🎰</span>
-        <span>彈珠台</span>
+        <span>🎲</span>
+        <span>抽選機</span>
       </button>
       <button id="mobTabList" type="button" class="mob-tab-btn" data-tab="list">
         <span>🍽️</span>
@@ -1415,13 +1737,13 @@
 
   </div>
 
-  <!-- ================= 中獎結果揭曉彈窗 ================= -->
+  <!-- ================= 統一中獎結果揭曉彈窗 ================= -->
   <div id="resultModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
     <div class="modal-card">
       <div class="modal-accent"></div>
       <div class="result-wrap">
-        <div class="result-icon">🎉</div>
-        <p class="result-sub">命運彈珠結果揭曉</p>
+        <div id="resIcon" class="result-icon">🎉</div>
+        <p id="resSub" class="result-sub">抽選結果揭曉</p>
         <h2 id="resName" class="result-title">店家名稱</h2>
         <div class="result-tags">
           <span id="resTransport" class="t-badge t-walk">🚶 步行</span>
@@ -1463,53 +1785,35 @@
   <!-- ================= 浮動提示 Toast 容器 ================= -->
   <div id="toastStack" class="toast-stack" aria-live="polite"></div>
 
-  <!-- ================= 完整零依賴應用程式腳本 ================= -->
+  <!-- ================= 完整獨立應用程式腳本 ================= -->
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       'use strict';
 
       /* =====================================================================
-       * 1. 常數設定與 23 家預設步行美食名單
+       * 1. 常數設定、4 種交通方式與 23 家預設步行美食名單
        * ===================================================================== */
-      var STORAGE_KEY = 'what_to_eat_plinko_v6';
-      var SOUND_KEY = 'what_to_eat_plinko_sound_v6';
-      var SHUFFLE_KEY = 'what_to_eat_plinko_shuffle_v6';
+      var STORAGE_KEY = 'what_to_eat_plinko_v7';
+      var SOUND_KEY = 'what_to_eat_plinko_sound_v7';
+      var SHUFFLE_KEY = 'what_to_eat_plinko_shuffle_v7';
       var MAX_SLOTS = 30;
-      var BUILTIN_TRANSPORTS = ['步行', '騎車', '開車', '大眾運輸', '外送'];
 
-      var DEFAULT_NAMES = [
-        '鍋燒意麵',
-        '虎記雞肉飯',
-        '傳承牛肉麵',
-        '三川田',
-        '蜥蜴咖哩',
-        '兩四韓館',
-        '正老頭炒飯',
-        '承記鍋貼',
-        '東引快刀手',
-        '好心腸粉',
-        '涼麵',
-        '泰美利',
-        '豬腳將軍',
-        '南港燒臘',
-        '久越越式',
-        '牛巴達小吃',
-        '金仙蝦捲',
-        'LaLaPort',
-        '鄭州路牛肉麵',
-        '東湖義大利麵',
-        '咔家韓式',
-        '朱記',
-        '中信鐵板燒'
-      ];
+      var TRANSPORTS = ['步行', 'Ubike', '捷運', '其他'];
 
       var TRANSPORT_META = {
         '步行': { icon: '🚶', cls: 't-walk' },
-        '騎車': { icon: '🛵', cls: 't-scooter' },
-        '開車': { icon: '🚗', cls: 't-car' },
-        '大眾運輸': { icon: '🚇', cls: 't-transit' },
-        '外送': { icon: '📦', cls: 't-delivery' }
+        'Ubike': { icon: '🚲', cls: 't-ubike' },
+        '捷運': { icon: '🚇', cls: 't-mrt' },
+        '其他': { icon: '✨', cls: 't-other' }
       };
+
+      var DEFAULT_NAMES = [
+        '鍋燒意麵', '虎記雞肉飯', '傳承牛肉麵', '三川田', '蜥蜴咖哩',
+        '兩四韓館', '正老頭炒飯', '承記鍋貼', '東引快刀手', '好心腸粉',
+        '涼麵', '泰美利', '豬腳將軍', '南港燒臘', '久越越式',
+        '牛巴達小吃', '金仙蝦捲', 'LaLaPort', '鄭州路牛肉麵', '東湖義大利麵',
+        '咔家韓式', '朱記', '中信鐵板燒'
+      ];
 
       var SLOT_PALETTE = [
         '#F59E0B', '#EC4899', '#10B981', '#06B6D4', '#8B5CF6',
@@ -1518,6 +1822,14 @@
         '#0891B2', '#7C3AED', '#DC2626', '#0D9488', '#EA580C',
         '#4F46E5', '#65A30D', '#2563EB', '#BE123C'
       ];
+
+      function normalizeTransport(raw) {
+        var t = String(raw || '').trim();
+        if (t === '步行') return '步行';
+        if (t === 'Ubike' || t.toLowerCase() === 'ubike' || t.toLowerCase() === 'youbike') return 'Ubike';
+        if (t === '捷運' || t === '大眾運輸') return '捷運';
+        return '其他';
+      }
 
       function buildDefaultRestaurants() {
         return DEFAULT_NAMES.map(function (name, idx) {
@@ -1550,7 +1862,7 @@
       }
 
       function getTransportMeta(t) {
-        return TRANSPORT_META[t] || { icon: '🚩', cls: 't-custom' };
+        return TRANSPORT_META[t] || TRANSPORT_META['其他'];
       }
 
       function hexToRgba(hex, alpha) {
@@ -1572,8 +1884,29 @@
         return copy;
       }
 
+      function normalizeAngle(a) {
+        var twoPi = Math.PI * 2;
+        return ((a % twoPi) + twoPi) % twoPi;
+      }
+
+      function drawRoundRect(ctx, x, y, w, h, r) {
+        if (typeof ctx.roundRect === 'function') {
+          ctx.beginPath();
+          ctx.roundRect(x, y, w, h, r);
+          return;
+        }
+        var rad = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + rad, y);
+        ctx.arcTo(x + w, y, x + w, y + h, rad);
+        ctx.arcTo(x + w, y + h, x, y + h, rad);
+        ctx.arcTo(x, y + h, x, y, rad);
+        ctx.arcTo(x, y, x + w, y, rad);
+        ctx.closePath();
+      }
+
       /* =====================================================================
-       * 3. Web Audio API 即時合成音效引擎（全程 try/catch 防呆）
+       * 3. Web Audio API 即時合成音效引擎（零外部音檔）
        * ===================================================================== */
       function SoundEngine() {
         this.enabled = true;
@@ -1607,14 +1940,8 @@
 
       SoundEngine.prototype.toggle = function () {
         this.enabled = !this.enabled;
-        try {
-          localStorage.setItem(SOUND_KEY, String(this.enabled));
-        } catch (e) {
-          // 忽略儲存限制
-        }
-        if (this.enabled) {
-          this.playPeg(1, 2);
-        }
+        try { localStorage.setItem(SOUND_KEY, String(this.enabled)); } catch (e) {}
+        if (this.enabled) this.playPeg(1, 2);
         return this.enabled;
       };
 
@@ -1630,10 +1957,8 @@
           osc.frequency.exponentialRampToValueAtTime(220, now + 0.14);
           gain.gain.setValueAtTime(0.14, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.16);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now); osc.stop(now + 0.16);
         } catch (e) {}
       };
 
@@ -1651,10 +1976,8 @@
             osc.frequency.exponentialRampToValueAtTime(f * 1.22, t + 0.04);
             gain.gain.setValueAtTime(0.07, t);
             gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(t);
-            osc.stop(t + 0.055);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(t); osc.stop(t + 0.055);
           });
         } catch (e) {}
       };
@@ -1671,10 +1994,8 @@
           osc.frequency.setValueAtTime(freq, now);
           gain.gain.setValueAtTime(0.085, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.085);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.09);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now); osc.stop(now + 0.09);
         } catch (e) {}
       };
 
@@ -1691,10 +2012,8 @@
           bass.frequency.exponentialRampToValueAtTime(150, now + 0.22);
           bGain.gain.setValueAtTime(0.22, now);
           bGain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
-          bass.connect(bGain);
-          bGain.connect(ctx.destination);
-          bass.start(now);
-          bass.stop(now + 0.25);
+          bass.connect(bGain); bGain.connect(ctx.destination);
+          bass.start(now); bass.stop(now + 0.25);
 
           var hi = ctx.createOscillator();
           var hGain = ctx.createGain();
@@ -1703,10 +2022,8 @@
           hi.frequency.exponentialRampToValueAtTime(1320, now + 0.07);
           hGain.gain.setValueAtTime(0.065, now);
           hGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
-          hi.connect(hGain);
-          hGain.connect(ctx.destination);
-          hi.start(now);
-          hi.stop(now + 0.1);
+          hi.connect(hGain); hGain.connect(ctx.destination);
+          hi.start(now); hi.stop(now + 0.1);
         } catch (e) {}
       };
 
@@ -1722,10 +2039,122 @@
           osc.frequency.exponentialRampToValueAtTime(480, now + 0.06);
           gain.gain.setValueAtTime(0.055, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.075);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.08);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now); osc.stop(now + 0.08);
+        } catch (e) {}
+      };
+
+      SoundEngine.prototype.playLeverPull = function () {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(180, now);
+          osc.frequency.exponentialRampToValueAtTime(420, now + 0.14);
+          gain.gain.setValueAtTime(0.11, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now); osc.stop(now + 0.17);
+        } catch (e) {}
+      };
+
+      SoundEngine.prototype.playSlotTick = function (pitchBoost) {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime((pitchBoost ? 720 : 540) + Math.random() * 80, now);
+          gain.gain.setValueAtTime(0.042, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.032);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now); osc.stop(now + 0.036);
+        } catch (e) {}
+      };
+
+      SoundEngine.prototype.playReelLock = function (isFinal) {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(isFinal ? 220 : 170, now);
+          osc.frequency.exponentialRampToValueAtTime(75, now + 0.14);
+          gain.gain.setValueAtTime(0.24, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now); osc.stop(now + 0.17);
+
+          var chime = ctx.createOscillator();
+          var cGain = ctx.createGain();
+          chime.type = 'sine';
+          chime.frequency.setValueAtTime(isFinal ? 987.77 : 659.25, now);
+          cGain.gain.setValueAtTime(0.11, now);
+          cGain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+          chime.connect(cGain); cGain.connect(ctx.destination);
+          chime.start(now); chime.stop(now + 0.19);
+        } catch (e) {}
+      };
+
+      SoundEngine.prototype.playRouletteClick = function (intensity) {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var vol = Math.min(0.13, Math.max(0.035, (intensity || 0.7) * 0.11));
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(920 + Math.random() * 260, now);
+          osc.frequency.exponentialRampToValueAtTime(420, now + 0.03);
+          gain.gain.setValueAtTime(vol, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.036);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now); osc.stop(now + 0.04);
+        } catch (e) {}
+      };
+
+      SoundEngine.prototype.playSlowMoPulse = function () {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(118, now);
+          osc.frequency.exponentialRampToValueAtTime(52, now + 0.22);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now); osc.stop(now + 0.26);
+        } catch (e) {}
+      };
+
+      /* 50% 驚喜翻盤：俏皮彈簧翻盤音效 */
+      SoundEngine.prototype.playSurpriseHop = function () {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.exponentialRampToValueAtTime(860, now + 0.09);
+          osc.frequency.exponentialRampToValueAtTime(420, now + 0.17);
+          osc.frequency.exponentialRampToValueAtTime(1040, now + 0.26);
+          gain.gain.setValueAtTime(0.24, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.29);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now); osc.stop(now + 0.3);
         } catch (e) {}
       };
 
@@ -1742,18 +2171,14 @@
             osc.frequency.setValueAtTime(freq, t);
             gain.gain.setValueAtTime(0.15, t);
             gain.gain.exponentialRampToValueAtTime(0.001, t + 0.36);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(t);
-            osc.stop(t + 0.38);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(t); osc.stop(t + 0.38);
           });
         } catch (e) {}
       };
 
       /* =====================================================================
-       * 4. 高隨機公平 2D 彈珠台物理與繪圖引擎
-       *    - 虛擬座標：VW = 600，VH ∈ [700, 1050] 動態自適應
-       *    - 支援最多 30 槽位同時顯示、動態縮放彈珠與隔板防卡球
+       * 4. 模式一：高隨機公平 2D 彈珠台物理與繪圖引擎 (PlinkoEngine)
        * ===================================================================== */
       function PlinkoEngine(canvas, wrapper, sound, callbacks) {
         this.canvas = canvas;
@@ -1770,19 +2195,16 @@
         this.dropZoneH = 66;
         this.slotH = 114;
 
-        // 動態尺寸（隨槽位數量自適應）
         this.ballR = 8.5;
         this.divHalfW = 2.0;
         this.divTipR = 3.5;
         this.pegR = 5.2;
 
-        // 溫和懸疑物理參數（5~9 秒落球體驗）
         this.baseGravity = 580;
         this.maxSpeed = 445;
         this.airFriction = 0.996;
         this.pegBounce = 0.72;
 
-        // 場地元件
         this.pegs = [];
         this.bumpers = [];
         this.spinners = [];
@@ -1790,7 +2212,6 @@
         this.dividers = [];
         this.slots = [];
 
-        // 動態與互動狀態
         this.ball = null;
         this.trail = [];
         this.confetti = [];
@@ -1801,7 +2222,6 @@
         this.hoveredSlotIdx = -1;
         this.touchTipTimer = null;
 
-        // 瞄準狀態
         this.aimX = null;
         this.isAiming = false;
         this.lastTs = 0;
@@ -1811,9 +2231,7 @@
         this.resize();
 
         var self = this;
-        requestAnimationFrame(function (ts) {
-          self.loop(ts);
-        });
+        requestAnimationFrame(function (ts) { self.loop(ts); });
       }
 
       PlinkoEngine.prototype.buildLayout = function () {
@@ -1826,35 +2244,23 @@
         var playBot = H - this.slotH - 28;
         var playH = playBot - playTop;
 
-        // 1. 2 個旋轉小風車（上中段）
         var spY = playTop + playH * 0.27;
         var prevSp = this.spinners;
         this.spinners = [
           {
-            x: W * 0.33,
-            y: spY,
-            armLen: 33,
-            halfW: 4.0,
+            x: W * 0.33, y: spY, armLen: 33, halfW: 4.0,
             angle: prevSp[0] ? prevSp[0].angle : 0.4,
             omega: prevSp[0] ? prevSp[0].omega : 1.5,
-            glow: 0,
-            cooldown: 0,
-            color: '#22D3EE'
+            glow: 0, cooldown: 0, color: '#22D3EE'
           },
           {
-            x: W * 0.67,
-            y: spY,
-            armLen: 33,
-            halfW: 4.0,
+            x: W * 0.67, y: spY, armLen: 33, halfW: 4.0,
             angle: prevSp[1] ? prevSp[1].angle : 1.2,
             omega: prevSp[1] ? prevSp[1].omega : -1.5,
-            glow: 0,
-            cooldown: 0,
-            color: '#A78BFA'
+            glow: 0, cooldown: 0, color: '#A78BFA'
           }
         ];
 
-        // 2. 3 個霓虹高彈性蘑菇頭（上中段兩側 + 下中段中央）
         var bUpperY = playTop + playH * 0.54;
         var bLowerY = playTop + playH * 0.78;
         this.bumpers = [
@@ -1863,7 +2269,6 @@
           { x: W * 0.50, y: bLowerY, r: 23, glow: 0, ripple: 0, scale: 1, cooldown: 0, color: '#10B981', core: '#6EE7B7' }
         ];
 
-        // 3. 左右兩側 4 對斜角反彈導流板
         this.deflectors = [];
         var defFracs = [0.14, 0.39, 0.64, 0.87];
         var protrude = 20;
@@ -1875,19 +2280,16 @@
             pTop: { x: this.wallPad, y: cy - halfH },
             pTip: { x: this.wallPad + protrude, y: cy },
             pBot: { x: this.wallPad, y: cy + halfH },
-            glow: 0,
-            cooldown: 0
+            glow: 0, cooldown: 0
           });
           this.deflectors.push({
             pTop: { x: rightWall, y: cy - halfH },
             pTip: { x: rightWall - protrude, y: cy },
             pBot: { x: rightWall, y: cy + halfH },
-            glow: 0,
-            cooldown: 0
+            glow: 0, cooldown: 0
           });
         }
 
-        // 4. 12 層交錯發光釘陣（自動避讓蘑菇頭、風車與導流板）
         this.pegs = [];
         var rows = 12;
         var rowGap = playH / (rows - 1);
@@ -1903,40 +2305,28 @@
             var blocked = false;
             for (var bi = 0; bi < this.bumpers.length; bi++) {
               if (Math.hypot(px - this.bumpers[bi].x, py - this.bumpers[bi].y) < this.bumpers[bi].r + 24) {
-                blocked = true;
-                break;
+                blocked = true; break;
               }
             }
             if (!blocked) {
               for (var si = 0; si < this.spinners.length; si++) {
                 if (Math.hypot(px - this.spinners[si].x, py - this.spinners[si].y) < this.spinners[si].armLen + 16) {
-                  blocked = true;
-                  break;
+                  blocked = true; break;
                 }
               }
             }
             if (!blocked) {
               for (var ki = 0; ki < this.deflectors.length; ki++) {
                 if (Math.hypot(px - this.deflectors[ki].pTip.x, py - this.deflectors[ki].pTip.y) < 28) {
-                  blocked = true;
-                  break;
+                  blocked = true; break;
                 }
               }
             }
             if (!blocked) {
-              this.pegs.push({
-                x: px,
-                y: py,
-                row: r,
-                col: c,
-                glow: 0,
-                ripple: 0,
-                cooldown: 0
-              });
+              this.pegs.push({ x: px, y: py, row: r, col: c, glow: 0, ripple: 0, cooldown: 0 });
             }
           }
         }
-
         this.rebuildDividers();
       };
 
@@ -1953,17 +2343,12 @@
         var slotW = usableW / n;
         var topY = this.VH - this.slotH;
 
-        // 依槽位寬度動態調整彈珠半徑與隔板厚度，確保 23~30 家時流暢落槽
         this.ballR = Math.min(10.5, Math.max(5.5, slotW * 0.28));
         this.divHalfW = Math.max(1.2, Math.min(2.5, slotW * 0.08));
         this.divTipR = Math.max(2.2, Math.min(4.8, this.divHalfW * 1.75));
 
         for (var i = 1; i < n; i++) {
-          this.dividers.push({
-            x: this.wallPad + i * slotW,
-            topY: topY,
-            botY: this.VH
-          });
+          this.dividers.push({ x: this.wallPad + i * slotW, topY: topY, botY: this.VH });
         }
       };
 
@@ -1971,9 +2356,7 @@
         this.slots = list.slice(0, MAX_SLOTS);
         this.winningIdx = -1;
         this.hoveredSlotIdx = -1;
-        if (withFlash) {
-          this.slotFlash = 1.0;
-        }
+        if (withFlash) this.slotFlash = 1.0;
         this.rebuildDividers();
       };
 
@@ -1986,7 +2369,6 @@
         }
       };
 
-      /** 安全自適應縮放：防止 0x0 容器崩潰，並維持 0.56~0.85 寬高比與 HiDPI 清晰度 */
       PlinkoEngine.prototype.resize = function () {
         if (!this.wrapper || !this.canvas) return;
         var availW = this.wrapper.clientWidth;
@@ -2027,35 +2409,21 @@
           this.VH = newVH;
           if (this.ball) {
             this.ball.y *= scaleY;
-            for (var i = 0; i < this.trail.length; i++) {
-              this.trail[i].y *= scaleY;
-            }
+            for (var i = 0; i < this.trail.length; i++) this.trail[i].y *= scaleY;
           }
-          for (var j = 0; j < this.confetti.length; j++) {
-            this.confetti[j].y *= scaleY;
-          }
+          for (var j = 0; j < this.confetti.length; j++) this.confetti[j].y *= scaleY;
           this.buildLayout();
         }
       };
 
       PlinkoEngine.prototype.bindEvents = function () {
         var self = this;
-
         if (typeof ResizeObserver !== 'undefined') {
           try {
-            this.ro = new ResizeObserver(function () {
-              self.resize();
-            });
+            this.ro = new ResizeObserver(function () { self.resize(); });
             this.ro.observe(this.wrapper);
           } catch (e) {}
         }
-
-        window.addEventListener('resize', function () {
-          self.resize();
-        });
-        window.addEventListener('orientationchange', function () {
-          setTimeout(function () { self.resize(); }, 120);
-        });
 
         function toVirtual(clientX, clientY) {
           var rect = self.canvas.getBoundingClientRect();
@@ -2073,41 +2441,29 @@
         function slotIndexAt(pos) {
           if (self.slots.length === 0) return -1;
           var topY = self.VH - self.slotH;
-          if (pos.y < topY || pos.x < self.wallPad || pos.x > self.VW - self.wallPad) {
-            return -1;
-          }
+          if (pos.y < topY || pos.x < self.wallPad || pos.x > self.VW - self.wallPad) return -1;
           var usableW = self.VW - self.wallPad * 2;
           var slotW = usableW / self.slots.length;
-          var idx = Math.floor((pos.x - self.wallPad) / slotW);
-          return Math.max(0, Math.min(self.slots.length - 1, idx));
+          return Math.max(0, Math.min(self.slots.length - 1, Math.floor((pos.x - self.wallPad) / slotW)));
         }
 
         this.canvas.addEventListener('pointerdown', function (e) {
           var pos = toVirtual(e.clientX, e.clientY);
-
-          // 觸碰底部槽位：浮現完整店名 Tooltip
           var sIdx = slotIndexAt(pos);
           if (sIdx !== -1) {
             self.hoveredSlotIdx = sIdx;
             if (self.touchTipTimer) clearTimeout(self.touchTipTimer);
             if (e.pointerType !== 'mouse') {
-              self.touchTipTimer = setTimeout(function () {
-                self.hoveredSlotIdx = -1;
-              }, 2400);
+              self.touchTipTimer = setTimeout(function () { self.hoveredSlotIdx = -1; }, 2400);
             }
             return;
           }
-
           if (self.isDropping || self.slots.length === 0) return;
-
-          // 點擊或拖曳頂部投球區自選落點
           if (pos.y <= self.dropZoneH + 100) {
             self.hoveredSlotIdx = -1;
             self.isAiming = true;
             self.aimX = clampDropX(pos.x);
-            try {
-              self.canvas.setPointerCapture(e.pointerId);
-            } catch (err) {}
+            try { self.canvas.setPointerCapture(e.pointerId); } catch (err) {}
           }
         });
 
@@ -2117,21 +2473,15 @@
             self.aimX = clampDropX(pos.x);
             return;
           }
-
           var sIdx = slotIndexAt(pos);
           if (sIdx !== -1) {
             self.hoveredSlotIdx = sIdx;
             self.aimX = null;
             return;
           }
-
           if (e.pointerType === 'mouse') {
             self.hoveredSlotIdx = -1;
-            if (!self.isDropping && pos.y <= self.dropZoneH + 60) {
-              self.aimX = clampDropX(pos.x);
-            } else {
-              self.aimX = null;
-            }
+            self.aimX = (!self.isDropping && pos.y <= self.dropZoneH + 60) ? clampDropX(pos.x) : null;
           }
         });
 
@@ -2139,13 +2489,8 @@
           if (!self.isAiming) return;
           var dropX = self.aimX;
           self.isAiming = false;
-          if (e.pointerType !== 'mouse') {
-            self.aimX = null;
-          }
-          try {
-            self.canvas.releasePointerCapture(e.pointerId);
-          } catch (err) {}
-
+          if (e.pointerType !== 'mouse') self.aimX = null;
+          try { self.canvas.releasePointerCapture(e.pointerId); } catch (err) {}
           if (typeof dropX === 'number' && !self.isDropping && self.slots.length > 0) {
             self.dropBall(dropX);
           }
@@ -2167,22 +2512,15 @@
 
       PlinkoEngine.prototype.dropBall = function (customX) {
         if (this.isDropping || this.slots.length === 0) return false;
-
-        if (typeof this.onBeforeDrop === 'function') {
-          this.onBeforeDrop();
-        }
-
+        if (typeof this.onBeforeDrop === 'function') this.onBeforeDrop();
         this.randomizeSpinners();
 
         var usableW = this.VW - this.wallPad * 2;
         var minX = this.wallPad + usableW * 0.08;
         var maxX = this.wallPad + usableW * 0.92;
-        var startX;
-        if (typeof customX === 'number' && !isNaN(customX)) {
-          startX = Math.max(this.wallPad + 16, Math.min(this.VW - this.wallPad - 16, customX));
-        } else {
-          startX = minX + Math.random() * (maxX - minX);
-        }
+        var startX = (typeof customX === 'number' && !isNaN(customX))
+          ? Math.max(this.wallPad + 16, Math.min(this.VW - this.wallPad - 16, customX))
+          : (minX + Math.random() * (maxX - minX));
 
         this.isDropping = true;
         this.winningIdx = -1;
@@ -2202,46 +2540,33 @@
         };
 
         this.sound.playDrop();
-        if (typeof this.onStateChange === 'function') {
-          this.onStateChange();
-        }
+        if (typeof this.onStateChange === 'function') this.onStateChange();
         return true;
       };
 
       PlinkoEngine.prototype.collideSegment = function (b, x1, y1, x2, y2, thickness, bounce, extraVx, extraVy) {
-        var sx = x2 - x1;
-        var sy = y2 - y1;
+        var sx = x2 - x1, sy = y2 - y1;
         var lenSq = sx * sx + sy * sy;
         if (lenSq < 0.0001) return false;
-
-        var t = ((b.x - x1) * sx + (b.y - y1) * sy) / lenSq;
-        if (t < 0) t = 0;
-        if (t > 1) t = 1;
-
-        var px = x1 + t * sx;
-        var py = y1 + t * sy;
-        var dx = b.x - px;
-        var dy = b.y - py;
+        var t = Math.max(0, Math.min(1, ((b.x - x1) * sx + (b.y - y1) * sy) / lenSq));
+        var px = x1 + t * sx, py = y1 + t * sy;
+        var dx = b.x - px, dy = b.y - py;
         var minD = this.ballR + thickness;
         var distSq = dx * dx + dy * dy;
 
         if (distSq < minD * minD && distSq > 0.0001) {
           var dist = Math.sqrt(distSq);
-          var nx = dx / dist;
-          var ny = dy / dist;
-
+          var nx = dx / dist, ny = dy / dist;
           b.x += nx * (minD - dist + 0.3);
           b.y += ny * (minD - dist + 0.3);
 
-          var rvx = b.vx - extraVx;
-          var rvy = b.vy - extraVy;
+          var rvx = b.vx - extraVx, rvy = b.vy - extraVy;
           var vn = rvx * nx + rvy * ny;
           if (vn < 0) {
             var nvx = rvx - (1 + bounce) * vn * nx + extraVx;
             var nvy = rvy - (1 + bounce) * vn * ny + extraVy;
             var jitter = (Math.random() - 0.5) * 0.32;
-            var cosJ = Math.cos(jitter);
-            var sinJ = Math.sin(jitter);
+            var cosJ = Math.cos(jitter), sinJ = Math.sin(jitter);
             b.vx = nvx * cosJ - nvy * sinJ;
             b.vy = nvx * sinJ + nvy * cosJ;
           }
@@ -2255,8 +2580,7 @@
           var ang = -Math.PI / 2 + (Math.random() - 0.5) * 2.1;
           var spd = 180 + Math.random() * 340;
           this.confetti.push({
-            x: cx,
-            y: cy,
+            x: cx, y: cy,
             vx: Math.cos(ang) * spd,
             vy: Math.sin(ang) * spd - 65,
             size: 4 + Math.random() * 5,
@@ -2272,14 +2596,11 @@
         if (!this.ball || this.slots.length === 0) return;
         var usableW = this.VW - this.wallPad * 2;
         var slotW = usableW / this.slots.length;
-        var idx = Math.floor((this.ball.x - this.wallPad) / slotW);
-        idx = Math.max(0, Math.min(this.slots.length - 1, idx));
+        var idx = Math.max(0, Math.min(this.slots.length - 1, Math.floor((this.ball.x - this.wallPad) / slotW)));
 
         this.winningIdx = idx;
         this.isDropping = false;
-        if (typeof this.onStateChange === 'function') {
-          this.onStateChange();
-        }
+        if (typeof this.onStateChange === 'function') this.onStateChange();
 
         var winner = this.slots[idx];
         var cx = this.wallPad + (idx + 0.5) * slotW;
@@ -2289,56 +2610,40 @@
         var self = this;
         if (typeof this.onResult === 'function') {
           setTimeout(function () {
-            self.onResult(winner);
+            self.onResult(winner, { icon: '🎰', sub: '彈珠台命運結果揭曉' });
           }, 420);
         }
       };
 
       PlinkoEngine.prototype.update = function (dt) {
         var i;
-        if (this.slotFlash > 0) {
-          this.slotFlash = Math.max(0, this.slotFlash - dt * 2.5);
-        }
-        if (this.winningIdx !== -1) {
-          this.winPulse += dt * 5.2;
-        }
+        if (this.slotFlash > 0) this.slotFlash = Math.max(0, this.slotFlash - dt * 2.5);
+        if (this.winningIdx !== -1) this.winPulse += dt * 5.2;
 
-        // 元件動畫衰減與風車旋轉
         for (i = 0; i < this.pegs.length; i++) {
           var p = this.pegs[i];
           if (p.glow > 0) p.glow = Math.max(0, p.glow - dt * 2.8);
-          if (p.ripple > 0) {
-            p.ripple += dt * 3.6;
-            if (p.ripple >= 1) p.ripple = 0;
-          }
+          if (p.ripple > 0) { p.ripple += dt * 3.6; if (p.ripple >= 1) p.ripple = 0; }
           if (p.cooldown > 0) p.cooldown = Math.max(0, p.cooldown - dt);
         }
-
         for (i = 0; i < this.bumpers.length; i++) {
           var bm = this.bumpers[i];
           if (bm.glow > 0) bm.glow = Math.max(0, bm.glow - dt * 2.5);
-          if (bm.ripple > 0) {
-            bm.ripple += dt * 3.0;
-            if (bm.ripple >= 1) bm.ripple = 0;
-          }
+          if (bm.ripple > 0) { bm.ripple += dt * 3.0; if (bm.ripple >= 1) bm.ripple = 0; }
           if (bm.scale > 1) bm.scale = Math.max(1, bm.scale - dt * 2.6);
           if (bm.cooldown > 0) bm.cooldown = Math.max(0, bm.cooldown - dt);
         }
-
         for (i = 0; i < this.spinners.length; i++) {
           var sp = this.spinners[i];
           sp.angle += sp.omega * dt;
           if (sp.glow > 0) sp.glow = Math.max(0, sp.glow - dt * 2.6);
           if (sp.cooldown > 0) sp.cooldown = Math.max(0, sp.cooldown - dt);
         }
-
         for (i = 0; i < this.deflectors.length; i++) {
           var df = this.deflectors[i];
           if (df.glow > 0) df.glow = Math.max(0, df.glow - dt * 2.8);
           if (df.cooldown > 0) df.cooldown = Math.max(0, df.cooldown - dt);
         }
-
-        // 彩帶粒子更新
         for (i = this.confetti.length - 1; i >= 0; i--) {
           var cp = this.confetti[i];
           cp.vy += 420 * dt;
@@ -2346,22 +2651,17 @@
           cp.y += cp.vy * dt;
           cp.rot += cp.vRot * dt;
           cp.life -= dt * 0.65;
-          if (cp.life <= 0) {
-            this.confetti.splice(i, 1);
-          }
+          if (cp.life <= 0) this.confetti.splice(i, 1);
         }
 
         if (!this.ball || !this.isDropping) return;
 
         var b = this.ball;
         b.elapsed += dt;
-
-        // 10 秒防卡死保護：逐步減少反彈並溫和引導落入槽位
         var overtime = Math.max(0, b.elapsed - 10.0);
         var gravity = this.baseGravity * (this.VH / 820) + overtime * 120;
         var slotTopY = this.VH - this.slotH;
         var floorY = this.VH - 4;
-
         var subSteps = 4;
         var subDt = dt / subSteps;
 
@@ -2370,190 +2670,122 @@
           b.vx *= Math.pow(this.airFriction, subDt * 60);
           b.vy *= Math.pow(this.airFriction, subDt * 60);
 
-          // 終端速度上限，營造輕盈緩降的懸念感
           var spd = Math.hypot(b.vx, b.vy);
           if (spd > this.maxSpeed) {
             var ratio = this.maxSpeed / spd;
             b.vx *= ratio;
             b.vy *= ratio;
           }
-
           b.x += b.vx * subDt;
           b.y += b.vy * subDt;
 
-          // 左右邊牆反彈
           var leftBound = this.wallPad + this.ballR;
           var rightBound = this.VW - this.wallPad - this.ballR;
-          if (b.x < leftBound) {
-            b.x = leftBound;
-            b.vx = Math.abs(b.vx) * 0.72 + 24;
-          } else if (b.x > rightBound) {
-            b.x = rightBound;
-            b.vx = -Math.abs(b.vx) * 0.72 - 24;
-          }
+          if (b.x < leftBound) { b.x = leftBound; b.vx = Math.abs(b.vx) * 0.72 + 24; }
+          else if (b.x > rightBound) { b.x = rightBound; b.vx = -Math.abs(b.vx) * 0.72 - 24; }
+          if (b.y < this.ballR + 4) { b.y = this.ballR + 4; b.vy = Math.abs(b.vy) * 0.5; }
 
-          if (b.y < this.ballR + 4) {
-            b.y = this.ballR + 4;
-            b.vy = Math.abs(b.vy) * 0.5;
-          }
-
-          // A. 釘子碰撞（附隨機微角度擾動）
           var pegMinD = this.ballR + this.pegR;
           var pegMinSq = pegMinD * pegMinD;
           for (i = 0; i < this.pegs.length; i++) {
             var peg = this.pegs[i];
-            var dx = b.x - peg.x;
-            var dy = b.y - peg.y;
+            var dx = b.x - peg.x, dy = b.y - peg.y;
             var dSq = dx * dx + dy * dy;
             if (dSq < pegMinSq && dSq > 0.0001) {
               var d = Math.sqrt(dSq);
-              var nx = dx / d;
-              var ny = dy / d;
+              var nx = dx / d, ny = dy / d;
               b.x += nx * (pegMinD - d + 0.25);
               b.y += ny * (pegMinD - d + 0.25);
-
               var vn = b.vx * nx + b.vy * ny;
               if (vn < 0) {
                 var bounce = overtime > 0 ? 0.45 : this.pegBounce;
                 var rvx = b.vx - (1 + bounce) * vn * nx;
                 var rvy = b.vy - (1 + bounce) * vn * ny;
                 var jitter = (Math.random() - 0.5) * 0.42;
-                var cJ = Math.cos(jitter);
-                var sJ = Math.sin(jitter);
+                var cJ = Math.cos(jitter), sJ = Math.sin(jitter);
                 b.vx = rvx * cJ - rvy * sJ + (Math.random() - 0.5) * 28;
                 b.vy = rvx * sJ + rvy * cJ;
-
-                // 防止垂直正撞釘頂停滯
-                if (Math.abs(nx) < 0.16 && b.vy < 45) {
-                  b.vx += (Math.random() < 0.5 ? -1 : 1) * 58;
-                }
+                if (Math.abs(nx) < 0.16 && b.vy < 45) b.vx += (Math.random() < 0.5 ? -1 : 1) * 58;
               }
-
               if (peg.cooldown <= 0) {
-                peg.glow = 1.0;
-                peg.ripple = 0.01;
-                peg.cooldown = 0.12;
+                peg.glow = 1.0; peg.ripple = 0.01; peg.cooldown = 0.12;
                 this.sound.playPeg(peg.row, peg.col);
               }
             }
           }
 
-          // B. 3 個高彈性霓虹蘑菇頭
           for (i = 0; i < this.bumpers.length; i++) {
             var bump = this.bumpers[i];
             var bMinD = this.ballR + bump.r;
-            var bdx = b.x - bump.x;
-            var bdy = b.y - bump.y;
+            var bdx = b.x - bump.x, bdy = b.y - bump.y;
             var bdSq = bdx * bdx + bdy * bdy;
             if (bdSq < bMinD * bMinD && bdSq > 0.0001) {
               var bd = Math.sqrt(bdSq);
-              var bnx = bdx / bd;
-              var bny = bdy / bd;
+              var bnx = bdx / bd, bny = bdy / bd;
               b.x += bnx * (bMinD - bd + 0.5);
               b.y += bny * (bMinD - bd + 0.5);
-
               var kickSpd = overtime > 0 ? 180 : (305 + Math.random() * 85);
               var bAngle = Math.atan2(bny, bnx) + (Math.random() - 0.5) * 0.36;
               b.vx = Math.cos(bAngle) * kickSpd;
               b.vy = Math.sin(bAngle) * kickSpd;
-
               if (bump.cooldown <= 0) {
-                bump.glow = 1.0;
-                bump.ripple = 0.01;
-                bump.scale = 1.24;
-                bump.cooldown = 0.16;
+                bump.glow = 1.0; bump.ripple = 0.01; bump.scale = 1.24; bump.cooldown = 0.16;
                 this.sound.playBumper();
               }
             }
           }
 
-          // C. 2 個動態旋轉風車
           for (i = 0; i < this.spinners.length; i++) {
             var spin = this.spinners[i];
-            var cosA = Math.cos(spin.angle);
-            var sinA = Math.sin(spin.angle);
-            var ex = cosA * spin.armLen;
-            var ey = sinA * spin.armLen;
-            var px1 = -sinA * spin.armLen;
-            var py1 = cosA * spin.armLen;
-
-            var hit1 = this.collideSegment(
-              b, spin.x - ex, spin.y - ey, spin.x + ex, spin.y + ey,
-              spin.halfW, overtime > 0 ? 0.45 : 0.85,
-              -sinA * spin.omega * 28, cosA * spin.omega * 28
-            );
-            var hit2 = this.collideSegment(
-              b, spin.x - px1, spin.y - py1, spin.x + px1, spin.y + py1,
-              spin.halfW, overtime > 0 ? 0.45 : 0.85,
-              -cosA * spin.omega * 28, -sinA * spin.omega * 28
-            );
+            var cosA = Math.cos(spin.angle), sinA = Math.sin(spin.angle);
+            var ex = cosA * spin.armLen, ey = sinA * spin.armLen;
+            var px1 = -sinA * spin.armLen, py1 = cosA * spin.armLen;
+            var hit1 = this.collideSegment(b, spin.x - ex, spin.y - ey, spin.x + ex, spin.y + ey, spin.halfW, overtime > 0 ? 0.45 : 0.85, -sinA * spin.omega * 28, cosA * spin.omega * 28);
+            var hit2 = this.collideSegment(b, spin.x - px1, spin.y - py1, spin.x + px1, spin.y + py1, spin.halfW, overtime > 0 ? 0.45 : 0.85, -cosA * spin.omega * 28, -sinA * spin.omega * 28);
             if ((hit1 || hit2) && spin.cooldown <= 0) {
-              spin.glow = 1.0;
-              spin.cooldown = 0.14;
+              spin.glow = 1.0; spin.cooldown = 0.14;
               this.sound.playSpinner();
             }
           }
 
-          // D. 4 對左右側壁斜角反彈導流板
           for (i = 0; i < this.deflectors.length; i++) {
             var def = this.deflectors[i];
-            var hTop = this.collideSegment(
-              b, def.pTop.x, def.pTop.y, def.pTip.x, def.pTip.y,
-              2.8, overtime > 0 ? 0.5 : 0.88, 0, 0
-            );
-            var hBot = this.collideSegment(
-              b, def.pTip.x, def.pTip.y, def.pBot.x, def.pBot.y,
-              2.8, overtime > 0 ? 0.5 : 0.88, 0, 0
-            );
+            var hTop = this.collideSegment(b, def.pTop.x, def.pTop.y, def.pTip.x, def.pTip.y, 2.8, overtime > 0 ? 0.5 : 0.88, 0, 0);
+            var hBot = this.collideSegment(b, def.pTip.x, def.pTip.y, def.pBot.x, def.pBot.y, 2.8, overtime > 0 ? 0.5 : 0.88, 0, 0);
             if ((hTop || hBot) && def.cooldown <= 0) {
-              def.glow = 1.0;
-              def.cooldown = 0.14;
+              def.glow = 1.0; def.cooldown = 0.14;
               this.sound.playPeg(3, i);
             }
           }
 
-          // E. 底部圓頭槽位隔板（動態半徑防卡球）
           var tipMinD = this.ballR + this.divTipR;
           var tipMinSq = tipMinD * tipMinD;
           for (i = 0; i < this.dividers.length; i++) {
             var div = this.dividers[i];
-            var tdx = b.x - div.x;
-            var tdy = b.y - div.topY;
+            var tdx = b.x - div.x, tdy = b.y - div.topY;
             var tdSq = tdx * tdx + tdy * tdy;
-
             if (tdSq < tipMinSq && tdSq > 0.0001) {
               var td = Math.sqrt(tdSq);
-              var tnx = tdx / td;
-              var tny = tdy / td;
+              var tnx = tdx / td, tny = tdy / td;
               b.x += tnx * (tipMinD - td + 0.2);
               b.y += tny * (tipMinD - td + 0.2);
-
               var tvn = b.vx * tnx + b.vy * tny;
               if (tvn < 0) {
                 var tipBounce = overtime > 0 ? 0.35 : 0.78;
                 b.vx -= (1 + tipBounce) * tvn * tnx;
                 b.vy -= (1 + tipBounce) * tvn * tny;
-                // 若球幾乎正停在隔板圓頂，強制推向左右任一槽口
-                if (Math.abs(tnx) < 0.35) {
-                  b.vx += (Math.random() < 0.5 ? -1 : 1) * 70;
-                }
+                if (Math.abs(tnx) < 0.35) b.vx += (Math.random() < 0.5 ? -1 : 1) * 70;
               }
             } else if (b.y > div.topY) {
               var sdx = b.x - div.x;
               var minSep = this.ballR + this.divHalfW;
               if (Math.abs(sdx) < minSep) {
-                if (sdx >= 0) {
-                  b.x = div.x + minSep;
-                  b.vx = Math.abs(b.vx) * 0.4;
-                } else {
-                  b.x = div.x - minSep;
-                  b.vx = -Math.abs(b.vx) * 0.4;
-                }
+                if (sdx >= 0) { b.x = div.x + minSep; b.vx = Math.abs(b.vx) * 0.4; }
+                else { b.x = div.x - minSep; b.vx = -Math.abs(b.vx) * 0.4; }
               }
             }
           }
 
-          // F. 底部地板
           if (b.y + this.ballR > floorY) {
             b.y = floorY - this.ballR;
             b.vy = -Math.abs(b.vy) * 0.28;
@@ -2562,11 +2794,9 @@
           }
         }
 
-        // 金色彗星拖尾紀錄
         this.trail.push({ x: b.x, y: b.y });
         if (this.trail.length > 26) this.trail.shift();
 
-        // 防卡死推進器（包含槽口隔板上方）
         var curSpeed = Math.hypot(b.vx, b.vy);
         if (b.y < slotTopY + 16 && curSpeed < 28) {
           b.stuck += dt;
@@ -2579,17 +2809,11 @@
           b.stuck = 0;
         }
 
-        // 13 秒強制收尾保障
-        if (b.elapsed > 13.0 && b.y < slotTopY + 20) {
-          b.vy += 180 * dt;
-        }
+        if (b.elapsed > 13.0 && b.y < slotTopY + 20) b.vy += 180 * dt;
 
-        // 落入槽位穩定後觸發開獎
         if (b.y > slotTopY + 20 && curSpeed < 38 && this.winningIdx === -1) {
           b.settled += dt;
-          if (b.settled > 0.3) {
-            this.finalizeResult();
-          }
+          if (b.settled > 0.3) this.finalizeResult();
         }
       };
 
@@ -2606,7 +2830,6 @@
         var isAscii = /^[A-Za-z0-9\s\-&'.]+$/.test(name);
 
         if (slotW >= 80) {
-          // 寬槽位：橫排最多 2 行
           var fs = Math.min(15, Math.max(12, Math.floor(slotW / 6)));
           ctx.font = 'bold ' + fs + 'px "Noto Sans TC", sans-serif';
           var maxPerLine = Math.max(3, Math.floor((slotW - 10) / (fs * 0.96)));
@@ -2620,7 +2843,6 @@
             ctx.fillText(l2, cx, cy + fs * 0.65);
           }
         } else if (isAscii) {
-          // 英文／數字店名（例如 LaLaPort）：順時針旋轉 90° 直排
           var availLen = slotH - 16;
           var efs = Math.min(13.5, Math.max(9.5, slotW * 0.56));
           ctx.font = 'bold ' + efs + 'px "Noto Sans TC", sans-serif';
@@ -2633,27 +2855,22 @@
           ctx.rotate(Math.PI / 2);
           ctx.fillText(name, 0, 0);
         } else {
-          // 窄槽位繁體中文：由上往下直排，最多顯示 5 字
           var chars = Array.from(name);
           var availH = slotH - 14;
           var maxChars = slotH >= 112 ? 5 : 4;
           var cfs = Math.min(14, Math.max(10, Math.floor(slotW * 0.56)));
           var lineH = cfs * 1.15;
           var fit = Math.min(maxChars, Math.max(2, Math.floor(availH / lineH)));
-
           if (chars.length > fit && cfs > 10) {
             cfs = Math.max(10, Math.min(cfs, Math.floor(availH / (Math.min(chars.length, maxChars) * 1.14))));
             lineH = cfs * 1.13;
             fit = Math.min(maxChars, Math.max(2, Math.floor(availH / lineH)));
           }
-
           var disp = chars.length > fit ? chars.slice(0, fit - 1).concat(['…']) : chars;
           ctx.font = 'bold ' + cfs + 'px "Noto Sans TC", sans-serif';
           var totalH = (disp.length - 1) * lineH;
           var sy = cy - totalH / 2;
-          for (var k = 0; k < disp.length; k++) {
-            ctx.fillText(disp[k], cx, sy + k * lineH);
-          }
+          for (var k = 0; k < disp.length; k++) ctx.fillText(disp[k], cx, sy + k * lineH);
         }
         ctx.restore();
       };
@@ -2661,41 +2878,26 @@
       PlinkoEngine.prototype.drawTooltip = function (ctx, slotIdx) {
         var item = this.slots[slotIdx];
         if (!item) return;
-
         var usableW = this.VW - this.wallPad * 2;
         var slotW = usableW / this.slots.length;
         var cx = this.wallPad + (slotIdx + 0.5) * slotW;
         var slotTopY = this.VH - this.slotH;
-
         var meta = getTransportMeta(item.transport);
         var text = item.name + ' · ' + meta.icon + ' ' + item.transport;
 
         ctx.save();
         ctx.font = 'bold 13.5px "Noto Sans TC", sans-serif';
-        var padX = 12;
-        var boxH = 32;
+        var padX = 12, boxH = 32;
         var boxW = Math.min(this.VW - 20, ctx.measureText(text).width + padX * 2);
         var boxX = Math.max(10, Math.min(this.VW - 10 - boxW, cx - boxW / 2));
         var boxY = slotTopY - boxH - 12;
-        var r = 10;
 
         ctx.shadowColor = 'rgba(0,0,0,0.75)';
         ctx.shadowBlur = 12;
         ctx.fillStyle = 'rgba(15, 23, 42, 0.96)';
         ctx.strokeStyle = '#FDE047';
         ctx.lineWidth = 2;
-
-        ctx.beginPath();
-        ctx.moveTo(boxX + r, boxY);
-        ctx.lineTo(boxX + boxW - r, boxY);
-        ctx.quadraticCurveTo(boxX + boxW, boxY, boxX + boxW, boxY + r);
-        ctx.lineTo(boxX + boxW, boxY + boxH - r);
-        ctx.quadraticCurveTo(boxX + boxW, boxY + boxH, boxX + boxW - r, boxY + boxH);
-        ctx.lineTo(boxX + r, boxY + boxH);
-        ctx.quadraticCurveTo(boxX, boxY + boxH, boxX, boxY + boxH - r);
-        ctx.lineTo(boxX, boxY + r);
-        ctx.quadraticCurveTo(boxX, boxY, boxX + r, boxY);
-        ctx.closePath();
+        drawRoundRect(ctx, boxX, boxY, boxW, boxH, 10);
         ctx.fill();
         ctx.shadowBlur = 0;
         ctx.stroke();
@@ -2723,7 +2925,6 @@
         ctx.save();
         ctx.setTransform(this.canvas.width / this.VW, 0, 0, this.canvas.height / this.VH, 0, 0);
 
-        // 1. 深藍街機背景與微妙網格
         var bg = ctx.createLinearGradient(0, 0, 0, this.VH);
         bg.addColorStop(0, '#0b1326');
         bg.addColorStop(0.55, '#091020');
@@ -2731,7 +2932,6 @@
         ctx.fillStyle = bg;
         ctx.fillRect(0, 0, this.VW, this.VH);
 
-        // 2. 頂部投球區背景與虛線分隔
         ctx.fillStyle = 'rgba(34, 211, 238, 0.05)';
         ctx.fillRect(this.wallPad, 0, this.VW - this.wallPad * 2, this.dropZoneH);
 
@@ -2745,7 +2945,6 @@
         ctx.stroke();
         ctx.restore();
 
-        // 投球區瞄準光束與預覽彈珠
         if (!this.isDropping && this.slots.length > 0 && typeof this.aimX === 'number') {
           ctx.save();
           var beam = ctx.createLinearGradient(this.aimX, this.dropZoneH * 0.5, this.aimX, this.VH - this.slotH);
@@ -2777,20 +2976,16 @@
           ctx.restore();
         }
 
-        // 3. 左右側邊霓虹牆柱
         ctx.fillStyle = '#1e293b';
         ctx.fillRect(0, 0, this.wallPad, this.VH);
         ctx.fillRect(this.VW - this.wallPad, 0, this.wallPad, this.VH);
         ctx.strokeStyle = 'rgba(34, 211, 238, 0.35)';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.moveTo(this.wallPad, 0);
-        ctx.lineTo(this.wallPad, this.VH);
-        ctx.moveTo(this.VW - this.wallPad, 0);
-        ctx.lineTo(this.VW - this.wallPad, this.VH);
+        ctx.moveTo(this.wallPad, 0); ctx.lineTo(this.wallPad, this.VH);
+        ctx.moveTo(this.VW - this.wallPad, 0); ctx.lineTo(this.VW - this.wallPad, this.VH);
         ctx.stroke();
 
-        // 4. 4 對左右斜角導流板
         var i;
         for (i = 0; i < this.deflectors.length; i++) {
           var df = this.deflectors[i];
@@ -2808,7 +3003,6 @@
           ctx.restore();
         }
 
-        // 5. 底部店家槽位與隔板
         var n = this.slots.length;
         var slotTopY = this.VH - this.slotH;
         if (n > 0) {
@@ -2831,17 +3025,14 @@
               ctx.fillStyle = 'rgba(254, 240, 138, ' + (this.slotFlash * 0.48) + ')';
               ctx.fillRect(sx, slotTopY, slotW, this.slotH);
             }
-
             if (isHov && !isWin) {
               ctx.strokeStyle = 'rgba(254, 240, 138, 0.85)';
               ctx.lineWidth = 2;
               ctx.strokeRect(sx + 1, slotTopY + 1, slotW - 2, this.slotH - 2);
             }
-
             this.drawSlotLabel(ctx, this.slots[i].name, sx, slotTopY, slotW, this.slotH, isWin);
           }
 
-          // 槽位隔板與圓頭門檻
           var divW = Math.max(2, this.divHalfW * 2);
           for (i = 0; i < this.dividers.length; i++) {
             var div = this.dividers[i];
@@ -2861,7 +3052,6 @@
             ctx.stroke();
           }
 
-          // 中獎槽位脈動金色光暈
           if (this.winningIdx >= 0 && this.winningIdx < n) {
             var wi = this.winningIdx;
             var wx = this.wallPad + wi * slotW;
@@ -2880,7 +3070,6 @@
           }
         }
 
-        // 6. 12 層交錯發光釘子
         for (i = 0; i < this.pegs.length; i++) {
           var peg = this.pegs[i];
           if (peg.ripple > 0) {
@@ -2892,13 +3081,9 @@
           }
           var pg = ctx.createRadialGradient(peg.x - 1.5, peg.y - 1.5, 1, peg.x, peg.y, this.pegR);
           if (peg.glow > 0.15) {
-            pg.addColorStop(0, '#FFFFFF');
-            pg.addColorStop(0.5, '#FDE047');
-            pg.addColorStop(1, '#F59E0B');
+            pg.addColorStop(0, '#FFFFFF'); pg.addColorStop(0.5, '#FDE047'); pg.addColorStop(1, '#F59E0B');
           } else {
-            pg.addColorStop(0, '#E2E8F0');
-            pg.addColorStop(0.55, '#94A3B8');
-            pg.addColorStop(1, '#475569');
+            pg.addColorStop(0, '#E2E8F0'); pg.addColorStop(0.55, '#94A3B8'); pg.addColorStop(1, '#475569');
           }
           ctx.beginPath();
           ctx.arc(peg.x, peg.y, this.pegR, 0, Math.PI * 2);
@@ -2906,7 +3091,6 @@
           ctx.fill();
         }
 
-        // 7. 2 個旋轉小風車
         for (i = 0; i < this.spinners.length; i++) {
           var sp = this.spinners[i];
           ctx.save();
@@ -2918,10 +3102,8 @@
           ctx.lineWidth = sp.halfW * 2;
           ctx.lineCap = 'round';
           ctx.beginPath();
-          ctx.moveTo(-sp.armLen, 0);
-          ctx.lineTo(sp.armLen, 0);
-          ctx.moveTo(0, -sp.armLen);
-          ctx.lineTo(0, sp.armLen);
+          ctx.moveTo(-sp.armLen, 0); ctx.lineTo(sp.armLen, 0);
+          ctx.moveTo(0, -sp.armLen); ctx.lineTo(0, sp.armLen);
           ctx.stroke();
 
           ctx.shadowBlur = 0;
@@ -2935,7 +3117,6 @@
           ctx.restore();
         }
 
-        // 8. 3 個霓虹強力彈跳蘑菇頭
         for (i = 0; i < this.bumpers.length; i++) {
           var bm = this.bumpers[i];
           var drawR = bm.r * bm.scale;
@@ -2946,7 +3127,6 @@
             ctx.lineWidth = 3;
             ctx.stroke();
           }
-
           ctx.save();
           ctx.shadowColor = bm.color;
           ctx.shadowBlur = 14 + bm.glow * 16;
@@ -2954,7 +3134,6 @@
           bgd.addColorStop(0, bm.glow > 0.25 ? '#FFFFFF' : bm.core);
           bgd.addColorStop(0.55, bm.color);
           bgd.addColorStop(1, '#1E1B4B');
-
           ctx.beginPath();
           ctx.arc(bm.x, bm.y, drawR, 0, Math.PI * 2);
           ctx.fillStyle = bgd;
@@ -2972,12 +3151,10 @@
           ctx.restore();
         }
 
-        // 9. 金色彗星拖尾與彈珠
         if (this.ball) {
           if (this.trail.length > 2) {
             for (i = 1; i < this.trail.length; i++) {
-              var prev = this.trail[i - 1];
-              var curr = this.trail[i];
+              var prev = this.trail[i - 1], curr = this.trail[i];
               var ratio = i / this.trail.length;
               ctx.beginPath();
               ctx.moveTo(prev.x, prev.y);
@@ -2988,19 +3165,14 @@
               ctx.stroke();
             }
           }
-
           ctx.save();
           ctx.shadowColor = '#FBBF24';
           ctx.shadowBlur = 16;
-          var blg = ctx.createRadialGradient(
-            this.ball.x - 2.5, this.ball.y - 2.5, 1,
-            this.ball.x, this.ball.y, this.ballR
-          );
+          var blg = ctx.createRadialGradient(this.ball.x - 2.5, this.ball.y - 2.5, 1, this.ball.x, this.ball.y, this.ballR);
           blg.addColorStop(0, '#FFFBEB');
           blg.addColorStop(0.4, '#FDE047');
           blg.addColorStop(0.85, '#F59E0B');
           blg.addColorStop(1, '#B45309');
-
           ctx.beginPath();
           ctx.arc(this.ball.x, this.ball.y, this.ballR, 0, Math.PI * 2);
           ctx.fillStyle = blg;
@@ -3008,7 +3180,6 @@
           ctx.restore();
         }
 
-        // 10. 中獎彩帶粒子
         for (i = 0; i < this.confetti.length; i++) {
           var pt = this.confetti[i];
           ctx.save();
@@ -3020,7 +3191,6 @@
           ctx.restore();
         }
 
-        // 11. 底部槽位即時完整店名 Tooltip
         if (this.hoveredSlotIdx >= 0 && this.hoveredSlotIdx < this.slots.length) {
           this.drawTooltip(ctx, this.hoveredSlotIdx);
         }
@@ -3032,24 +3202,1050 @@
         if (!this.lastTs) this.lastTs = ts;
         var dt = Math.min(0.033, Math.max(0.001, (ts - this.lastTs) / 1000));
         this.lastTs = ts;
-
         this.update(dt);
         this.draw();
-
         var self = this;
-        requestAnimationFrame(function (nextTs) {
-          self.loop(nextTs);
-        });
+        requestAnimationFrame(function (nextTs) { self.loop(nextTs); });
       };
 
       /* =====================================================================
-       * 5. 應用程式狀態、DOM 參照與 UI 邏輯
+       * 5. 模式二：雙階段霓虹拉霸機引擎 (SlotMachineEngine)
+       * ===================================================================== */
+      function SlotMachineEngine(dom, sound, callbacks) {
+        this.dom = dom;
+        this.sound = sound;
+        this.onStateChange = callbacks.onStateChange;
+        this.onResult = callbacks.onResult;
+
+        this.ITEM_H = 62;
+        this.isSpinning = false;
+        this.candidates = [];
+        this.bulbs = [];
+        this.bulbPhase = 0;
+
+        this.confetti = [];
+        this.confettiCtx = dom.confettiCanvas.getContext('2d');
+        this.confettiActive = false;
+
+        this.initBulbs();
+        this.bindLever();
+      }
+
+      SlotMachineEngine.prototype.initBulbs = function () {
+        var count = 9;
+        var htmlTop = '', htmlBot = '';
+        for (var i = 0; i < count; i++) {
+          htmlTop += '<span class="slot-bulb"></span>';
+          htmlBot += '<span class="slot-bulb"></span>';
+        }
+        this.dom.bulbsTop.innerHTML = htmlTop;
+        this.dom.bulbsBottom.innerHTML = htmlBot;
+        this.bulbs = Array.prototype.slice.call(
+          this.dom.bulbsTop.querySelectorAll('.slot-bulb')
+        ).concat(Array.prototype.slice.call(
+          this.dom.bulbsBottom.querySelectorAll('.slot-bulb')
+        ));
+
+        var self = this;
+        setInterval(function () {
+          self.bulbPhase = (self.bulbPhase + 1) % 3;
+          var fast = self.isSpinning;
+          for (var i = 0; i < self.bulbs.length; i++) {
+            var b = self.bulbs[i];
+            b.className = 'slot-bulb';
+            if (fast) {
+              var m = (i + self.bulbPhase) % 3;
+              b.classList.add(m === 0 ? 'lit-gold' : m === 1 ? 'lit-coral' : 'lit-cyan');
+            } else if ((i + self.bulbPhase) % 2 === 0) {
+              b.classList.add('lit-gold');
+            }
+          }
+        }, 190);
+      };
+
+      SlotMachineEngine.prototype.bindLever = function () {
+        var self = this;
+        var zone = this.dom.leverZone;
+        var knob = this.dom.leverKnob;
+        var shaft = this.dom.leverShaft;
+        var dragging = false;
+        var startY = 0;
+        var pulled = false;
+
+        function setVisualPull(pct) {
+          var clamped = Math.max(0, Math.min(1, pct));
+          knob.style.top = (clamped * 100) + '%';
+          var scaleY = 1 - clamped * 2;
+          shaft.style.transform = 'translate(-50%, -100%) scaleY(' + scaleY.toFixed(3) + ')';
+        }
+
+        zone.addEventListener('pointerdown', function (e) {
+          if (self.isSpinning || self.candidates.length === 0) return;
+          dragging = true;
+          pulled = false;
+          startY = e.clientY;
+          try { zone.setPointerCapture(e.pointerId); } catch (err) {}
+        });
+
+        zone.addEventListener('pointermove', function (e) {
+          if (!dragging) return;
+          var pct = (e.clientY - startY) / 95;
+          setVisualPull(pct);
+          if (pct >= 0.65 && !pulled) {
+            pulled = true;
+            dragging = false;
+            setTimeout(function () { setVisualPull(0); }, 140);
+            self.spin();
+          }
+        });
+
+        zone.addEventListener('pointerup', function (e) {
+          if (!dragging) return;
+          dragging = false;
+          try { zone.releasePointerCapture(e.pointerId); } catch (err) {}
+          if (!pulled) {
+            setVisualPull(0.95);
+            setTimeout(function () {
+              setVisualPull(0);
+              self.spin();
+            }, 140);
+          } else {
+            setVisualPull(0);
+          }
+        });
+
+        zone.addEventListener('pointercancel', function () {
+          dragging = false;
+          setVisualPull(0);
+        });
+      };
+
+      SlotMachineEngine.prototype.setCandidates = function (list) {
+        this.candidates = list.slice();
+        if (!this.isSpinning) this.renderIdleReels();
+      };
+
+      SlotMachineEngine.prototype.getAvailableTransports = function () {
+        var set = {};
+        var arr = [];
+        for (var i = 0; i < this.candidates.length; i++) {
+          var t = this.candidates[i].transport;
+          if (!set[t]) { set[t] = true; arr.push(t); }
+        }
+        return arr;
+      };
+
+      SlotMachineEngine.prototype.renderIdleReels = function () {
+        var winH = this.dom.reelWinLeft.clientHeight || 156;
+        var centerOffset = (winH - this.ITEM_H) / 2;
+
+        this.dom.reelWinLeft.classList.remove('locked', 'winner');
+        this.dom.reelWinRight.classList.remove('locked', 'winner');
+        this.dom.statusBanner.className = 'slot-status-banner';
+
+        if (this.candidates.length === 0) {
+          this.dom.singleHint.classList.add('hidden');
+          this.dom.statusBanner.textContent = '⚠️ 請先啟用或篩選至少 1 家餐廳';
+          this.dom.reelStripLeft.innerHTML = '<div class="reel-item reel-item-transport">—</div>';
+          this.dom.reelStripRight.innerHTML = '<div class="reel-item reel-item-restaurant">—</div>';
+          this.dom.reelStripLeft.style.transform = 'translateY(' + centerOffset + 'px)';
+          this.dom.reelStripRight.style.transform = 'translateY(' + centerOffset + 'px)';
+          return;
+        }
+
+        var availT = this.getAvailableTransports();
+        this.dom.singleHint.classList.toggle('hidden', availT.length > 1);
+
+        var leftSample = availT.length >= 3 ? availT.slice(0, 3) : [availT[0], availT[availT.length - 1], availT[0]];
+        this.dom.reelStripLeft.innerHTML = leftSample.map(function (t) {
+          var m = getTransportMeta(t);
+          return '<div class="reel-item reel-item-transport">' + m.icon + ' ' + escapeHtml(t) + '</div>';
+        }).join('');
+        this.dom.reelStripLeft.style.transform = 'translateY(' + (centerOffset - this.ITEM_H) + 'px)';
+
+        var r0 = this.candidates[0];
+        var r1 = this.candidates[Math.min(1, this.candidates.length - 1)];
+        var r2 = this.candidates[Math.min(2, this.candidates.length - 1)];
+        this.dom.reelStripRight.innerHTML = [r0, r1, r2].map(function (r) {
+          return '<div class="reel-item reel-item-restaurant">' + escapeHtml(r.name) + '</div>';
+        }).join('');
+        this.dom.reelStripRight.style.transform = 'translateY(' + (centerOffset - this.ITEM_H) + 'px)';
+
+        this.dom.statusBanner.textContent = '🕹️ 共 ' + availT.length + ' 種交通方式、' + this.candidates.length + ' 家候選，拉桿開抽！';
+      };
+
+      SlotMachineEngine.prototype.easeOutOvershoot = function (t, overshoot) {
+        var c1 = overshoot || 1.35;
+        var c3 = c1 + 1;
+        return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+      };
+
+      SlotMachineEngine.prototype.animateStrip = function (stripEl, winEl, targetIdx, durationMs, overshoot, pitchBoost, onDone) {
+        var self = this;
+        var winH = winEl.clientHeight || 156;
+        var centerOffset = (winH - this.ITEM_H) / 2;
+        var targetScroll = targetIdx * this.ITEM_H;
+        var startTs = 0;
+        var lastTickIdx = -1;
+
+        function step(ts) {
+          if (!startTs) startTs = ts;
+          var p = Math.min(1, (ts - startTs) / durationMs);
+          var eased = self.easeOutOvershoot(p, overshoot);
+          var currentScroll = eased * targetScroll;
+          stripEl.style.transform = 'translateY(' + (centerOffset - currentScroll) + 'px)';
+
+          var currIdx = Math.floor(currentScroll / self.ITEM_H);
+          if (currIdx !== lastTickIdx && p < 0.96) {
+            lastTickIdx = currIdx;
+            self.sound.playSlotTick(pitchBoost);
+          }
+
+          if (p < 1) {
+            requestAnimationFrame(step);
+          } else {
+            stripEl.style.transform = 'translateY(' + (centerOffset - targetScroll) + 'px)';
+            if (typeof onDone === 'function') onDone();
+          }
+        }
+        requestAnimationFrame(step);
+      };
+
+      SlotMachineEngine.prototype.spawnConfetti = function () {
+        var c = this.dom.confettiCanvas;
+        var rect = this.dom.stageWrapper.getBoundingClientRect();
+        var dpr = window.devicePixelRatio || 1;
+        c.width = Math.max(1, Math.round(rect.width * dpr));
+        c.height = Math.max(1, Math.round(rect.height * dpr));
+
+        var cx = rect.width / 2;
+        var cy = rect.height * 0.45;
+        this.confetti = [];
+        for (var i = 0; i < 64; i++) {
+          var ang = Math.random() * Math.PI * 2;
+          var spd = 120 + Math.random() * 280;
+          this.confetti.push({
+            x: cx, y: cy,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd - 90,
+            size: 5 + Math.random() * 5,
+            color: SLOT_PALETTE[Math.floor(Math.random() * SLOT_PALETTE.length)],
+            rot: Math.random() * Math.PI * 2,
+            vRot: (Math.random() - 0.5) * 12,
+            life: 1.0
+          });
+        }
+
+        if (!this.confettiActive) {
+          this.confettiActive = true;
+          var self = this;
+          var lastTs = 0;
+          function tick(ts) {
+            if (!lastTs) lastTs = ts;
+            var dt = Math.min(0.033, (ts - lastTs) / 1000);
+            lastTs = ts;
+            var ctx = self.confettiCtx;
+            ctx.save();
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, rect.width, rect.height);
+            for (var i = self.confetti.length - 1; i >= 0; i--) {
+              var p = self.confetti[i];
+              p.vy += 420 * dt;
+              p.x += p.vx * dt;
+              p.y += p.vy * dt;
+              p.rot += p.vRot * dt;
+              p.life -= dt * 0.8;
+              if (p.life <= 0) { self.confetti.splice(i, 1); continue; }
+              ctx.save();
+              ctx.translate(p.x, p.y);
+              ctx.rotate(p.rot);
+              ctx.globalAlpha = Math.max(0, p.life);
+              ctx.fillStyle = p.color;
+              ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+              ctx.restore();
+            }
+            ctx.restore();
+            if (self.confetti.length > 0) requestAnimationFrame(tick);
+            else self.confettiActive = false;
+          }
+          requestAnimationFrame(tick);
+        }
+      };
+
+      SlotMachineEngine.prototype.spin = function () {
+        if (this.isSpinning || this.candidates.length === 0) return false;
+        var availTransports = this.getAvailableTransports();
+        if (availTransports.length === 0) return false;
+
+        this.isSpinning = true;
+        this.sound.playLeverPull();
+        if (typeof this.onStateChange === 'function') this.onStateChange();
+
+        this.dom.reelWinLeft.classList.remove('locked', 'winner');
+        this.dom.reelWinRight.classList.remove('locked', 'winner');
+        this.dom.statusBanner.className = 'slot-status-banner';
+        this.dom.statusBanner.textContent = '⚡ 滾輪高速轉動中... 正在鎖定交通方式！';
+
+        var chosenTransport = availTransports[Math.floor(Math.random() * availTransports.length)];
+        var chosenMeta = getTransportMeta(chosenTransport);
+
+        var matchingRestaurants = this.candidates.filter(function (r) {
+          return r.transport === chosenTransport;
+        });
+        var winner = matchingRestaurants[Math.floor(Math.random() * matchingRestaurants.length)];
+
+        // 左輪：若只有 1 種交通方式仍穿插全部交通圖示跑視覺轉動，最後停於該交通方式
+        var leftPool = availTransports.length > 1 ? availTransports : TRANSPORTS;
+        var leftList = [];
+        var leftTargetIdx = 22;
+        for (var i = 0; i < leftTargetIdx + 3; i++) {
+          leftList.push(i === leftTargetIdx ? chosenTransport : leftPool[Math.floor(Math.random() * leftPool.length)]);
+        }
+        this.dom.reelStripLeft.innerHTML = leftList.map(function (t) {
+          var m = getTransportMeta(t);
+          return '<div class="reel-item reel-item-transport">' + m.icon + ' ' + escapeHtml(t) + '</div>';
+        }).join('');
+
+        // 右輪：後半段自動聚焦符合左輪交通方式的候選名單
+        var rightList = [];
+        var rightTargetIdx = 44;
+        for (var j = 0; j < rightTargetIdx + 3; j++) {
+          if (j === rightTargetIdx) rightList.push(winner);
+          else if (j >= 26) rightList.push(matchingRestaurants[Math.floor(Math.random() * matchingRestaurants.length)]);
+          else rightList.push(this.candidates[Math.floor(Math.random() * this.candidates.length)]);
+        }
+        this.dom.reelStripRight.innerHTML = rightList.map(function (r) {
+          return '<div class="reel-item reel-item-restaurant">' + escapeHtml(r.name) + '</div>';
+        }).join('');
+
+        var self = this;
+
+        this.animateStrip(this.dom.reelStripLeft, this.dom.reelWinLeft, leftTargetIdx, 1650, 1.25, false, function () {
+          self.dom.reelWinLeft.classList.add('locked');
+          self.sound.playReelLock(false);
+          self.dom.statusBanner.className = 'slot-status-banner locked';
+          self.dom.statusBanner.textContent = '🔒 鎖定交通方式：' + chosenMeta.icon + ' ' + chosenTransport + '！正在抽出店家...';
+        });
+
+        this.animateStrip(this.dom.reelStripRight, this.dom.reelWinRight, rightTargetIdx, 3350, 1.65, true, function () {
+          self.dom.reelWinRight.classList.add('winner');
+          self.sound.playReelLock(true);
+          self.dom.statusBanner.className = 'slot-status-banner winner';
+          self.dom.statusBanner.textContent = '🎉 中獎：' + chosenMeta.icon + ' ' + chosenTransport + ' → ' + winner.name + '！';
+          self.spawnConfetti();
+          self.sound.playWin();
+
+          self.isSpinning = false;
+          if (typeof self.onStateChange === 'function') self.onStateChange();
+
+          if (typeof self.onResult === 'function') {
+            setTimeout(function () {
+              self.onResult(winner, {
+                icon: '🕹️',
+                sub: '拉霸機鎖定：' + chosenMeta.icon + ' ' + chosenTransport
+              });
+            }, 520);
+          }
+        });
+
+        return true;
+      };
+
+      /* =====================================================================
+       * 6. 模式三：俄羅斯輪盤 / 幸運滾珠轉盤引擎 (RouletteEngine)
+       *    - 高速跳躍 → 慢動作懸念 → 50% 機率突然多跳一格大翻盤！
+       * ===================================================================== */
+      function RouletteEngine(canvas, wrapper, sound, callbacks) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.wrapper = wrapper;
+        this.sound = sound;
+        this.onBeforeSpin = callbacks.onBeforeSpin;
+        this.onStateChange = callbacks.onStateChange;
+        this.onResult = callbacks.onResult;
+
+        this.VSIZE = 640;
+        this.cx = 320;
+        this.cy = 320;
+        this.outerR = 296;
+        this.trackR = 266;
+        this.wheelR = 240;
+        this.pocketR = 148;
+        this.hubR = 54;
+
+        this.slots = [];
+        this.isSpinning = false;
+        this.phase = 'idle'; // idle | orbit | bounce | slowmo | surprise | settled
+        this.phaseTime = 0;
+
+        this.wheelAngle = 0;
+        this.wheelSpeed = -0.2;
+        this.ballAngle = 0;
+        this.ballSpeed = 0;
+        this.ballR = this.trackR;
+        this.ballScale = 1;
+        this.ballRelAngle = 0;
+
+        this.slowMoAmount = 0;
+        this.slowMoPulseTimer = 0;
+        this.willSurpriseHop = false;
+        this.initialIdx = -1;
+        this.finalIdx = -1;
+        this.hopDir = 1;
+        this.relStart = 0;
+        this.relTarget1 = 0;
+        this.relTarget2 = 0;
+        this.surpriseBannerAlpha = 0;
+        this.surpriseBannerText = '';
+
+        this.lastFretIdx = -1;
+        this.winningIdx = -1;
+        this.winPulse = 0;
+        this.slotFlash = 0;
+        this.hoveredIdx = -1;
+        this.touchTipTimer = null;
+        this.confetti = [];
+        this.lastTs = 0;
+
+        this.bindEvents();
+        this.resize();
+
+        var self = this;
+        requestAnimationFrame(function (ts) { self.loop(ts); });
+      }
+
+      RouletteEngine.prototype.setSlots = function (list, withFlash) {
+        this.slots = list.slice(0, MAX_SLOTS);
+        this.winningIdx = -1;
+        this.hoveredIdx = -1;
+        if (withFlash) this.slotFlash = 1.0;
+      };
+
+      RouletteEngine.prototype.resize = function () {
+        if (!this.wrapper || !this.canvas) return;
+        var availW = this.wrapper.clientWidth;
+        var availH = this.wrapper.clientHeight;
+        if (availW < 40 || availH < 40) return;
+
+        var size = Math.max(200, Math.floor(Math.min(availW, availH) - 6));
+        var dpr = window.devicePixelRatio || 1;
+        this.canvas.style.width = size + 'px';
+        this.canvas.style.height = size + 'px';
+        this.canvas.width = Math.round(size * dpr);
+        this.canvas.height = Math.round(size * dpr);
+      };
+
+      RouletteEngine.prototype.bindEvents = function () {
+        var self = this;
+        if (typeof ResizeObserver !== 'undefined') {
+          try {
+            this.ro = new ResizeObserver(function () { self.resize(); });
+            this.ro.observe(this.wrapper);
+          } catch (e) {}
+        }
+
+        function sectorAtPointer(clientX, clientY) {
+          if (self.slots.length === 0) return -1;
+          var rect = self.canvas.getBoundingClientRect();
+          if (rect.width <= 0 || rect.height <= 0) return -1;
+          var vx = ((clientX - rect.left) / rect.width) * self.VSIZE;
+          var vy = ((clientY - rect.top) / rect.height) * self.VSIZE;
+          var dx = vx - self.cx, dy = vy - self.cy;
+          var dist = Math.hypot(dx, dy);
+          if (dist < self.hubR || dist > self.wheelR) return -1;
+          var rel = normalizeAngle(Math.atan2(dy, dx) - self.wheelAngle);
+          var sectorArc = (Math.PI * 2) / self.slots.length;
+          return Math.floor(rel / sectorArc) % self.slots.length;
+        }
+
+        this.canvas.addEventListener('pointermove', function (e) {
+          if (e.pointerType !== 'mouse') return;
+          self.hoveredIdx = sectorAtPointer(e.clientX, e.clientY);
+        });
+
+        this.canvas.addEventListener('pointerdown', function (e) {
+          var idx = sectorAtPointer(e.clientX, e.clientY);
+          if (idx !== -1) {
+            self.hoveredIdx = idx;
+            if (self.touchTipTimer) clearTimeout(self.touchTipTimer);
+            if (e.pointerType !== 'mouse') {
+              self.touchTipTimer = setTimeout(function () { self.hoveredIdx = -1; }, 2400);
+            }
+          }
+        });
+
+        this.canvas.addEventListener('pointerleave', function () {
+          self.hoveredIdx = -1;
+        });
+      };
+
+      RouletteEngine.prototype.spawnConfetti = function (worldAngle) {
+        var cx = this.cx + Math.cos(worldAngle) * (this.pocketR + 25);
+        var cy = this.cy + Math.sin(worldAngle) * (this.pocketR + 25);
+        for (var i = 0; i < 72; i++) {
+          var ang = Math.random() * Math.PI * 2;
+          var spd = 120 + Math.random() * 290;
+          this.confetti.push({
+            x: cx, y: cy,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd - 40,
+            size: 4 + Math.random() * 5,
+            color: SLOT_PALETTE[Math.floor(Math.random() * SLOT_PALETTE.length)],
+            rot: Math.random() * Math.PI * 2,
+            vRot: (Math.random() - 0.5) * 12,
+            life: 1.0
+          });
+        }
+      };
+
+      RouletteEngine.prototype.spin = function () {
+        if (this.isSpinning || this.slots.length === 0) return false;
+        if (typeof this.onBeforeSpin === 'function') this.onBeforeSpin();
+
+        this.isSpinning = true;
+        this.phase = 'orbit';
+        this.phaseTime = 0;
+        this.winningIdx = -1;
+        this.winPulse = 0;
+        this.hoveredIdx = -1;
+        this.confetti = [];
+        this.slowMoAmount = 0;
+        this.slowMoPulseTimer = 0;
+        this.surpriseBannerAlpha = 0;
+        this.surpriseBannerText = '';
+
+        // 精準 50% 機率觸發「意外多跳一格」
+        this.willSurpriseHop = (this.slots.length > 1) && (Math.random() < 0.5);
+        this.hopDir = Math.random() < 0.5 ? 1 : -1;
+
+        this.wheelSpeed = -(2.4 + Math.random() * 0.9);
+        this.ballAngle = Math.random() * Math.PI * 2;
+        this.ballSpeed = 9.8 + Math.random() * 2.4;
+        this.ballR = this.trackR;
+        this.ballScale = 1;
+        this.lastFretIdx = -1;
+
+        this.sound.playDrop();
+        if (typeof this.onStateChange === 'function') this.onStateChange();
+        return true;
+      };
+
+      RouletteEngine.prototype.finishSpin = function () {
+        var n = this.slots.length;
+        if (n === 0 || this.finalIdx < 0 || this.finalIdx >= n) return;
+
+        this.phase = 'settled';
+        this.winningIdx = this.finalIdx;
+        this.isSpinning = false;
+        if (typeof this.onStateChange === 'function') this.onStateChange();
+
+        var winner = this.slots[this.finalIdx];
+        var sectorArc = (Math.PI * 2) / n;
+        var winWorldAngle = this.wheelAngle + (this.finalIdx + 0.5) * sectorArc;
+        this.spawnConfetti(winWorldAngle);
+        this.sound.playWin();
+
+        var self = this;
+        var isSurprise = this.willSurpriseHop;
+        if (typeof this.onResult === 'function') {
+          setTimeout(function () {
+            self.onResult(winner, {
+              icon: isSurprise ? '⚡' : '🎡',
+              sub: isSurprise ? '哎呀！多跳了一格意外大翻盤！' : '俄羅斯輪盤結果揭曉'
+            });
+          }, 560);
+        }
+      };
+
+      RouletteEngine.prototype.update = function (dt) {
+        if (this.slotFlash > 0) this.slotFlash = Math.max(0, this.slotFlash - dt * 2.5);
+        if (this.winningIdx !== -1) this.winPulse += dt * 5.2;
+
+        for (var i = this.confetti.length - 1; i >= 0; i--) {
+          var cp = this.confetti[i];
+          cp.vy += 320 * dt;
+          cp.x += cp.vx * dt;
+          cp.y += cp.vy * dt;
+          cp.rot += cp.vRot * dt;
+          cp.life -= dt * 0.65;
+          if (cp.life <= 0) this.confetti.splice(i, 1);
+        }
+
+        var n = this.slots.length;
+        if (n === 0) return;
+        var sectorArc = (Math.PI * 2) / n;
+
+        if (this.phase === 'idle') {
+          this.wheelAngle += -0.18 * dt;
+          return;
+        }
+
+        if (this.phase === 'settled') {
+          this.wheelSpeed *= Math.pow(0.28, dt);
+          if (Math.abs(this.wheelSpeed) < 0.08) this.wheelSpeed = -0.08;
+          this.wheelAngle += this.wheelSpeed * dt;
+          this.slowMoAmount = Math.max(0, this.slowMoAmount - dt * 2.2);
+          if (this.surpriseBannerAlpha > 0) {
+            this.surpriseBannerAlpha = Math.max(0, this.surpriseBannerAlpha - dt * 0.42);
+          }
+          return;
+        }
+
+        this.phaseTime += dt;
+
+        // 階段 1：高速外圈飛馳 (0.95s)
+        if (this.phase === 'orbit') {
+          this.wheelAngle += this.wheelSpeed * dt;
+          this.ballSpeed *= Math.pow(0.76, dt);
+          this.ballAngle += this.ballSpeed * dt;
+          this.ballR = this.trackR - Math.sin(this.phaseTime * 20) * 1.8;
+          this.ballScale = 1;
+
+          var fretNow = Math.floor(normalizeAngle(this.ballAngle - this.wheelAngle) / (Math.PI / 6));
+          if (fretNow !== this.lastFretIdx) {
+            this.lastFretIdx = fretNow;
+            this.sound.playRouletteClick(0.55);
+          }
+          if (this.phaseTime >= 0.95) {
+            this.phase = 'bounce';
+            this.phaseTime = 0;
+          }
+          return;
+        }
+
+        // 階段 2：高速密集彈跳進入內圈 (1.65s)
+        if (this.phase === 'bounce') {
+          var dur2 = 1.65;
+          var p2 = Math.min(1, this.phaseTime / dur2);
+          this.wheelSpeed = -2.3 + p2 * 0.95;
+          this.wheelAngle += this.wheelSpeed * dt;
+
+          this.ballSpeed = 7.4 * (1 - p2 * 0.72);
+          this.ballAngle += this.ballSpeed * dt;
+
+          var baseR = this.trackR - (this.trackR - this.pocketR) * Math.pow(p2, 0.75);
+          var rapidHop = Math.abs(Math.sin(p2 * Math.PI * 12.5)) * (1 - p2 * 0.76) * 35;
+          this.ballR = baseR + rapidHop;
+          this.ballScale = 1 + (rapidHop / 35) * 0.25;
+
+          var curSec = Math.floor(normalizeAngle(this.ballAngle - this.wheelAngle) / sectorArc);
+          if (curSec !== this.lastFretIdx) {
+            this.lastFretIdx = curSec;
+            this.sound.playRouletteClick(0.95 - p2 * 0.3);
+          }
+
+          if (p2 >= 1) {
+            var curRel = normalizeAngle(this.ballAngle - this.wheelAngle);
+            var advance = 1 + Math.floor(Math.random() * 2);
+            var startSector = Math.floor(curRel / sectorArc);
+            this.initialIdx = (startSector + advance) % n;
+            this.finalIdx = this.willSurpriseHop
+              ? (this.initialIdx + this.hopDir + n) % n
+              : this.initialIdx;
+
+            this.relStart = curRel;
+            var targetAngleMod = (this.initialIdx + 0.5) * sectorArc;
+            var delta = normalizeAngle(targetAngleMod - curRel);
+            if (delta < sectorArc * 0.6) delta += sectorArc * Math.min(2, n);
+            this.relTarget1 = curRel + delta;
+            this.relTarget2 = this.relTarget1 + this.hopDir * sectorArc;
+
+            this.phase = 'slowmo';
+            this.phaseTime = 0;
+            this.slowMoPulseTimer = 0;
+            this.sound.playSlowMoPulse();
+          }
+          return;
+        }
+
+        // 階段 3：結果公布前慢動作懸念 (1.85s)
+        if (this.phase === 'slowmo') {
+          var dur3 = 1.85;
+          var p3 = Math.min(1, this.phaseTime / dur3);
+          this.slowMoAmount = Math.min(1, this.phaseTime * 2.2);
+
+          // 慢動作時間流速大幅放緩
+          this.wheelAngle += (this.wheelSpeed * 0.24) * dt;
+
+          var ease = 1 - Math.pow(1 - p3, 3.2);
+          this.ballRelAngle = this.relStart + (this.relTarget1 - this.relStart) * ease;
+          var microBounce = Math.abs(Math.sin(p3 * Math.PI * 3.0)) * (1 - p3) * 9;
+          this.ballR = this.pocketR + microBounce;
+          this.ballScale = 1 + (microBounce / 9) * 0.1;
+
+          this.slowMoPulseTimer += dt;
+          if (this.slowMoPulseTimer >= 0.56 && p3 < 0.88) {
+            this.slowMoPulseTimer = 0;
+            this.sound.playSlowMoPulse();
+          }
+
+          if (p3 >= 1) {
+            if (this.willSurpriseHop) {
+              // 50% 驚喜翻盤！
+              this.phase = 'surprise';
+              this.phaseTime = 0;
+              this.surpriseBannerText = '⚡ 哎呀！多跳了一格！';
+              this.surpriseBannerAlpha = 1.0;
+              this.sound.playSurpriseHop();
+            } else {
+              // 50% 平穩停在原本那格
+              this.ballRelAngle = this.relTarget1;
+              this.ballR = this.pocketR;
+              this.ballScale = 1;
+              this.finishSpin();
+            }
+          }
+          return;
+        }
+
+        // 階段 4：50% 驚喜逆轉（突然彈跳越過隔板進隔壁格，0.82s）
+        if (this.phase === 'surprise') {
+          var dur4 = 0.82;
+          var p4 = Math.min(1, this.phaseTime / dur4);
+          this.wheelAngle += (this.wheelSpeed * 0.22) * dt;
+
+          if (p4 < 0.72) {
+            var hp = p4 / 0.72;
+            var smoothHp = hp * hp * (3 - 2 * hp);
+            this.ballRelAngle = this.relTarget1 + (this.relTarget2 - this.relTarget1) * smoothHp;
+            var arcH = Math.sin(hp * Math.PI);
+            this.ballR = this.pocketR + arcH * 26;
+            this.ballScale = 1 + arcH * 0.36;
+          } else {
+            var sp = (p4 - 0.72) / 0.28;
+            this.ballRelAngle = this.relTarget2;
+            var settle = Math.sin(sp * Math.PI) * (1 - sp) * 6;
+            this.ballR = this.pocketR + settle;
+            this.ballScale = 1 + (settle / 6) * 0.08;
+            if (sp < 0.15 && this.lastFretIdx !== -999) {
+              this.lastFretIdx = -999;
+              this.sound.playRouletteClick(0.95);
+            }
+          }
+
+          if (p4 >= 1) {
+            this.ballRelAngle = this.relTarget2;
+            this.ballR = this.pocketR;
+            this.ballScale = 1;
+            this.finishSpin();
+          }
+        }
+      };
+
+      RouletteEngine.prototype.drawTooltip = function (ctx, idx) {
+        var item = this.slots[idx];
+        if (!item) return;
+        var meta = getTransportMeta(item.transport);
+        var text = item.name + ' · ' + meta.icon + ' ' + item.transport;
+
+        ctx.save();
+        ctx.font = 'bold 14px "Noto Sans TC", sans-serif';
+        var padX = 14, boxH = 34;
+        var boxW = Math.min(this.VSIZE - 28, ctx.measureText(text).width + padX * 2);
+        var boxX = (this.VSIZE - boxW) / 2;
+        var boxY = 14;
+
+        ctx.shadowColor = 'rgba(0,0,0,0.8)';
+        ctx.shadowBlur = 14;
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.96)';
+        ctx.strokeStyle = '#FDE047';
+        ctx.lineWidth = 2;
+        drawRoundRect(ctx, boxX, boxY, boxW, boxH, 10);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.stroke();
+
+        ctx.fillStyle = '#FEF9C3';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, this.VSIZE / 2, boxY + boxH / 2 + 0.5);
+        ctx.restore();
+      };
+
+      RouletteEngine.prototype.draw = function () {
+        var ctx = this.ctx;
+        if (!ctx || this.canvas.width === 0 || this.canvas.height === 0) return;
+
+        ctx.save();
+        ctx.setTransform(this.canvas.width / this.VSIZE, 0, 0, this.canvas.height / this.VSIZE, 0, 0);
+
+        var bg = ctx.createRadialGradient(this.cx, this.cy, 60, this.cx, this.cy, 360);
+        bg.addColorStop(0, '#131f3a');
+        bg.addColorStop(0.65, '#0a1122');
+        bg.addColorStop(1, '#060a14');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, this.VSIZE, this.VSIZE);
+
+        // 木質與金屬外框
+        var rimGrad = ctx.createRadialGradient(this.cx, this.cy, this.wheelR, this.cx, this.cy, this.outerR);
+        rimGrad.addColorStop(0, '#1e293b');
+        rimGrad.addColorStop(0.45, '#3b1d14');
+        rimGrad.addColorStop(0.78, '#6b2f1a');
+        rimGrad.addColorStop(0.92, '#b45309');
+        rimGrad.addColorStop(1, '#451a03');
+        ctx.beginPath();
+        ctx.arc(this.cx, this.cy, this.outerR, 0, Math.PI * 2);
+        ctx.fillStyle = rimGrad;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(251, 191, 36, 0.72)';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(this.cx, this.cy, this.trackR, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.14)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // 8 顆金屬菱形彈跳擋塊
+        for (var d = 0; d < 8; d++) {
+          var da = (d / 8) * Math.PI * 2;
+          var dx = this.cx + Math.cos(da) * (this.wheelR + 15);
+          var dy = this.cy + Math.sin(da) * (this.wheelR + 15);
+          ctx.save();
+          ctx.translate(dx, dy);
+          ctx.rotate(da);
+          ctx.beginPath();
+          ctx.moveTo(0, -6); ctx.lineTo(9, 0); ctx.lineTo(0, 6); ctx.lineTo(-9, 0);
+          ctx.closePath();
+          ctx.fillStyle = '#FDE047';
+          ctx.fill();
+          ctx.strokeStyle = '#78350F';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // 多色扇形槽位
+        var n = this.slots.length;
+        if (n > 0) {
+          var sectorArc = (Math.PI * 2) / n;
+          for (var i = 0; i < n; i++) {
+            var a0 = this.wheelAngle + i * sectorArc;
+            var a1 = a0 + sectorArc;
+            var aMid = (a0 + a1) / 2;
+            var isWin = (i === this.winningIdx);
+            var isHov = (i === this.hoveredIdx);
+            var isSlowTarget = (this.phase === 'slowmo' && i === this.initialIdx);
+
+            var baseCol = (i % 2 === 0) ? '#b91c1c' : '#111827';
+            if (n % 2 === 1 && i === n - 1) baseCol = '#047857';
+
+            ctx.beginPath();
+            ctx.moveTo(this.cx, this.cy);
+            ctx.arc(this.cx, this.cy, this.wheelR, a0, a1);
+            ctx.closePath();
+
+            if (isWin) {
+              var pulse = 0.5 + 0.5 * Math.sin(this.winPulse);
+              ctx.fillStyle = 'rgba(245, 158, 11, ' + (0.78 + pulse * 0.22) + ')';
+            } else if (isSlowTarget) {
+              ctx.fillStyle = 'rgba(34, 211, 238, 0.42)';
+            } else if (isHov) {
+              ctx.fillStyle = '#2563eb';
+            } else {
+              ctx.fillStyle = baseCol;
+            }
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(this.cx, this.cy, this.wheelR - 5, a0, a1);
+            ctx.strokeStyle = SLOT_PALETTE[i % SLOT_PALETTE.length];
+            ctx.lineWidth = 8;
+            ctx.stroke();
+
+            if (this.slotFlash > 0.01) {
+              ctx.beginPath();
+              ctx.moveTo(this.cx, this.cy);
+              ctx.arc(this.cx, this.cy, this.wheelR, a0, a1);
+              ctx.closePath();
+              ctx.fillStyle = 'rgba(254, 240, 138, ' + (this.slotFlash * 0.4) + ')';
+              ctx.fill();
+            }
+
+            ctx.save();
+            ctx.translate(this.cx, this.cy);
+            ctx.rotate(aMid);
+            ctx.fillStyle = isWin ? '#0f172a' : '#F8FAFC';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            var fontSize = n > 20 ? 11 : (n > 12 ? 12.5 : 14);
+            ctx.font = 'bold ' + fontSize + 'px "Noto Sans TC", sans-serif';
+            var label = this.slots[i].name;
+            var maxChars = n > 20 ? 6 : 8;
+            if (label.length > maxChars) label = label.slice(0, maxChars - 1) + '…';
+            ctx.fillText(label, this.wheelR - 14, 0);
+            ctx.restore();
+          }
+
+          for (var f = 0; f < n; f++) {
+            var fa = this.wheelAngle + f * sectorArc;
+            ctx.beginPath();
+            ctx.moveTo(this.cx + Math.cos(fa) * this.hubR, this.cy + Math.sin(fa) * this.hubR);
+            ctx.lineTo(this.cx + Math.cos(fa) * this.wheelR, this.cy + Math.sin(fa) * this.wheelR);
+            ctx.strokeStyle = 'rgba(253, 224, 71, 0.72)';
+            ctx.lineWidth = 1.6;
+            ctx.stroke();
+          }
+
+          ctx.beginPath();
+          ctx.arc(this.cx, this.cy, this.pocketR + 14, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+
+        // 中央金屬轉軸
+        var hubGrad = ctx.createRadialGradient(this.cx - 10, this.cy - 10, 6, this.cx, this.cy, this.hubR);
+        hubGrad.addColorStop(0, '#FEF08A');
+        hubGrad.addColorStop(0.5, '#D97706');
+        hubGrad.addColorStop(1, '#78350F');
+        ctx.beginPath();
+        ctx.arc(this.cx, this.cy, this.hubR, 0, Math.PI * 2);
+        ctx.fillStyle = hubGrad;
+        ctx.fill();
+        ctx.strokeStyle = '#FDE047';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(this.cx, this.cy);
+        ctx.rotate(this.wheelAngle * 1.2);
+        ctx.strokeStyle = '#FFFBEB';
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(-24, 0); ctx.lineTo(24, 0);
+        ctx.moveTo(0, -24); ctx.lineTo(0, 24);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, 0, 10, 0, Math.PI * 2);
+        ctx.fillStyle = '#FFFBEB';
+        ctx.fill();
+        ctx.restore();
+
+        // 慢動作戲劇暗角與狀態標籤
+        if (this.slowMoAmount > 0.01) {
+          var vig = ctx.createRadialGradient(this.cx, this.cy, 120, this.cx, this.cy, 360);
+          vig.addColorStop(0, 'rgba(0, 0, 0, 0)');
+          vig.addColorStop(1, 'rgba(2, 6, 23, ' + (this.slowMoAmount * 0.62) + ')');
+          ctx.fillStyle = vig;
+          ctx.fillRect(0, 0, this.VSIZE, this.VSIZE);
+
+          if (this.phase === 'slowmo') {
+            ctx.save();
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+            ctx.strokeStyle = '#22D3EE';
+            ctx.lineWidth = 1.8;
+            drawRoundRect(ctx, this.VSIZE - 146, 14, 132, 30, 15);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = '#67E8F9';
+            ctx.font = 'bold 12px "Noto Sans TC", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('⏱️ 慢動作凝視中...', this.VSIZE - 80, 29);
+            ctx.restore();
+          }
+        }
+
+        // 發光金屬滾珠
+        if (this.phase !== 'idle' && n > 0) {
+          var worldBallAngle = (this.phase === 'orbit' || this.phase === 'bounce')
+            ? this.ballAngle
+            : (this.wheelAngle + this.ballRelAngle);
+          var bx = this.cx + Math.cos(worldBallAngle) * this.ballR;
+          var by = this.cy + Math.sin(worldBallAngle) * this.ballR;
+          var br = 8.8 * this.ballScale;
+
+          if (this.slowMoAmount > 0.1) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(bx, by, br + 12, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(253, 224, 71, ' + (this.slowMoAmount * 0.78) + ')';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          ctx.save();
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
+          ctx.shadowBlur = 10;
+          ctx.shadowOffsetY = 3;
+          var ballGrad = ctx.createRadialGradient(bx - br * 0.35, by - br * 0.35, 1.5, bx, by, br);
+          ballGrad.addColorStop(0, '#FFFFFF');
+          ballGrad.addColorStop(0.55, '#E2E8F0');
+          ballGrad.addColorStop(1, '#64748B');
+          ctx.beginPath();
+          ctx.arc(bx, by, br, 0, Math.PI * 2);
+          ctx.fillStyle = ballGrad;
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // 50% 驚喜翻盤橫幅（⚡ 哎呀！多跳了一格！）
+        if (this.surpriseBannerAlpha > 0.01 && this.surpriseBannerText) {
+          ctx.save();
+          ctx.globalAlpha = Math.min(1, this.surpriseBannerAlpha);
+          var bw = 240, bh = 38;
+          var bx0 = (this.VSIZE - bw) / 2;
+          var by0 = 14;
+          ctx.shadowColor = '#F43F5E';
+          ctx.shadowBlur = 18;
+          ctx.fillStyle = 'rgba(136, 19, 55, 0.95)';
+          ctx.strokeStyle = '#FDE047';
+          ctx.lineWidth = 2.4;
+          drawRoundRect(ctx, bx0, by0, bw, bh, 19);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.stroke();
+
+          ctx.fillStyle = '#FEF08A';
+          ctx.font = '900 15px "Noto Sans TC", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(this.surpriseBannerText, this.VSIZE / 2, by0 + bh / 2 + 0.5);
+          ctx.restore();
+        }
+
+        // 彩帶粒子
+        for (var c = 0; c < this.confetti.length; c++) {
+          var pt = this.confetti[c];
+          ctx.save();
+          ctx.translate(pt.x, pt.y);
+          ctx.rotate(pt.rot);
+          ctx.globalAlpha = Math.max(0, pt.life);
+          ctx.fillStyle = pt.color;
+          ctx.fillRect(-pt.size / 2, -pt.size / 2, pt.size, pt.size * 0.6);
+          ctx.restore();
+        }
+
+        if (this.hoveredIdx >= 0 && this.hoveredIdx < n && this.surpriseBannerAlpha <= 0.05) {
+          this.drawTooltip(ctx, this.hoveredIdx);
+        }
+
+        ctx.restore();
+      };
+
+      RouletteEngine.prototype.loop = function (ts) {
+        if (!this.lastTs) this.lastTs = ts;
+        var dt = Math.min(0.033, Math.max(0.001, (ts - this.lastTs) / 1000));
+        this.lastTs = ts;
+        this.update(dt);
+        this.draw();
+        var self = this;
+        requestAnimationFrame(function (nextTs) { self.loop(nextTs); });
+      };
+
+      /* =====================================================================
+       * 7. 應用程式核心狀態、DOM 參照與多模式協調控制
        * ===================================================================== */
       var state = {
         restaurants: [],
         selectedTransports: new Set(),
         searchQuery: '',
         autoShuffle: true,
+        currentMode: 'plinko', // plinko | slot | roulette
         boardSlots: [],
         lastWinner: null,
         pendingConfirm: null
@@ -3063,15 +4259,48 @@
         exportBtn: document.getElementById('exportBtn'),
         importInput: document.getElementById('importInput'),
 
+        modeTabPlinko: document.getElementById('modeTabPlinko'),
+        modeTabSlot: document.getElementById('modeTabSlot'),
+        modeTabRoulette: document.getElementById('modeTabRoulette'),
+
         filterChips: document.getElementById('filterChips'),
         candidateCount: document.getElementById('candidateCount'),
-        canvasStageWrapper: document.getElementById('canvasStageWrapper'),
+
+        panelPlinko: document.getElementById('panelPlinko'),
+        plinkoStageWrapper: document.getElementById('plinkoStageWrapper'),
         plinkoCanvas: document.getElementById('plinkoCanvas'),
-        emptyOverlay: document.getElementById('emptyOverlay'),
+        plinkoEmptyOverlay: document.getElementById('plinkoEmptyOverlay'),
         dropBallBtn: document.getElementById('dropBallBtn'),
         dropBallText: document.getElementById('dropBallText'),
         autoShuffleCheck: document.getElementById('autoShuffleCheck'),
         manualShuffleBtn: document.getElementById('manualShuffleBtn'),
+
+        panelSlot: document.getElementById('panelSlot'),
+        slotStageWrapper: document.getElementById('slotStageWrapper'),
+        slotConfettiCanvas: document.getElementById('slotConfettiCanvas'),
+        slotBulbsTop: document.getElementById('slotBulbsTop'),
+        slotBulbsBottom: document.getElementById('slotBulbsBottom'),
+        slotStatusBanner: document.getElementById('slotStatusBanner'),
+        slotSingleTransportHint: document.getElementById('slotSingleTransportHint'),
+        reelWinLeft: document.getElementById('reelWinLeft'),
+        reelStripLeft: document.getElementById('reelStripLeft'),
+        reelWinRight: document.getElementById('reelWinRight'),
+        reelStripRight: document.getElementById('reelStripRight'),
+        slotLeverZone: document.getElementById('slotLeverZone'),
+        leverShaft: document.getElementById('leverShaft'),
+        leverKnob: document.getElementById('leverKnob'),
+        slotEmptyOverlay: document.getElementById('slotEmptyOverlay'),
+        pullSlotBtn: document.getElementById('pullSlotBtn'),
+        pullSlotText: document.getElementById('pullSlotText'),
+
+        panelRoulette: document.getElementById('panelRoulette'),
+        rouletteStageWrapper: document.getElementById('rouletteStageWrapper'),
+        rouletteCanvas: document.getElementById('rouletteCanvas'),
+        rouletteEmptyOverlay: document.getElementById('rouletteEmptyOverlay'),
+        spinRouletteBtn: document.getElementById('spinRouletteBtn'),
+        spinRouletteText: document.getElementById('spinRouletteText'),
+        autoShuffleRouletteCheck: document.getElementById('autoShuffleRouletteCheck'),
+        manualShuffleRouletteBtn: document.getElementById('manualShuffleRouletteBtn'),
 
         formCard: document.getElementById('formCard'),
         formToggleBtn: document.getElementById('formToggleBtn'),
@@ -3080,8 +4309,6 @@
         editIdInput: document.getElementById('editIdInput'),
         nameInput: document.getElementById('nameInput'),
         transportSelect: document.getElementById('transportSelect'),
-        customTransportWrap: document.getElementById('customTransportWrap'),
-        customTransportInput: document.getElementById('customTransportInput'),
         timeInput: document.getElementById('timeInput'),
         noteInput: document.getElementById('noteInput'),
         mapUrlInput: document.getElementById('mapUrlInput'),
@@ -3099,6 +4326,8 @@
         mobTabCount: document.getElementById('mobTabCount'),
 
         resultModal: document.getElementById('resultModal'),
+        resIcon: document.getElementById('resIcon'),
+        resSub: document.getElementById('resSub'),
         resName: document.getElementById('resName'),
         resTransport: document.getElementById('resTransport'),
         resTime: document.getElementById('resTime'),
@@ -3117,7 +4346,6 @@
         toastStack: document.getElementById('toastStack')
       };
 
-      /* ----- Toast 提示 ----- */
       function showToast(msg, type) {
         var div = document.createElement('div');
         div.className = 'toast-item toast-' + (type || 'info');
@@ -3132,7 +4360,6 @@
         }, 2400);
       }
 
-      /* ----- 自訂確認彈窗 ----- */
       function openConfirm(title, message, okLabel, onConfirm) {
         els.confirmTitle.textContent = title;
         els.confirmMessage.textContent = message;
@@ -3146,7 +4373,7 @@
         state.pendingConfirm = null;
       }
 
-      /* ----- 持久化載入與儲存（v6 全新鍵值） ----- */
+      /* ----- 資料持久化 (what_to_eat_plinko_v7) ----- */
       function sanitizeList(arr) {
         return arr
           .filter(function (item) {
@@ -3163,7 +4390,7 @@
             return {
               id: item.id || generateId(),
               name: name,
-              transport: (item.transport || '步行').trim(),
+              transport: normalizeTransport(item.transport),
               time: timeVal,
               note: typeof item.note === 'string' ? item.note.trim() : '',
               mapUrl: mapVal,
@@ -3185,39 +4412,24 @@
           var savedShuffle = localStorage.getItem(SHUFFLE_KEY);
           state.autoShuffle = savedShuffle === null ? true : savedShuffle !== 'false';
           els.autoShuffleCheck.checked = state.autoShuffle;
+          els.autoShuffleRouletteCheck.checked = state.autoShuffle;
         } catch (e) {
           state.autoShuffle = true;
         }
 
         try {
-          var raw = localStorage.getItem(STORAGE_KEY);
-          if (raw === null) {
-            state.restaurants = buildDefaultRestaurants();
-            saveRestaurants();
-            return;
+          var rawV7 = localStorage.getItem(STORAGE_KEY);
+          if (rawV7 !== null) {
+            var parsed = JSON.parse(rawV7);
+            if (Array.isArray(parsed)) {
+              state.restaurants = sanitizeList(parsed);
+              return;
+            }
           }
-          var parsed = JSON.parse(raw);
-          if (!Array.isArray(parsed)) {
-            state.restaurants = buildDefaultRestaurants();
-            saveRestaurants();
-            return;
-          }
-          state.restaurants = sanitizeList(parsed);
-        } catch (e) {
-          state.restaurants = buildDefaultRestaurants();
-          saveRestaurants();
-        }
-      }
+        } catch (e) {}
 
-      /* ----- 取得所有交通方式與篩選後候選名單 ----- */
-      function getAllTransports() {
-        var list = BUILTIN_TRANSPORTS.slice();
-        state.restaurants.forEach(function (r) {
-          if (r.transport && list.indexOf(r.transport) === -1) {
-            list.push(r.transport);
-          }
-        });
-        return list;
+        state.restaurants = buildDefaultRestaurants();
+        saveRestaurants();
       }
 
       function getFilteredCandidates() {
@@ -3228,7 +4440,7 @@
         });
       }
 
-      /* ----- 初始化音效與彈珠台引擎 ----- */
+      /* ----- 初始化音效引擎與三大抽選引擎 ----- */
       var soundEngine = new SoundEngine();
 
       function syncSoundUI() {
@@ -3237,55 +4449,136 @@
         els.soundToggleBtn.classList.toggle('sound-on', soundEngine.enabled);
       }
 
-      var plinko = new PlinkoEngine(els.plinkoCanvas, els.canvasStageWrapper, soundEngine, {
+      function isAnyBusy() {
+        return (plinko && plinko.isDropping) ||
+               (slotMachine && slotMachine.isSpinning) ||
+               (roulette && roulette.isSpinning);
+      }
+
+      var plinko = new PlinkoEngine(els.plinkoCanvas, els.plinkoStageWrapper, soundEngine, {
         onBeforeDrop: function () {
           if (state.autoShuffle && state.boardSlots.length > 1) {
             state.boardSlots = fisherYatesShuffle(state.boardSlots);
             plinko.setSlots(state.boardSlots, true);
+            roulette.setSlots(state.boardSlots, false);
           }
         },
-        onStateChange: function () {
-          syncControlButtons();
+        onStateChange: syncControlButtons,
+        onResult: openResultModal
+      });
+
+      var slotMachine = new SlotMachineEngine({
+        stageWrapper: els.slotStageWrapper,
+        confettiCanvas: els.slotConfettiCanvas,
+        bulbsTop: els.slotBulbsTop,
+        bulbsBottom: els.slotBulbsBottom,
+        statusBanner: els.slotStatusBanner,
+        singleHint: els.slotSingleTransportHint,
+        reelWinLeft: els.reelWinLeft,
+        reelStripLeft: els.reelStripLeft,
+        reelWinRight: els.reelWinRight,
+        reelStripRight: els.reelStripRight,
+        leverZone: els.slotLeverZone,
+        leverShaft: els.leverShaft,
+        leverKnob: els.leverKnob
+      }, soundEngine, {
+        onStateChange: syncControlButtons,
+        onResult: openResultModal
+      });
+
+      var roulette = new RouletteEngine(els.rouletteCanvas, els.rouletteStageWrapper, soundEngine, {
+        onBeforeSpin: function () {
+          if (state.autoShuffle && state.boardSlots.length > 1) {
+            state.boardSlots = fisherYatesShuffle(state.boardSlots);
+            roulette.setSlots(state.boardSlots, true);
+            plinko.setSlots(state.boardSlots, false);
+          }
         },
-        onResult: function (winner) {
-          openResultModal(winner);
-        }
+        onStateChange: syncControlButtons,
+        onResult: openResultModal
       });
 
       function syncControlButtons() {
         var hasSlots = state.boardSlots.length > 0;
-        var dropping = plinko.isDropping;
-        els.dropBallBtn.disabled = !hasSlots || dropping;
-        els.manualShuffleBtn.disabled = state.boardSlots.length < 2 || dropping;
-        els.dropBallText.textContent = dropping ? '彈珠彈跳中...' : '投下彈珠！';
+        var busy = isAnyBusy();
+
+        els.modeTabPlinko.disabled = busy;
+        els.modeTabSlot.disabled = busy;
+        els.modeTabRoulette.disabled = busy;
+
+        els.dropBallBtn.disabled = !hasSlots || busy;
+        els.manualShuffleBtn.disabled = state.boardSlots.length < 2 || busy;
+        els.dropBallText.textContent = plinko.isDropping ? '彈珠彈跳中...' : '投下彈珠！';
+
+        els.pullSlotBtn.disabled = !hasSlots || busy;
+        els.slotLeverZone.classList.toggle('disabled', !hasSlots || busy);
+        els.pullSlotText.textContent = slotMachine.isSpinning ? '滾輪開獎中...' : '拉下拉桿！';
+
+        els.spinRouletteBtn.disabled = !hasSlots || busy;
+        els.manualShuffleRouletteBtn.disabled = state.boardSlots.length < 2 || busy;
+        els.spinRouletteText.textContent = roulette.isSpinning ? '輪盤旋轉中...' : '轉動輪盤！';
       }
 
       function syncBoardSlots(shuffleNow) {
         var candidates = getFilteredCandidates();
-        els.candidateCount.textContent = '候選 ' + candidates.length + ' 家';
+        els.candidateCount.textContent = '目前候選：' + candidates.length + ' 家';
 
         if (candidates.length === 0) {
           state.boardSlots = [];
           plinko.setSlots([], false);
-          els.emptyOverlay.classList.remove('hidden');
+          slotMachine.setCandidates([]);
+          roulette.setSlots([], false);
+          els.plinkoEmptyOverlay.classList.remove('hidden');
+          els.slotEmptyOverlay.classList.remove('hidden');
+          els.rouletteEmptyOverlay.classList.remove('hidden');
           syncControlButtons();
           return;
         }
 
-        els.emptyOverlay.classList.add('hidden');
+        els.plinkoEmptyOverlay.classList.add('hidden');
+        els.slotEmptyOverlay.classList.add('hidden');
+        els.rouletteEmptyOverlay.classList.add('hidden');
+
         var list = shuffleNow ? fisherYatesShuffle(candidates) : candidates.slice();
         state.boardSlots = list.slice(0, MAX_SLOTS);
         plinko.setSlots(state.boardSlots, shuffleNow);
+        slotMachine.setCandidates(candidates);
+        roulette.setSlots(state.boardSlots, shuffleNow);
         syncControlButtons();
       }
 
-      /* ----- 渲染交通方式篩選列 ----- */
+      function switchDrawMode(mode) {
+        if (isAnyBusy()) {
+          showToast('抽獎進行中，請稍候再切換模式！', 'info');
+          return;
+        }
+        state.currentMode = mode;
+
+        els.panelPlinko.classList.toggle('hidden', mode !== 'plinko');
+        els.panelSlot.classList.toggle('hidden', mode !== 'slot');
+        els.panelRoulette.classList.toggle('hidden', mode !== 'roulette');
+
+        els.modeTabPlinko.classList.toggle('active', mode === 'plinko');
+        els.modeTabSlot.classList.toggle('active', mode === 'slot');
+        els.modeTabRoulette.classList.toggle('active', mode === 'roulette');
+
+        els.modeTabPlinko.setAttribute('aria-selected', String(mode === 'plinko'));
+        els.modeTabSlot.setAttribute('aria-selected', String(mode === 'slot'));
+        els.modeTabRoulette.setAttribute('aria-selected', String(mode === 'roulette'));
+
+        requestAnimationFrame(function () {
+          if (mode === 'plinko') plinko.resize();
+          else if (mode === 'roulette') roulette.resize();
+          else if (mode === 'slot') slotMachine.renderIdleReels();
+        });
+      }
+
+      /* ----- 渲染篩選列與店家清單 ----- */
       function renderFilters() {
-        var transports = getAllTransports();
         var isAll = state.selectedTransports.size === 0;
         var html = '<button type="button" class="chip-btn ' + (isAll ? 'all-active' : '') + '" data-transport="__all__">全部</button>';
 
-        transports.forEach(function (t) {
+        TRANSPORTS.forEach(function (t) {
           var meta = getTransportMeta(t);
           var active = state.selectedTransports.has(t);
           html += '<button type="button" class="chip-btn ' + (active ? 'active' : '') + '" data-transport="' + escapeHtml(t) + '">' +
@@ -3294,7 +4587,6 @@
         els.filterChips.innerHTML = html;
       }
 
-      /* ----- 渲染店家管理列表 ----- */
       function renderRestaurantList() {
         var total = state.restaurants.length;
         els.listTotalBadge.textContent = String(total);
@@ -3317,7 +4609,7 @@
           return;
         }
 
-        var html = filtered.map(function (r) {
+        els.restaurantList.innerHTML = filtered.map(function (r) {
           var meta = getTransportMeta(r.transport);
           var cardCls = r.isActive ? 'rest-card' : 'rest-card excluded';
           var timeHtml = r.time ? '<span class="time-chip">⏱️ ' + escapeHtml(r.time) + '</span>' : '';
@@ -3345,8 +4637,6 @@
             '</div>'
           );
         }).join('');
-
-        els.restaurantList.innerHTML = html;
       }
 
       function renderAll(shuffleBoard) {
@@ -3355,7 +4645,7 @@
         syncBoardSlots(Boolean(shuffleBoard));
       }
 
-      /* ----- 折疊表單控制 ----- */
+      /* ----- 表單與結果彈窗 ----- */
       function setFormOpen(open) {
         els.formCard.classList.toggle('open', open);
         els.restaurantForm.classList.toggle('hidden', !open);
@@ -3366,8 +4656,6 @@
         els.editIdInput.value = '';
         els.nameInput.value = '';
         els.transportSelect.value = '步行';
-        els.customTransportWrap.classList.add('hidden');
-        els.customTransportInput.value = '';
         els.timeInput.value = '';
         els.noteInput.value = '';
         els.mapUrlInput.value = '';
@@ -3383,15 +4671,7 @@
 
         els.editIdInput.value = target.id;
         els.nameInput.value = target.name;
-        if (BUILTIN_TRANSPORTS.indexOf(target.transport) !== -1) {
-          els.transportSelect.value = target.transport;
-          els.customTransportWrap.classList.add('hidden');
-          els.customTransportInput.value = '';
-        } else {
-          els.transportSelect.value = '__custom__';
-          els.customTransportWrap.classList.remove('hidden');
-          els.customTransportInput.value = target.transport;
-        }
+        els.transportSelect.value = normalizeTransport(target.transport);
         els.timeInput.value = target.time || '';
         els.noteInput.value = target.note || '';
         els.mapUrlInput.value = target.mapUrl || '';
@@ -3403,10 +4683,11 @@
         els.nameInput.focus();
       }
 
-      /* ----- 結果揭曉彈窗 ----- */
-      function openResultModal(winner) {
+      function openResultModal(winner, opts) {
         if (!winner) return;
         state.lastWinner = winner;
+        els.resIcon.textContent = (opts && opts.icon) ? opts.icon : '🎉';
+        els.resSub.textContent = (opts && opts.sub) ? opts.sub : '抽選結果揭曉';
         els.resName.textContent = winner.name;
 
         var meta = getTransportMeta(winner.transport);
@@ -3442,20 +4723,21 @@
         els.resultModal.classList.add('hidden');
       }
 
-      /* ----- 手機雙分頁切換（切換回彈珠台時立即安全觸發 Resize） ----- */
       function switchMobileTab(tab) {
         els.appShell.setAttribute('data-tab', tab);
         els.mobTabBoard.classList.toggle('active', tab === 'board');
         els.mobTabList.classList.toggle('active', tab === 'list');
         if (tab === 'board') {
           requestAnimationFrame(function () {
-            plinko.resize();
+            if (state.currentMode === 'plinko') plinko.resize();
+            else if (state.currentMode === 'roulette') roulette.resize();
+            else if (state.currentMode === 'slot') slotMachine.renderIdleReels();
           });
         }
       }
 
       /* =====================================================================
-       * 6. 綁定所有 UI 事件監聽
+       * 8. 綁定所有 UI 與系統事件監聽
        * ===================================================================== */
       els.soundToggleBtn.addEventListener('click', function () {
         soundEngine.toggle();
@@ -3463,57 +4745,56 @@
         showToast(soundEngine.enabled ? '音效已開啟 🔊' : '已切換為靜音 🔇');
       });
 
+      els.modeTabPlinko.addEventListener('click', function () { switchDrawMode('plinko'); });
+      els.modeTabSlot.addEventListener('click', function () { switchDrawMode('slot'); });
+      els.modeTabRoulette.addEventListener('click', function () { switchDrawMode('roulette'); });
+
       els.filterChips.addEventListener('click', function (e) {
+        if (isAnyBusy()) return;
         var btn = e.target.closest('button[data-transport]');
         if (!btn) return;
         var val = btn.getAttribute('data-transport');
         if (val === '__all__') {
           state.selectedTransports.clear();
         } else {
-          if (state.selectedTransports.has(val)) {
-            state.selectedTransports.delete(val);
-          } else {
-            state.selectedTransports.add(val);
-          }
+          if (state.selectedTransports.has(val)) state.selectedTransports.delete(val);
+          else state.selectedTransports.add(val);
         }
         renderFilters();
         syncBoardSlots(false);
       });
 
-      els.dropBallBtn.addEventListener('click', function () {
-        plinko.dropBall();
-      });
+      function handleAutoShuffleToggle(checked) {
+        state.autoShuffle = checked;
+        els.autoShuffleCheck.checked = checked;
+        els.autoShuffleRouletteCheck.checked = checked;
+        try { localStorage.setItem(SHUFFLE_KEY, String(checked)); } catch (e) {}
+        showToast(checked ? '已開啟：每次抽前自動洗牌 🎲' : '已關閉自動洗牌');
+      }
 
-      els.autoShuffleCheck.addEventListener('change', function () {
-        state.autoShuffle = els.autoShuffleCheck.checked;
-        try {
-          localStorage.setItem(SHUFFLE_KEY, String(state.autoShuffle));
-        } catch (e) {}
-        showToast(state.autoShuffle ? '已開啟：每次抽前自動洗牌 🎲' : '已關閉自動洗牌');
-      });
-
-      els.manualShuffleBtn.addEventListener('click', function () {
-        if (plinko.isDropping || state.boardSlots.length < 2) return;
+      function handleManualShuffle() {
+        if (isAnyBusy() || state.boardSlots.length < 2) return;
         state.boardSlots = fisherYatesShuffle(state.boardSlots);
-        plinko.setSlots(state.boardSlots, true);
+        plinko.setSlots(state.boardSlots, state.currentMode === 'plinko');
+        roulette.setSlots(state.boardSlots, state.currentMode === 'roulette');
         soundEngine.playShuffle();
-        showToast('已打亂底部店家順序 🔀');
-      });
+        showToast('已打亂抽選位置順序 🔀');
+      }
+
+      els.dropBallBtn.addEventListener('click', function () { plinko.dropBall(); });
+      els.pullSlotBtn.addEventListener('click', function () { slotMachine.spin(); });
+      els.spinRouletteBtn.addEventListener('click', function () { roulette.spin(); });
+
+      els.autoShuffleCheck.addEventListener('change', function () { handleAutoShuffleToggle(els.autoShuffleCheck.checked); });
+      els.autoShuffleRouletteCheck.addEventListener('change', function () { handleAutoShuffleToggle(els.autoShuffleRouletteCheck.checked); });
+      els.manualShuffleBtn.addEventListener('click', handleManualShuffle);
+      els.manualShuffleRouletteBtn.addEventListener('click', handleManualShuffle);
 
       els.formToggleBtn.addEventListener('click', function () {
-        var isOpen = els.formCard.classList.contains('open');
-        setFormOpen(!isOpen);
+        setFormOpen(!els.formCard.classList.contains('open'));
       });
 
-      els.transportSelect.addEventListener('change', function () {
-        var isCustom = els.transportSelect.value === '__custom__';
-        els.customTransportWrap.classList.toggle('hidden', !isCustom);
-        if (isCustom) els.customTransportInput.focus();
-      });
-
-      els.cancelEditBtn.addEventListener('click', function () {
-        resetForm(true);
-      });
+      els.cancelEditBtn.addEventListener('click', function () { resetForm(true); });
 
       els.restaurantForm.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -3523,17 +4804,7 @@
           els.nameInput.focus();
           return;
         }
-
-        var transport = els.transportSelect.value;
-        if (transport === '__custom__') {
-          transport = els.customTransportInput.value.trim();
-          if (!transport) {
-            showToast('請輸入自訂交通方式！', 'error');
-            els.customTransportInput.focus();
-            return;
-          }
-        }
-
+        var transport = normalizeTransport(els.transportSelect.value);
         var time = els.timeInput.value.trim();
         var note = els.noteInput.value.trim();
         var mapUrl = els.mapUrlInput.value.trim() || ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(name));
@@ -3622,38 +4893,39 @@
             els.searchInput.value = '';
             saveRestaurants();
             resetForm(true);
-            renderAll(false);
-            showToast('已還原 23 家預設口袋名單！', 'success');
+            renderAll(true);
+            showToast('已還原預設 23 家名單！', 'success');
           }
         );
       });
 
-      els.mobTabBoard.addEventListener('click', function () { switchMobileTab('board'); });
-      els.mobTabList.addEventListener('click', function () { switchMobileTab('list'); });
-
+      /* ----- 結果彈窗與重抽 ----- */
       els.resDecideBtn.addEventListener('click', function () {
-        var name = state.lastWinner ? state.lastWinner.name : '';
         closeResultModal();
-        showToast('就決定吃「' + name + '」啦！祝用餐愉快 🍽️', 'success');
+        if (state.lastWinner) {
+          showToast('祝你用餐愉快！出發前往「' + state.lastWinner.name + '」😋', 'success');
+        }
       });
 
       els.resRedrawBtn.addEventListener('click', function () {
         if (els.resExcludeCheck.checked && state.lastWinner) {
-          var target = state.restaurants.find(function (r) { return r.id === state.lastWinner.id; });
-          if (target) {
-            target.isActive = false;
+          var found = state.restaurants.find(function (r) { return r.id === state.lastWinner.id; });
+          if (found) {
+            found.isActive = false;
             saveRestaurants();
-            showToast('已暫時排除「' + target.name + '」');
+            renderAll(false);
+            showToast('已暫時排除「' + found.name + '」');
           }
-          renderAll(false);
         }
         closeResultModal();
         if (state.boardSlots.length > 0) {
           setTimeout(function () {
-            plinko.dropBall();
+            if (state.currentMode === 'plinko') plinko.dropBall();
+            else if (state.currentMode === 'slot') slotMachine.spin();
+            else if (state.currentMode === 'roulette') roulette.spin();
           }, 160);
         } else {
-          showToast('目前沒有其他候選店家，請調整篩選或啟用名單！', 'error');
+          showToast('目前沒有剩餘的候選店家可以重抽！', 'error');
         }
       });
 
@@ -3661,6 +4933,7 @@
         if (e.target === els.resultModal) closeResultModal();
       });
 
+      /* ----- 通用確認彈窗事件 ----- */
       els.confirmCancelBtn.addEventListener('click', closeConfirm);
       els.confirmOkBtn.addEventListener('click', function () {
         var fn = state.pendingConfirm;
@@ -3675,7 +4948,7 @@
       els.exportBtn.addEventListener('click', function () {
         try {
           var payload = {
-            version: 6,
+            version: 7,
             exportedAt: new Date().toISOString(),
             restaurants: state.restaurants
           };
@@ -3683,12 +4956,12 @@
           var url = URL.createObjectURL(blob);
           var a = document.createElement('a');
           a.href = url;
-          a.download = 'what-to-eat-restaurants.json';
+          a.download = 'what-to-eat-backup.json';
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-          showToast('已匯出 JSON 備份檔 ⬇️', 'success');
+          setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+          showToast('已下載 JSON 備份檔 ⬇️', 'success');
         } catch (e) {
           showToast('匯出失敗，請稍後再試', 'error');
         }
@@ -3701,35 +4974,48 @@
         reader.onload = function (ev) {
           try {
             var parsed = JSON.parse(String(ev.target.result || ''));
-            var list = Array.isArray(parsed) ? parsed : parsed.restaurants;
-            if (!Array.isArray(list) || list.length === 0) {
-              throw new Error('Invalid format');
+            var rawList = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.restaurants) ? parsed.restaurants : null);
+            if (!rawList) {
+              showToast('JSON 格式不正確，請選擇有效的備份檔', 'error');
+              return;
             }
-            state.restaurants = sanitizeList(list);
+            var cleaned = sanitizeList(rawList);
+            if (cleaned.length === 0) {
+              showToast('檔案中沒有有效的店家資料', 'error');
+              return;
+            }
+            state.restaurants = cleaned;
             state.selectedTransports.clear();
-            state.searchQuery = '';
-            els.searchInput.value = '';
             saveRestaurants();
-            resetForm(true);
-            renderAll(false);
-            showToast('成功匯入 ' + state.restaurants.length + ' 家店家！', 'success');
+            renderAll(true);
+            showToast('成功匯入 ' + cleaned.length + ' 家店家！', 'success');
           } catch (err) {
-            showToast('匯入失敗：JSON 檔案格式不正確', 'error');
-          } finally {
-            els.importInput.value = '';
+            showToast('讀取 JSON 失敗，請確認檔案未損毀', 'error');
           }
         };
-        reader.readAsText(file, 'utf-8');
+        reader.readAsText(file);
+        els.importInput.value = '';
+      });
+
+      /* ----- 手機雙分頁與視窗縮放監聽 ----- */
+      els.mobTabBoard.addEventListener('click', function () { switchMobileTab('board'); });
+      els.mobTabList.addEventListener('click', function () { switchMobileTab('list'); });
+
+      window.addEventListener('resize', function () {
+        if (state.currentMode === 'plinko') plinko.resize();
+        else if (state.currentMode === 'roulette') roulette.resize();
+        else if (state.currentMode === 'slot') slotMachine.renderIdleReels();
       });
 
       /* =====================================================================
-       * 7. 啟動初始化
+       * 9. 應用程式安全啟動
        * ===================================================================== */
       loadInitialData();
       syncSoundUI();
       renderAll(false);
       requestAnimationFrame(function () {
         plinko.resize();
+        roulette.resize();
       });
     });
   </script>
