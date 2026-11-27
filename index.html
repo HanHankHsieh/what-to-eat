@@ -1895,7 +1895,7 @@
             </div>
             <div style="display:flex; gap:6px;">
               <button id="enableAllBtn" type="button" class="btn-ghost">全部啟用</button>
-              <button id="resetDefaultsBtn" type="button" class="btn-ghost">還原預設 25 家名單</button>
+              <button id="resetDefaultsBtn" type="button" class="btn-ghost">還原預設 26 家名單</button>
             </div>
           </div>
         </div>
@@ -1975,11 +1975,11 @@
       'use strict';
 
       /* =====================================================================
-       * 1. 常數設定、4 種交通方式與 25 家預設美食名單
+       * 1. 常數設定、4 種交通方式與 26 家預設美食名單
        * ===================================================================== */
-      var STORAGE_KEY = 'what_to_eat_plinko_v8';
-      var SOUND_KEY = 'what_to_eat_plinko_sound_v8';
-      var SHUFFLE_KEY = 'what_to_eat_plinko_shuffle_v8';
+      var STORAGE_KEY = 'what_to_eat_plinko_v9';
+      var SOUND_KEY = 'what_to_eat_plinko_sound_v9';
+      var SHUFFLE_KEY = 'what_to_eat_plinko_shuffle_v9';
       var MAX_SLOTS = 30;
 
       var TRANSPORTS = ['步行', 'Ubike', '捷運', '其他'];
@@ -2016,7 +2016,8 @@
         { name: '朱記', transport: '步行' },
         { name: '中信鐵板燒', transport: '步行' },
         { name: '北大荒水餃', transport: '步行' },
-        { name: '福州傻瓜乾麵', transport: '步行' }
+        { name: '福州傻瓜乾麵', transport: '步行' },
+        { name: '頂紅風味小火鍋', transport: '步行' }
       ];
 
       var SLOT_PALETTE = [
@@ -7275,7 +7276,7 @@
         state.pendingConfirm = null;
       }
 
-      /* ----- 資料持久化 (what_to_eat_plinko_v8) ----- */
+      /* ----- 資料持久化 (what_to_eat_plinko_v9) ----- */
       function sanitizeList(arr) {
         return arr
           .filter(function (item) {
@@ -7320,9 +7321,9 @@
         }
 
         try {
-          var rawV8 = localStorage.getItem(STORAGE_KEY);
-          if (rawV8 !== null) {
-            var parsed = JSON.parse(rawV8);
+          var rawV9 = localStorage.getItem(STORAGE_KEY);
+          if (rawV9 !== null) {
+            var parsed = JSON.parse(rawV9);
             if (Array.isArray(parsed)) {
               state.restaurants = sanitizeList(parsed);
               return;
@@ -7966,8 +7967,8 @@
 
       els.resetDefaultsBtn.addEventListener('click', function () {
         openConfirm(
-          '還原預設 25 家名單',
-          '這會將名單重設為預設的 25 家美食口袋名單，確定要還原嗎？',
+          '還原預設 26 家名單',
+          '這會將名單重設為預設的 26 家美食口袋名單，確定要還原嗎？',
           '確認還原',
           function () {
             state.restaurants = buildDefaultRestaurants();
@@ -7977,7 +7978,7 @@
             saveRestaurants();
             resetForm(true);
             renderAll(true);
-            showToast('已還原預設 25 家名單！', 'success');
+            showToast('已還原預設 26 家名單！', 'success');
           }
         );
       });
@@ -8040,7 +8041,7 @@
       els.exportBtn.addEventListener('click', function () {
         try {
           var payload = {
-            version: 8,
+            version: 9,
             exportedAt: new Date().toISOString(),
             restaurants: state.restaurants
           };
