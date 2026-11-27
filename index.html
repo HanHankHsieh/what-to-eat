@@ -243,6 +243,105 @@
       cursor: not-allowed;
     }
 
+    .weather-bar {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 5px 10px;
+      border-radius: var(--radius-md);
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+    }
+
+    .weather-metrics {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      scrollbar-width: none;
+      min-width: 0;
+    }
+
+    .weather-metrics::-webkit-scrollbar {
+      display: none;
+    }
+
+    .weather-pill {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-soft);
+      background: var(--bg-card);
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      white-space: nowrap;
+    }
+
+    .weather-pill.temp-pill {
+      color: #fde68a;
+      border-color: rgba(251, 191, 36, 0.34);
+      background: rgba(251, 191, 36, 0.1);
+    }
+
+    .weather-pill.rain-pill {
+      color: #bae6fd;
+      border-color: rgba(56, 189, 248, 0.34);
+      background: rgba(56, 189, 248, 0.1);
+    }
+
+    .weather-pill.rain-pill.rain-high {
+      color: #fca5a5;
+      border-color: rgba(248, 113, 113, 0.45);
+      background: rgba(239, 68, 68, 0.16);
+    }
+
+    .weather-actions {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .weather-act-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-soft);
+      background: var(--bg-card);
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .weather-act-btn:hover:not(:disabled) {
+      border-color: rgba(56, 189, 248, 0.55);
+      color: #f8fafc;
+    }
+
+    .weather-act-btn.gps-active {
+      color: #86efac;
+      border-color: rgba(74, 222, 128, 0.48);
+      background: rgba(34, 197, 94, 0.14);
+    }
+
+    .weather-act-btn:disabled {
+      opacity: 0.55;
+      cursor: wait;
+    }
+
     .filter-bar {
       flex: 0 0 auto;
       display: flex;
@@ -1531,8 +1630,11 @@
         border-left: none;
       }
 
-      .stage-column { padding: 6px 8px 6px; gap: 6px; }
+      .stage-column { padding: 6px 8px 6px; gap: 5px; }
       .mode-tabs-bar { padding: 4px; gap: 4px; }
+      .weather-bar { padding: 4px 8px; gap: 6px; }
+      .weather-pill { padding: 2px 7px; font-size: 0.72rem; }
+      .weather-act-btn { padding: 2px 6px; font-size: 0.7rem; }
       .mode-tab-btn { min-height: 36px; padding: 4px 4px; font-size: 0.76rem; gap: 3px; }
       .cabinet-shell { padding: 6px; border-radius: 15px; }
       .controls-bar { gap: 6px; }
@@ -1564,6 +1666,7 @@
       .claw-dpad-group { gap: 4px; }
       .claw-dpad-btn { min-width: 42px; min-height: 46px; padding: 0 6px; }
       .shuffle-toggle-pill .long-txt, .manual-shuffle-btn .shuf-txt { display: none; }
+      .weather-act-btn .w-loc-sub { display: none; }
       .form-row-2 { grid-template-columns: 1fr; }
       .slot-lever-zone { flex: 0 0 38px; height: 154px; }
       .lever-track { height: 112px; }
@@ -1623,6 +1726,21 @@
           <button id="modeTabClaw" type="button" role="tab" aria-selected="false" class="mode-tab-btn" data-mode="claw" title="夾娃娃機">
             <span>🧸</span><span>夾娃娃</span>
           </button>
+        </div>
+
+        <!-- 即時天氣資訊列（氣溫、天氣狀況、降雨機率） -->
+        <div id="weatherBar" class="weather-bar" aria-live="polite">
+          <div id="weatherMetrics" class="weather-metrics">
+            <span id="weatherCondPill" class="weather-pill" title="目前天氣狀況">🌤️ 載入中...</span>
+            <span id="weatherTempPill" class="weather-pill temp-pill" title="目前氣溫">🌡️ --°C</span>
+            <span id="weatherRainPill" class="weather-pill rain-pill" title="目前降雨機率">☔ --%</span>
+          </div>
+          <div class="weather-actions">
+            <button id="weatherLocBtn" type="button" class="weather-act-btn" title="切換預設位置與我的定位">
+              <span>📍</span><span id="weatherLocText">南港</span><span class="w-loc-sub">定位</span>
+            </button>
+            <button id="weatherRefreshBtn" type="button" class="weather-act-btn" title="重新整理天氣" aria-label="重新整理天氣">🔄</button>
+          </div>
         </div>
 
         <!-- 單行橫向可捲動：交通方式篩選列 -->
@@ -7147,6 +7265,15 @@
         modeTabDart: document.getElementById('modeTabDart'),
         modeTabClaw: document.getElementById('modeTabClaw'),
 
+        weatherBar: document.getElementById('weatherBar'),
+        weatherMetrics: document.getElementById('weatherMetrics'),
+        weatherCondPill: document.getElementById('weatherCondPill'),
+        weatherTempPill: document.getElementById('weatherTempPill'),
+        weatherRainPill: document.getElementById('weatherRainPill'),
+        weatherLocBtn: document.getElementById('weatherLocBtn'),
+        weatherLocText: document.getElementById('weatherLocText'),
+        weatherRefreshBtn: document.getElementById('weatherRefreshBtn'),
+
         filterChips: document.getElementById('filterChips'),
         candidateCount: document.getElementById('candidateCount'),
 
@@ -8102,12 +8229,186 @@
         else if (state.currentMode === 'slot') slotMachine.renderIdleReels();
       });
 
+      /* ----- 即時天氣資訊（Open-Meteo 免金鑰 API） ----- */
+      var WMO_WEATHER_META = {
+        0: { icon: '☀️', text: '晴朗' },
+        1: { icon: '🌤️', text: '晴時多雲' },
+        2: { icon: '⛅', text: '多雲' },
+        3: { icon: '☁️', text: '陰天' },
+        45: { icon: '🌫️', text: '有霧' },
+        48: { icon: '🌫️', text: '濃霧' },
+        51: { icon: '🌦️', text: '毛毛雨' },
+        53: { icon: '🌦️', text: '小雨' },
+        55: { icon: '🌦️', text: '細雨' },
+        56: { icon: '🌧️', text: '凍毛雨' },
+        57: { icon: '🌧️', text: '強凍雨' },
+        61: { icon: '🌧️', text: '小雨' },
+        63: { icon: '🌧️', text: '中雨' },
+        65: { icon: '🌧️', text: '大雨' },
+        66: { icon: '🌧️', text: '凍雨' },
+        67: { icon: '🌧️', text: '強凍雨' },
+        71: { icon: '❄️', text: '小雪' },
+        73: { icon: '❄️', text: '降雪' },
+        75: { icon: '❄️', text: '大雪' },
+        77: { icon: '❄️', text: '冰霰' },
+        80: { icon: '🌦️', text: '陣雨' },
+        81: { icon: '🌧️', text: '局部陣雨' },
+        82: { icon: '⛈️', text: '強陣雨' },
+        85: { icon: '❄️', text: '陣雪' },
+        86: { icon: '❄️', text: '強陣雪' },
+        95: { icon: '⛈️', text: '雷雨' },
+        96: { icon: '⛈️', text: '雷陣雨' },
+        99: { icon: '⛈️', text: '強雷陣雨' }
+      };
+
+      function getWeatherMeta(code) {
+        if (typeof code === 'number' && WMO_WEATHER_META[code]) {
+          return WMO_WEATHER_META[code];
+        }
+        return { icon: '🌤️', text: '多雲時晴' };
+      }
+
+      var weatherState = {
+        DEFAULT_LAT: 25.0553,
+        DEFAULT_LON: 121.6152,
+        lat: 25.0553,
+        lon: 121.6152,
+        useGps: false,
+        reqSeq: 0
+      };
+
+      function extractHourlyRainProb(data, curTime) {
+        if (!data || !data.hourly || !Array.isArray(data.hourly.precipitation_probability)) {
+          return null;
+        }
+        var probs = data.hourly.precipitation_probability;
+        var times = Array.isArray(data.hourly.time) ? data.hourly.time : [];
+        var hourPrefix = curTime ? String(curTime).slice(0, 13) : '';
+        var idx = 0;
+        if (hourPrefix) {
+          for (var i = 0; i < times.length; i++) {
+            if (String(times[i]).slice(0, 13) === hourPrefix) {
+              idx = i;
+              break;
+            }
+          }
+        }
+        return typeof probs[idx] === 'number' ? probs[idx] : null;
+      }
+
+      function fetchWeather(silent) {
+        if (!els.weatherBar || typeof fetch !== 'function') return Promise.resolve();
+        var seq = ++weatherState.reqSeq;
+        els.weatherRefreshBtn.disabled = true;
+
+        var url = 'https://api.open-meteo.com/v1/forecast?latitude=' +
+          encodeURIComponent(weatherState.lat) +
+          '&longitude=' + encodeURIComponent(weatherState.lon) +
+          '&current=temperature_2m,weather_code,precipitation_probability' +
+          '&hourly=precipitation_probability&forecast_days=1&timezone=auto';
+
+        var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 8000) : null;
+        var fetchOpts = ctrl ? { signal: ctrl.signal } : {};
+
+        return fetch(url, fetchOpts)
+          .then(function (res) {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+          })
+          .then(function (data) {
+            if (timer) clearTimeout(timer);
+            if (seq !== weatherState.reqSeq) return;
+            els.weatherRefreshBtn.disabled = false;
+
+            var cur = data && data.current ? data.current : null;
+            if (!cur || typeof cur.temperature_2m !== 'number') {
+              throw new Error('Invalid weather payload');
+            }
+
+            var meta = getWeatherMeta(cur.weather_code);
+            var rainProb = typeof cur.precipitation_probability === 'number'
+              ? cur.precipitation_probability
+              : extractHourlyRainProb(data, cur.time);
+
+            els.weatherCondPill.textContent = meta.icon + ' ' + meta.text;
+            els.weatherTempPill.textContent = '🌡️ ' + cur.temperature_2m.toFixed(1) + '°C';
+
+            if (typeof rainProb === 'number') {
+              var roundedRain = Math.round(rainProb);
+              els.weatherRainPill.textContent = '☔ 降雨 ' + roundedRain + '%';
+              els.weatherRainPill.classList.toggle('rain-high', roundedRain >= 40 || (typeof cur.weather_code === 'number' && cur.weather_code >= 51));
+            } else {
+              els.weatherRainPill.textContent = '☔ --%';
+              els.weatherRainPill.classList.toggle('rain-high', typeof cur.weather_code === 'number' && cur.weather_code >= 51);
+            }
+
+            if (cur.time) {
+              els.weatherBar.title = '更新時間：' + cur.time;
+            }
+            if (!silent) {
+              showToast('已更新即時天氣資訊 🌤️', 'success');
+            }
+          })
+          .catch(function () {
+            if (timer) clearTimeout(timer);
+            if (seq !== weatherState.reqSeq) return;
+            els.weatherRefreshBtn.disabled = false;
+            els.weatherCondPill.textContent = '🌐 暫無天氣資訊';
+            els.weatherTempPill.textContent = '🌡️ --°C';
+            els.weatherRainPill.textContent = '☔ --%';
+            els.weatherRainPill.classList.remove('rain-high');
+            if (!silent) {
+              showToast('無法取得天氣資訊，請稍後再試', 'error');
+            }
+          });
+      }
+
+      els.weatherRefreshBtn.addEventListener('click', function () {
+        fetchWeather(false);
+      });
+
+      els.weatherLocBtn.addEventListener('click', function () {
+        if (weatherState.useGps) {
+          weatherState.useGps = false;
+          weatherState.lat = weatherState.DEFAULT_LAT;
+          weatherState.lon = weatherState.DEFAULT_LON;
+          els.weatherLocBtn.classList.remove('gps-active');
+          els.weatherLocText.textContent = '南港';
+          fetchWeather(false);
+          return;
+        }
+        if (!navigator.geolocation) {
+          showToast('此瀏覽器不支援地理定位功能', 'error');
+          return;
+        }
+        els.weatherLocBtn.disabled = true;
+        navigator.geolocation.getCurrentPosition(
+          function (pos) {
+            els.weatherLocBtn.disabled = false;
+            weatherState.useGps = true;
+            weatherState.lat = pos.coords.latitude;
+            weatherState.lon = pos.coords.longitude;
+            els.weatherLocBtn.classList.add('gps-active');
+            els.weatherLocText.textContent = '目前定位';
+            fetchWeather(false);
+          },
+          function () {
+            els.weatherLocBtn.disabled = false;
+            showToast('無法取得定位權限，維持預設地區', 'error');
+          },
+          { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
+        );
+      });
+
       /* =====================================================================
        * 9. 應用程式安全啟動
        * ===================================================================== */
       loadInitialData();
       syncSoundUI();
       renderAll(false);
+      fetchWeather(true);
+      setInterval(function () { fetchWeather(true); }, 600000);
       requestAnimationFrame(function () {
         plinko.resize();
         roulette.resize();
