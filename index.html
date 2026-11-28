@@ -193,13 +193,13 @@
     }
 
     /* =========================================================================
-     * 4. 頂部五模式切換 Tab 與交通方式篩選列
+     * 4. 頂部六模式切換 Tab 與交通方式篩選列
      * ========================================================================= */
     .mode-tabs-bar {
       flex: 0 0 auto;
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 5px;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
       padding: 5px;
       border-radius: var(--radius-md);
       background: rgba(10, 16, 31, 0.92);
@@ -1613,6 +1613,850 @@
     .toast-error { background: #9f1239; color: #fff1f2; border-color: rgba(251, 113, 133, 0.55); }
 
     /* =========================================================================
+     * 10b. 模式六：宮廟求籤與 AI 解籤 (Temple Fortune)
+     * ========================================================================= */
+    .temple-cabinet {
+      background: linear-gradient(180deg, #2a0d12 0%, #17080b 55%, #1e0b0e 100%) !important;
+      border-color: rgba(245, 158, 11, 0.5) !important;
+      box-shadow:
+        0 0 28px rgba(185, 28, 28, 0.24),
+        inset 0 0 26px rgba(245, 158, 11, 0.08) !important;
+    }
+
+    .temple-stage-wrapper {
+      position: relative;
+      flex: 1 1 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      border-radius: 13px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.22) 0%, transparent 48%),
+        radial-gradient(circle at 18% 82%, rgba(220, 38, 38, 0.16) 0%, transparent 45%),
+        radial-gradient(circle at 82% 82%, rgba(217, 119, 6, 0.14) 0%, transparent 45%),
+        linear-gradient(180deg, #22090d 0%, #140608 100%);
+      border: 1px solid rgba(251, 191, 36, 0.32);
+      overflow: hidden;
+    }
+
+    .temple-header-strip {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 12px;
+      background: linear-gradient(90deg, rgba(127, 29, 29, 0.72), rgba(153, 27, 27, 0.52), rgba(127, 29, 29, 0.72));
+      border-bottom: 1px solid rgba(251, 191, 36, 0.35);
+    }
+
+    .temple-plaque {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .temple-plaque-title {
+      font-size: 0.92rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      color: #fde68a;
+      text-shadow: 0 1px 6px rgba(245, 158, 11, 0.45);
+      white-space: nowrap;
+    }
+
+    .temple-ai-badge {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      background: rgba(120, 53, 15, 0.55);
+      color: #fef3c7;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .temple-ai-badge.gemini-on {
+      border-color: rgba(52, 211, 153, 0.6);
+      background: rgba(6, 95, 70, 0.6);
+      color: #a7f3d0;
+    }
+
+    .temple-settings-btn {
+      flex: 0 0 auto;
+      padding: 4px 9px;
+      border-radius: 8px;
+      border: 1px solid rgba(251, 191, 36, 0.48);
+      background: rgba(69, 10, 10, 0.75);
+      color: #fde68a;
+      font-size: 0.74rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.16s ease;
+    }
+
+    .temple-settings-btn:hover {
+      background: rgba(180, 83, 9, 0.55);
+      color: #fff;
+    }
+
+    .temple-scroll-body {
+      flex: 1 1 0;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 12px 14px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(245, 158, 11, 0.45) transparent;
+    }
+
+    .temple-phase {
+      width: 100%;
+      max-width: 540px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin: auto 0;
+    }
+
+    /* 農民曆今日宜忌卡 */
+    .temple-almanac-card {
+      width: 100%;
+      padding: 8px 11px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, rgba(127, 29, 29, 0.42), rgba(69, 10, 10, 0.72));
+      border: 1px solid rgba(251, 191, 36, 0.36);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .almanac-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: #fde68a;
+      border-bottom: 1px dashed rgba(251, 191, 36, 0.25);
+      padding-bottom: 4px;
+    }
+
+    .almanac-jianchu {
+      padding: 1px 7px;
+      border-radius: 999px;
+      background: rgba(245, 158, 11, 0.24);
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      color: #fef08a;
+      font-size: 0.68rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .almanac-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .almanac-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      color: #fef3c7;
+      line-height: 1.35;
+    }
+
+    .almanac-badge {
+      flex: 0 0 auto;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 900;
+    }
+
+    .almanac-badge.yi {
+      background: #059669;
+      color: #ecfdf5;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+    }
+
+    .almanac-badge.ji {
+      background: #dc2626;
+      color: #fef2f2;
+      box-shadow: 0 0 8px rgba(220, 38, 38, 0.4);
+    }
+
+    /* 心境輸入區 */
+    .temple-mood-box {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(40, 13, 18, 0.78);
+      border: 1px solid rgba(251, 191, 36, 0.28);
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .temple-mood-label {
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: #fcd34d;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .temple-mood-input {
+      width: 100%;
+      padding: 8px 11px;
+      border-radius: 9px;
+      border: 1px solid rgba(251, 191, 36, 0.34);
+      background: rgba(15, 6, 8, 0.82);
+      color: #fef3c7;
+      font-size: 0.84rem;
+      outline: none;
+      transition: border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .temple-mood-input::placeholder {
+      color: rgba(253, 230, 138, 0.45);
+    }
+
+    .temple-mood-input:focus {
+      border-color: #fbbf24;
+      box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.22);
+    }
+
+    .temple-mood-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .temple-mood-chip {
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      background: rgba(127, 29, 29, 0.42);
+      color: #fde68a;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .temple-mood-chip:hover {
+      background: rgba(180, 83, 9, 0.55);
+      border-color: #fbbf24;
+      color: #fff;
+    }
+
+    .temple-mood-chip.selected {
+      background: linear-gradient(135deg, #d97706, #b91c1c);
+      border-color: #fde047;
+      color: #fff;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);
+    }
+
+    /* 竹籤筒視覺 */
+    .temple-tube-arena {
+      position: relative;
+      width: 180px;
+      height: 196px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      margin: 4px 0 2px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .temple-tube-glow {
+      position: absolute;
+      inset: 14px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.24) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .temple-tube-wrap {
+      position: relative;
+      width: 112px;
+      height: 170px;
+      transform-origin: 50% 88%;
+      transition: transform 0.2s ease;
+    }
+
+    .temple-tube-wrap.shaking {
+      animation: templeTubeShake 0.14s ease-in-out infinite;
+    }
+
+    @keyframes templeTubeShake {
+      0% { transform: rotate(-9deg) translateY(0); }
+      25% { transform: rotate(8deg) translateY(-5px); }
+      50% { transform: rotate(-7deg) translateY(-2px); }
+      75% { transform: rotate(9deg) translateY(-6px); }
+      100% { transform: rotate(-9deg) translateY(0); }
+    }
+
+    .temple-sticks-bundle {
+      position: absolute;
+      left: 50%;
+      bottom: 84px;
+      width: 82px;
+      height: 82px;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .temple-stick {
+      position: absolute;
+      bottom: 0;
+      width: 10px;
+      height: 76px;
+      border-radius: 4px 4px 1px 1px;
+      background: linear-gradient(90deg, #d97706 0%, #fde68a 48%, #b45309 100%);
+      border: 1px solid rgba(120, 53, 15, 0.6);
+      transform-origin: bottom center;
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .temple-stick::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 15px;
+      border-radius: 3px 3px 0 0;
+      background: linear-gradient(180deg, #dc2626, #991b1b);
+    }
+
+    .temple-tube-wrap.shaking .temple-stick {
+      animation: templeStickRattle 0.16s ease-in-out infinite alternate;
+    }
+
+    @keyframes templeStickRattle {
+      from { margin-bottom: 0; }
+      to { margin-bottom: 10px; }
+    }
+
+    .temple-stick.popped {
+      z-index: 6;
+      background: linear-gradient(90deg, #f59e0b 0%, #fef08a 50%, #d97706 100%);
+      box-shadow: 0 0 18px rgba(253, 224, 71, 0.85);
+      transform: translateY(-42px) rotate(0deg) scale(1.12) !important;
+      animation: none !important;
+    }
+
+    .temple-tube-body {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: 98px;
+      height: 112px;
+      transform: translateX(-50%);
+      border-radius: 12px 12px 20px 20px;
+      background: linear-gradient(90deg, #450a0a 0%, #991b1b 26%, #b91c1c 48%, #7f1d1d 76%, #3f0808 100%);
+      border: 2px solid #d97706;
+      box-shadow:
+        0 10px 24px rgba(0, 0, 0, 0.65),
+        inset 0 8px 14px rgba(0, 0, 0, 0.45),
+        inset 0 -8px 12px rgba(245, 158, 11, 0.16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 4;
+    }
+
+    .temple-tube-rim {
+      position: absolute;
+      top: -8px;
+      left: -5px;
+      right: -5px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #fbbf24 0%, #92400e 100%);
+      border: 1px solid #fef08a;
+      box-shadow: inset 0 4px 6px rgba(30, 10, 5, 0.78);
+    }
+
+    .temple-tube-label {
+      writing-mode: vertical-rl;
+      padding: 7px 6px;
+      border-radius: 6px;
+      background: linear-gradient(180deg, #fef3c7, #fde68a);
+      border: 1.5px solid #92400e;
+      color: #7f1d1d;
+      font-size: 0.86rem;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+      margin-top: 8px;
+    }
+
+    .temple-guide-text {
+      margin: 0;
+      font-size: 0.8rem;
+      color: #fde68a;
+      text-align: center;
+      opacity: 0.9;
+    }
+
+    /* 擲筊階段 */
+    .temple-drawn-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(185, 28, 28, 0.8), rgba(146, 64, 14, 0.8));
+      border: 1px solid rgba(253, 224, 71, 0.65);
+      color: #fef3c7;
+      font-size: 0.86rem;
+      font-weight: 900;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    }
+
+    .jiaobei-arena {
+      position: relative;
+      width: 240px;
+      height: 136px;
+      border-radius: 16px;
+      background: radial-gradient(ellipse at center, rgba(180, 83, 9, 0.2) 0%, rgba(20, 6, 8, 0.88) 76%);
+      border: 1px dashed rgba(251, 191, 36, 0.38);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 26px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .jiaobei-block {
+      width: 66px;
+      height: 40px;
+      position: relative;
+      border-radius: 66px 66px 14px 14px / 36px 36px 10px 10px;
+      transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease;
+    }
+
+    .jiaobei-block.yin {
+      /* 凸面朝上（陰面）：深紅圓潤光澤 */
+      background: radial-gradient(circle at 38% 30%, #ef4444 0%, #b91c1c 56%, #7f1d1d 100%);
+      border: 1.5px solid #fca5a5;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.55), inset 0 4px 8px rgba(255, 255, 255, 0.28);
+    }
+
+    .jiaobei-block.yang {
+      /* 平面朝上（陽面）：淺木紅帶木紋切面 */
+      background: linear-gradient(180deg, #fecaca 0%, #f87171 45%, #dc2626 100%);
+      border: 2px solid #991b1b;
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(127, 29, 29, 0.35);
+      transform: rotate(180deg);
+    }
+
+    .jiaobei-block.yang::after {
+      content: '陽';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 900;
+      color: rgba(127, 29, 29, 0.75);
+      transform: rotate(180deg);
+    }
+
+    .jiaobei-block.yin::after {
+      content: '陰';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 900;
+      color: rgba(254, 226, 226, 0.85);
+    }
+
+    .jiaobei-arena.tossing .jiaobei-block:first-child {
+      animation: jiaobeiTossL 0.65s ease-in-out;
+    }
+
+    .jiaobei-arena.tossing .jiaobei-block:last-child {
+      animation: jiaobeiTossR 0.65s ease-in-out;
+    }
+
+    @keyframes jiaobeiTossL {
+      0% { transform: translateY(0) rotate(0deg) scale(1); }
+      35% { transform: translateY(-48px) rotate(-210deg) scale(1.12); }
+      72% { transform: translateY(6px) rotate(-340deg) scale(0.95); }
+      88% { transform: translateY(-8px) rotate(-355deg) scale(1.03); }
+      100% { transform: translateY(0) rotate(-360deg) scale(1); }
+    }
+
+    @keyframes jiaobeiTossR {
+      0% { transform: translateY(0) rotate(0deg) scale(1); }
+      35% { transform: translateY(-54px) rotate(225deg) scale(1.14); }
+      72% { transform: translateY(7px) rotate(350deg) scale(0.95); }
+      88% { transform: translateY(-9px) rotate(368deg) scale(1.03); }
+      100% { transform: translateY(0) rotate(360deg) scale(1); }
+    }
+
+    .jiaobei-result-box {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(40, 13, 18, 0.85);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      text-align: center;
+    }
+
+    .jiaobei-result-title {
+      font-size: 1rem;
+      font-weight: 900;
+      color: #fde047;
+      margin: 0 0 3px;
+    }
+
+    .jiaobei-result-title.sheng { color: #6ee7b7; }
+    .jiaobei-result-title.xiao { color: #fde047; }
+    .jiaobei-result-title.yin { color: #fda4af; }
+
+    .jiaobei-result-desc {
+      margin: 0;
+      font-size: 0.78rem;
+      color: #fef3c7;
+      opacity: 0.9;
+    }
+
+    .jiaobei-actions-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .temple-sub-btn {
+      padding: 7px 13px;
+      border-radius: 10px;
+      border: 1px solid rgba(251, 191, 36, 0.42);
+      background: rgba(127, 29, 29, 0.52);
+      color: #fef3c7;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .temple-sub-btn:hover {
+      background: rgba(180, 83, 9, 0.65);
+      color: #fff;
+    }
+
+    .temple-skip-btn {
+      background: transparent;
+      border: 1px dashed rgba(253, 230, 138, 0.38);
+      color: rgba(253, 230, 138, 0.78);
+      padding: 5px 11px;
+      border-radius: 8px;
+      font-size: 0.73rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .temple-skip-btn:hover {
+      border-color: #fde047;
+      color: #fef3c7;
+    }
+
+    /* 解籤中動畫 */
+    .temple-loading-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 14px;
+      width: 100%;
+      border-radius: 14px;
+      background: rgba(45, 13, 18, 0.82);
+      border: 1px solid rgba(251, 191, 36, 0.38);
+      text-align: center;
+    }
+
+    .temple-incense-spinner {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 3px solid rgba(251, 191, 36, 0.22);
+      border-top-color: #fde047;
+      border-right-color: #f97316;
+      animation: templeSpin 0.9s linear infinite;
+    }
+
+    @keyframes templeSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* 傳統宣紙籤詩卡 */
+    .fortune-slip-card {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
+      border: 2px solid #b91c1c;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), inset 0 0 0 2px rgba(185, 28, 28, 0.22);
+      color: #450a0a;
+    }
+
+    .fortune-slip-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 7px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid rgba(185, 28, 28, 0.28);
+    }
+
+    .fortune-slip-num {
+      font-size: 0.94rem;
+      font-weight: 900;
+      color: #991b1b;
+      letter-spacing: 0.08em;
+    }
+
+    .fortune-slip-grade {
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: #b91c1c;
+      color: #fef3c7;
+      font-size: 0.76rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+    }
+
+    .fortune-slip-story {
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: #92400e;
+      text-align: center;
+      margin: -3px 0 7px;
+      letter-spacing: 0.05em;
+    }
+
+    .fortune-slip-poem {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4px 10px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #7f1d1d;
+      letter-spacing: 0.08em;
+      text-align: center;
+      line-height: 1.65;
+    }
+
+    /* AI 解籤與推薦店家卡 */
+    .oracle-result-card {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 14px;
+      background: rgba(24, 10, 14, 0.9);
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .oracle-store-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 9px;
+      border-bottom: 1px solid rgba(251, 191, 36, 0.22);
+    }
+
+    .oracle-store-kicker {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #fbbf24;
+      margin-bottom: 2px;
+    }
+
+    .oracle-store-name {
+      margin: 0;
+      font-size: 1.24rem;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
+    }
+
+    .oracle-store-tags {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-top: 5px;
+    }
+
+    .oracle-source-tag {
+      flex: 0 0 auto;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      color: #fde68a;
+    }
+
+    .oracle-source-tag.gemini {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(52, 211, 153, 0.55);
+      color: #a7f3d0;
+    }
+
+    .oracle-section {
+      padding: 9px 11px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border-left: 3px solid #f59e0b;
+    }
+
+    .oracle-section.why-section {
+      background: rgba(245, 158, 11, 0.1);
+      border-left-color: #fde047;
+    }
+
+    .oracle-section-title {
+      font-size: 0.74rem;
+      font-weight: 900;
+      color: #fcd34d;
+      margin-bottom: 4px;
+    }
+
+    .oracle-section-text {
+      margin: 0;
+      font-size: 0.83rem;
+      color: #f8fafc;
+      line-height: 1.58;
+      white-space: pre-line;
+    }
+
+    .oracle-tip-bar {
+      padding: 7px 10px;
+      border-radius: 9px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      font-size: 0.78rem;
+      color: #d1fae5;
+      line-height: 1.45;
+    }
+
+    .oracle-fallback-note {
+      font-size: 0.72rem;
+      color: #fca5a5;
+      margin: 0;
+    }
+
+    .oracle-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      margin-top: 2px;
+    }
+
+    .oracle-actions .nav-map-btn,
+    .oracle-actions .decide-btn {
+      margin: 0;
+      min-height: 40px;
+      font-size: 0.82rem;
+      padding: 8px 10px;
+    }
+
+    .oracle-secondary-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .drop-primary-btn.temple-btn {
+      background: linear-gradient(135deg, #dc2626 0%, #d97706 100%);
+      box-shadow: 0 6px 20px rgba(220, 38, 38, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    .drop-primary-btn.temple-btn:hover:not(:disabled) {
+      filter: brightness(1.08);
+    }
+
+    /* AI 設定彈窗樣式 */
+    .ai-modal-card {
+      max-width: 420px;
+      text-align: left;
+    }
+
+    .ai-modal-desc {
+      margin: 0 0 12px;
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    .ai-modal-link {
+      color: #38bdf8;
+      text-decoration: underline;
+    }
+
+    .ai-field-group {
+      margin-bottom: 10px;
+    }
+
+    .ai-key-status {
+      padding: 7px 10px;
+      border-radius: 9px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      color: #e2e8f0;
+    }
+
+    .ai-key-status.active {
+      background: rgba(6, 95, 70, 0.35);
+      border-color: rgba(52, 211, 153, 0.45);
+      color: #a7f3d0;
+    }
+
+    /* =========================================================================
      * 11. RWD 響應式斷點 (< 1024px 手機與平板分頁模式)
      * ========================================================================= */
     @media (max-width: 1023px) {
@@ -1672,6 +2516,10 @@
       .lever-track { height: 112px; }
       .lever-knob { width: 28px; height: 28px; }
       .reel-item-transport, .reel-item-restaurant { font-size: 0.9rem; }
+      .temple-scroll-body { padding: 10px 10px 12px; }
+      .fortune-slip-poem { font-size: 0.82rem; gap: 4px 6px; }
+      .oracle-actions { grid-template-columns: 1fr; }
+      .temple-ai-badge { display: none; }
     }
   </style>
 </head>
@@ -1725,6 +2573,9 @@
           </button>
           <button id="modeTabClaw" type="button" role="tab" aria-selected="false" class="mode-tab-btn" data-mode="claw" title="夾娃娃機">
             <span>🧸</span><span>夾娃娃</span>
+          </button>
+          <button id="modeTabTemple" type="button" role="tab" aria-selected="false" class="mode-tab-btn" data-mode="temple" title="宮廟求籤與 AI 解籤">
+            <span>🏮</span><span>求籤</span>
           </button>
         </div>
 
@@ -1949,6 +2800,160 @@
           </div>
         </div>
 
+        <!-- ========== 模式六：🏮 宮廟求籤與 AI 解籤 (Temple Fortune) ========== -->
+        <div id="panelTemple" class="mode-panel hidden">
+          <div class="cabinet-shell temple-cabinet">
+            <div id="templeStageWrapper" class="temple-stage-wrapper">
+              <div class="temple-header-strip">
+                <div class="temple-plaque">
+                  <span class="temple-plaque-title">🏮 食神靈籤</span>
+                  <span id="templeAiStatusBadge" class="temple-ai-badge">🔮 內建智慧解籤</span>
+                </div>
+                <button id="templeAiSettingsBtn" type="button" class="temple-settings-btn" title="設定 Gemini API Key 啟用真實 AI 解籤">
+                  <span>⚙️</span><span>AI 設定</span>
+                </button>
+              </div>
+
+              <div class="temple-scroll-body">
+                <!-- 階段 1：誠心問事與搖籤筒 -->
+                <div id="templePhaseIdle" class="temple-phase">
+                  <!-- 今日農民曆宜忌 -->
+                  <div id="templeAlmanacCard" class="temple-almanac-card" aria-label="今日食運農民曆"></div>
+
+                  <div class="temple-mood-box">
+                    <div class="temple-mood-label">
+                      <span>🙏 向食神稟報今日心境／想吃的感覺（選填）</span>
+                    </div>
+                    <input id="templeMoodInput" type="text" maxlength="80" class="temple-mood-input" placeholder="例如：加班好累想喝熱湯、想吃重口味、預算有限、想吃清爽一點..." />
+                    <div id="templeMoodChips" class="temple-mood-chips">
+                      <button type="button" class="temple-mood-chip" data-mood="想喝熱湯暖暖胃">🍲 想喝熱湯</button>
+                      <button type="button" class="temple-mood-chip" data-mood="想吃重口味或微辣開胃">🌶️ 重口味開胃</button>
+                      <button type="button" class="temple-mood-chip" data-mood="今天趕時間，想快速吃飽">⚡ 趕時間速戰</button>
+                      <button type="button" class="temple-mood-chip" data-mood="想吃清爽無負擔的餐點">🥗 清爽無負擔</button>
+                      <button type="button" class="temple-mood-chip" data-mood="今天想好好犒賞自己吃頓豐盛的">🍖 犒賞自己</button>
+                      <button type="button" class="temple-mood-chip" data-mood="想省錢找高 CP 值又飽足的">💸 省錢高CP</button>
+                    </div>
+                  </div>
+
+                  <div id="templeTubeArena" class="temple-tube-arena" title="點擊搖動籤筒求籤">
+                    <div class="temple-tube-glow"></div>
+                    <div id="templeTubeWrap" class="temple-tube-wrap">
+                      <div id="templeSticksBundle" class="temple-sticks-bundle">
+                        <div class="temple-stick" style="left:6px; transform:rotate(-15deg); height:70px;"></div>
+                        <div class="temple-stick" style="left:16px; transform:rotate(-9deg); height:75px;"></div>
+                        <div class="temple-stick" style="left:26px; transform:rotate(-4deg); height:78px;"></div>
+                        <div class="temple-stick" data-winner-stick="true" style="left:36px; transform:rotate(0deg); height:80px;"></div>
+                        <div class="temple-stick" style="left:46px; transform:rotate(5deg); height:76px;"></div>
+                        <div class="temple-stick" style="left:56px; transform:rotate(10deg); height:74px;"></div>
+                        <div class="temple-stick" style="left:65px; transform:rotate(16deg); height:69px;"></div>
+                      </div>
+                      <div class="temple-tube-body">
+                        <div class="temple-tube-rim"></div>
+                        <div class="temple-tube-label">食神靈籤</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p id="templeIdleHint" class="temple-guide-text">點擊籤筒或下方按鈕誠心求籤，再擲筊請示食神旨意</p>
+                </div>
+
+                <!-- 階段 2：擲筊請示神明 -->
+                <div id="templePhaseJiaobei" class="temple-phase hidden">
+                  <div id="templeDrawnBanner" class="temple-drawn-banner">🎋 第 一 籤 【上上籤】</div>
+                  <p class="temple-guide-text">請點擊筊杯或下方按鈕擲筊，獲「聖筊」即代表食神允准此籤</p>
+
+                  <div id="jiaobeiArena" class="jiaobei-arena" title="點擊擲筊請示神明">
+                    <div id="jiaobeiLeft" class="jiaobei-block yin"></div>
+                    <div id="jiaobeiRight" class="jiaobei-block yang"></div>
+                  </div>
+
+                  <div id="jiaobeiResultBox" class="jiaobei-result-box hidden">
+                    <p id="jiaobeiResultTitle" class="jiaobei-result-title"></p>
+                    <p id="jiaobeiResultDesc" class="jiaobei-result-desc"></p>
+                  </div>
+
+                  <div class="jiaobei-actions-row">
+                    <button id="templeRedrawStickBtn" type="button" class="temple-sub-btn hidden">🎋 重新抽籤</button>
+                    <button id="templeSkipJiaobeiBtn" type="button" class="temple-skip-btn">⏩ 略過擲筊，直接請 AI 解籤</button>
+                  </div>
+                </div>
+
+                <!-- 階段 3：AI 解籤運算中 -->
+                <div id="templePhaseLoading" class="temple-phase hidden">
+                  <div id="templeLoadingSlip" class="fortune-slip-card"></div>
+                  <div class="temple-loading-box">
+                    <div class="temple-incense-spinner"></div>
+                    <p id="templeLoadingText" class="temple-guide-text" style="font-weight:800;">🔮 廟公 AI 正在焚香觀星、為您解籤推演最適合的店家...</p>
+                  </div>
+                </div>
+
+                <!-- 階段 4：解籤結果與推薦店家 -->
+                <div id="templePhaseResult" class="temple-phase hidden">
+                  <div id="templeResultSlip" class="fortune-slip-card"></div>
+
+                  <div class="oracle-result-card">
+                    <div class="oracle-store-head">
+                      <div style="min-width:0;">
+                        <div class="oracle-store-kicker">🏮 食神欽點・今日有緣店家</div>
+                        <h3 id="oracleStoreName" class="oracle-store-name">店家名稱</h3>
+                        <div class="oracle-store-tags">
+                          <span id="oracleStoreTransport" class="t-badge t-walk">🚶 步行</span>
+                          <span id="oracleStoreTime" class="time-chip hidden">⏱️ 5 分鐘</span>
+                        </div>
+                      </div>
+                      <span id="oracleSourceTag" class="oracle-source-tag">🔮 智慧解籤</span>
+                    </div>
+
+                    <p id="oracleFallbackNote" class="oracle-fallback-note hidden"></p>
+
+                    <div class="oracle-section">
+                      <div class="oracle-section-title">📖 籤詩白話解讀</div>
+                      <p id="oraclePoemMeaning" class="oracle-section-text"></p>
+                    </div>
+
+                    <div class="oracle-section why-section">
+                      <div class="oracle-section-title">🎯 為什麼食神選這家？</div>
+                      <p id="oracleWhyStore" class="oracle-section-text"></p>
+                    </div>
+
+                    <div id="oracleLuckyTip" class="oracle-tip-bar hidden"></div>
+
+                    <div class="oracle-actions">
+                      <a id="oracleMapLink" href="#" target="_blank" rel="noopener noreferrer" class="nav-map-btn">
+                        <span>🗺️</span><span>開啟導航</span>
+                      </a>
+                      <button id="oracleDecideBtn" type="button" class="decide-btn">😋 就吃這家！</button>
+                    </div>
+
+                    <div class="oracle-secondary-actions">
+                      <button id="oracleExcludeRedrawBtn" type="button" class="temple-sub-btn">🚫 暫時排除此店並重求</button>
+                      <button id="oracleAskAgainBtn" type="button" class="temple-sub-btn">🎋 再求一籤</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="templeEmptyOverlay" class="empty-board-overlay hidden">
+                <div style="font-size:2.2rem;">🏮</div>
+                <h3>目前沒有符合條件的店家</h3>
+                <p>請調整上方交通方式篩選，或在店家名單中啟用／新增餐廳。</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="controls-bar">
+            <button id="templePrimaryBtn" type="button" class="drop-primary-btn temple-btn">
+              <span id="templePrimaryIcon">🎋</span>
+              <span id="templePrimaryText">誠心搖筒求籤！</span>
+            </button>
+
+            <button id="templeResetBtn" type="button" class="manual-shuffle-btn" title="重設問事流程">
+              <span>🔄</span>
+              <span class="shuf-txt">重問</span>
+            </button>
+          </div>
+        </div>
+
       </section>
 
       <!-- 右欄／手機分頁 2：店家管理區 -->
@@ -2084,6 +3089,43 @@
     </div>
   </div>
 
+  <!-- ================= AI 解籤設定彈窗（Gemini API Key） ================= -->
+  <div id="aiSettingsModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card ai-modal-card">
+      <div class="modal-accent"></div>
+      <h3 style="margin:6px 0 8px; font-size:1.02rem; color:#fde68a;">⚙️ AI 解籤設定（Gemini API）</h3>
+      <p class="ai-modal-desc">
+        填入您的 Google Gemini API Key 即可啟用真實 AI 結合籤詩、心境、天氣與店家特色為您解籤。金鑰僅儲存在您本機瀏覽器的 <code>localStorage</code>，不會上傳至任何第三方伺服器。<br />
+        未設定金鑰時，系統會自動使用「內建智慧解籤引擎」運作。
+        <a class="ai-modal-link" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">前往 Google AI Studio 免費取得 Key ↗</a>
+      </p>
+
+      <div id="aiKeyStatusBox" class="ai-key-status">目前狀態：使用內建智慧解籤引擎</div>
+
+      <div class="ai-field-group">
+        <label class="field-label" for="geminiApiKeyInput">Gemini API Key</label>
+        <input id="geminiApiKeyInput" type="password" class="field-input" placeholder="貼上 AIza... 開頭的 API Key" autocomplete="off" />
+      </div>
+
+      <div class="ai-field-group">
+        <label class="field-label" for="geminiModelSelect">AI 模型選擇</label>
+        <select id="geminiModelSelect" class="field-select">
+          <option value="gemini-2.5-flash">gemini-2.5-flash（推薦，速度快且免費額度高）</option>
+          <option value="gemini-2.0-flash">gemini-2.0-flash（穩定備用）</option>
+          <option value="gemini-2.5-pro">gemini-2.5-pro（文采更豐富）</option>
+        </select>
+      </div>
+
+      <div class="confirm-btns" style="justify-content:space-between;">
+        <button id="aiKeyClearBtn" type="button" class="btn-ghost" style="color:#fda4af;">清除金鑰</button>
+        <div style="display:flex; gap:8px;">
+          <button id="aiSettingsCancelBtn" type="button" class="btn-ghost">關閉</button>
+          <button id="aiSettingsSaveBtn" type="button" class="btn-submit" style="min-height:38px; padding:8px 16px;">儲存設定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= 浮動提示 Toast 容器 ================= -->
   <div id="toastStack" class="toast-stack" aria-live="polite"></div>
 
@@ -2098,6 +3140,9 @@
       var STORAGE_KEY = 'what_to_eat_plinko_v9';
       var SOUND_KEY = 'what_to_eat_plinko_sound_v9';
       var SHUFFLE_KEY = 'what_to_eat_plinko_shuffle_v9';
+      var GEMINI_KEY_STORAGE = 'what_to_eat_gemini_api_key_v1';
+      var GEMINI_MODEL_STORAGE = 'what_to_eat_gemini_model_v1';
+      var TEMPLE_RECENT_KEY = 'what_to_eat_temple_recent_v1';
       var MAX_SLOTS = 30;
 
       var TRANSPORTS = ['步行', 'Ubike', '捷運', '其他'];
@@ -2765,6 +3810,104 @@
             c.connect(cg); cg.connect(ctx.destination);
             c.start(n.t); c.stop(n.t + 0.26);
           });
+        } catch (e) {}
+      };
+
+      /* 宮廟求籤：竹籤搖晃碰撞聲 */
+      SoundEngine.prototype.playBambooShake = function () {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          for (var i = 0; i < 9; i++) {
+            var t = now + i * 0.085 + Math.random() * 0.025;
+            var osc = ctx.createOscillator();
+            var filter = ctx.createBiquadFilter();
+            var gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(620 + Math.random() * 480, t);
+            osc.frequency.exponentialRampToValueAtTime(240 + Math.random() * 140, t + 0.045);
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(1100 + Math.random() * 500, t);
+            filter.Q.setValueAtTime(3.2, t);
+            gain.gain.setValueAtTime(0.09, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.055);
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.06);
+          }
+        } catch (e) {}
+      };
+
+      /* 宮廟求籤：紅木筊杯落地清脆敲擊聲 */
+      SoundEngine.prototype.playJiaobeiToss = function () {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var hits = [
+            { t: 0.24, f: 520, v: 0.22 },
+            { t: 0.31, f: 440, v: 0.20 },
+            { t: 0.42, f: 580, v: 0.13 },
+            { t: 0.49, f: 490, v: 0.09 }
+          ];
+          hits.forEach(function (h) {
+            var t = now + h.t;
+            var osc = ctx.createOscillator();
+            var gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(h.f, t);
+            osc.frequency.exponentialRampToValueAtTime(h.f * 0.46, t + 0.07);
+            gain.gain.setValueAtTime(h.v, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.085);
+          });
+        } catch (e) {}
+      };
+
+      /* 宮廟求籤：聖筊與解籤開光銅鐘清音 */
+      SoundEngine.prototype.playTempleBell = function () {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          [528, 1056, 1584].forEach(function (freq, idx) {
+            var osc = ctx.createOscillator();
+            var gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now);
+            gain.gain.setValueAtTime(idx === 0 ? 0.16 : (idx === 1 ? 0.07 : 0.03), now);
+            gain.gain.exponentialRampToValueAtTime(0.0008, now + (idx === 0 ? 1.15 : 0.72));
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 1.2);
+          });
+        } catch (e) {}
+      };
+
+      /* 宮廟求籤：木魚輕敲聲（笑筊 / 陰筊提示） */
+      SoundEngine.prototype.playWoodenFish = function () {
+        var ctx = this.ensureContext();
+        if (!ctx) return;
+        try {
+          var now = ctx.currentTime;
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(340, now);
+          osc.frequency.exponentialRampToValueAtTime(190, now + 0.14);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.17);
         } catch (e) {}
       };
 
@@ -7238,6 +8381,1028 @@
       };
 
       /* =====================================================================
+       * 6c. 模式六：宮廟求籤與 AI 解籤引擎 (TempleFortuneEngine)
+       *     採用台灣傳統宮廟通用「六十甲子籤」（第一籤甲子～第六十籤癸亥）
+       * ===================================================================== */
+      var TEMPLE_FORTUNES = [
+        { num: '第一籤', ganzhi: '甲子', grade: '上吉', story: '包公請雷驚仁宗', poem: ['日出便見風雲散', '光明清淨照世間', '一向前途通大道', '萬事清吉保平安'], tags: ['light', 'walk', 'comfort', 'balanced'], baseMeaning: '烏雲散去、旭日東昇，象徵陰霾盡消、前途開朗。今日食運順暢無礙，選一家清朗順心、吃來無壓力的好店最為合宜。' },
+        { num: '第二籤', ganzhi: '甲寅', grade: '中平', story: '趙子龍救阿斗', poem: ['於今此景正當時', '看看欲吐百花魁', '若能遇得春色到', '一灑清吉脫塵埃'], tags: ['warm', 'soup', 'comfort', 'light'], baseMeaning: '花苞含苞待放、靜待春風，象徵先沉潛後轉旺。今日適合吃點溫潤舒緩的料理，洗去一身塵勞與疲憊。' },
+        { num: '第三籤', ganzhi: '甲辰', grade: '中吉', story: '沈萬三掘寶', poem: ['勸君把定心莫虛', '天註衣祿自有餘', '和合重重常吉慶', '時來終遇得明珠'], tags: ['rice', 'hearty', 'meat', 'dumpling'], baseMeaning: '勸人定下心來莫三心二意，衣祿福分自有安排。今日不用過度猶豫，吃頓紮實飽足的餐點自然福氣滿滿。' },
+        { num: '第四籤', ganzhi: '甲午', grade: '上吉', story: '盧龍王次子招親', poem: ['風恬浪靜可行舟', '恰是中秋月一輪', '凡事不須多憂慮', '福祿自有慶家門'], tags: ['feast', 'treat', 'balanced', 'comfort'], baseMeaning: '風平浪靜、明月圓滿，萬事無須憂慮。今日食運極佳，適合好好享受一頓圓滿豐盛的餐點犒賞自己。' },
+        { num: '第五籤', ganzhi: '甲申', grade: '中平', story: '韓文公過秦嶺遇雪', poem: ['只恐前途命有變', '勸君作急可宜先', '且守長江無大事', '命逢太白守身邊'], tags: ['quick', 'walk', 'soup', 'warm'], baseMeaning: '宜先發制人、穩守近處，自有貴人守護。今日用餐宜快不宜拖，趁早出發、就近吃碗熱食最穩妥。' },
+        { num: '第六籤', ganzhi: '甲戌', grade: '中下', story: '陸遜誤入石頭陣', poem: ['風雲致雨落洋洋', '天災時氣必有傷', '命內此事難和合', '更逢一足出外鄉'], tags: ['walk', 'warm', 'soup', 'comfort'], baseMeaning: '外頭風雨多變、不宜冒險遠行。食神提醒今日別跑太遠折騰自己，找家熟悉安穩的近處暖食最能逢凶化吉。' },
+        { num: '第七籤', ganzhi: '乙丑', grade: '上吉', story: '國公暗察白袍將', poem: ['雲開月出正分明', '不須進退問前程', '婚姻皆由天註定', '和合清吉萬事成'], tags: ['classic', 'balanced', 'walk', 'noodle'], baseMeaning: '雲開見月、豁然開朗，不再進退兩難。今日想吃什麼其實緣分早已註定，順著直覺選經典好味道就對了。' },
+        { num: '第八籤', ganzhi: '乙卯', grade: '上吉', story: '薛仁貴衣錦還鄉', poem: ['禾稻看看結成完', '此事必定兩相全', '回到家中寬心坐', '妻兒鼓舞樂團圓'], tags: ['rice', 'hearty', 'meat', 'feast'], baseMeaning: '五穀豐收、圓滿團圓之象。今日食運主打飽足與滿足感，紮實的米飯主餐或豐盛好料最能帶來雙全好運。' },
+        { num: '第九籤', ganzhi: '乙巳', grade: '中平', story: '黃飛虎反出五關', poem: ['龍虎相隨在深山', '君爾何須背後看', '不知此去相愛誤', '他日與我卻無干'], tags: ['spicy', 'heavy', 'meat', 'exotic'], baseMeaning: '龍虎相隨、氣勢強勁，提醒勿過度瞻前顧後。今日乾脆放開顧慮，來份夠味帶勁的料理最能提振氣場。' },
+        { num: '第十籤', ganzhi: '乙未', grade: '中下', story: '岳飛掠秦檜', poem: ['花開結子一半枯', '可惜今年汝虛度', '漸漸日落西山去', '勸君不用向前途'], tags: ['value', 'classic', 'walk', 'quick'], baseMeaning: '提醒勿貪多求遠、守拙為宜。今天不必花大錢或大老遠奔波，找家樸實耐吃、高 CP 值的老字號就能轉運。' },
+        { num: '第十一籤', ganzhi: '乙酉', grade: '中吉', story: '韓湘子掃霜雪', poem: ['靈雞漸漸見分明', '凡事且看子丑寅', '雲開月出照天下', '郎君即便見太平'], tags: ['soup', 'warm', 'noodle', 'comfort'], baseMeaning: '晨雞報曉、霜雪漸融，即將撥雲見日。今日適合吃點溫熱醒神的餐點，把疲憊一掃而空迎向明朗。' },
+        { num: '第十二籤', ganzhi: '乙亥', grade: '中吉', story: '劉智遠戰瓜精', poem: ['長江風浪漸漸靜', '于今得進可安寧', '必有貴人相扶助', '凶事脫出見太平'], tags: ['comfort', 'noodle', 'soup', 'walk'], baseMeaning: '風浪漸平、貴人相助、漸入佳境。今日心情逐漸安穩，來頓溫順好入口的餐點更能讓思緒沉澱。' },
+        { num: '第十三籤', ganzhi: '丙子', grade: '下下', story: '三藏遇紅孩兒', poem: ['命中正逢羅孛關', '用盡心機總未休', '作福問神難得過', '恰是行舟上高灘'], tags: ['light', 'cold', 'comfort', 'walk'], baseMeaning: '如行舟遇淺灘、費神耗力之象。既然想破頭都難決定，今天別再糾結，挑家最輕鬆順路、清爽解火的店吧！' },
+        { num: '第十四籤', ganzhi: '丙寅', grade: '上吉', story: '桃園三結義', poem: ['財中漸漸見分明', '花開花謝結子成', '寬心且看月中桂', '郎君即便見太平'], tags: ['feast', 'hotpot', 'teppanyaki', 'meat'], baseMeaning: '開花結果、情義相投、財運漸明。今日適合豐盛熱鬧或香氣四溢的好料理，吃得開心人緣與財氣同步上升。' },
+        { num: '第十五籤', ganzhi: '丙辰', grade: '中平', story: '姜太公渭水釣魚', poem: ['八十原來是太公', '看看晚景遇文王', '目下緊事休相問', '勸君且守待運通'], tags: ['classic', 'soup', 'noodle', 'value'], baseMeaning: '大器晚成、靜心守候終遇伯樂。今日用餐不必急躁追流行，細火慢熬的老味道或經典麵飯最耐人尋味。' },
+        { num: '第十六籤', ganzhi: '丙午', grade: '中下', story: '李世民初遊地府', poem: ['不須作福不須求', '用盡心機總未休', '陽世不知陰世事', '官法如爐不自由'], tags: ['quick', 'value', 'walk', 'classic'], baseMeaning: '提醒勿過度鑽牛角尖，順其自然最自在。今天吃飯別想太多，就近選一家省心省力的好店直接開動。' },
+        { num: '第十七籤', ganzhi: '丙申', grade: '中平', story: '莊子試妻', poem: ['舊恨重重未改為', '家中禍患不臨身', '須當謹防宜作福', '龍蛇交會得和合'], tags: ['balanced', 'comfort', 'warm', 'rice'], baseMeaning: '過去煩憂宜放下，和合便能化險為夷。今日適合吃點暖心安胃、葷素均衡的餐點，替自己重新調整節奏。' },
+        { num: '第十八籤', ganzhi: '丙戌', grade: '上吉', story: '秦叔寶救李淵', poem: ['君問中間此言因', '看看祿馬拱前程', '若得貴人多得利', '和合自有兩分明'], tags: ['explore', 'mrt', 'ubike', 'treat'], baseMeaning: '祿馬拱前程、動中得利、貴人相助。今日頗具行動運，稍微走遠一點或換個環境覓食，往往能收穫驚喜美味。' },
+        { num: '第十九籤', ganzhi: '丁丑', grade: '中平', story: '紅孩兒截住路頭', poem: ['富貴由命天註定', '心高必然誤君期', '不然且回依舊路', '雲開月出自分明'], tags: ['classic', 'walk', 'value', 'noodle'], baseMeaning: '莫好高騖遠，回歸熟悉的舊路反而豁然開朗。今日別冒險踩雷，回到你最熟悉、回訪不敗的愛店最安心。' },
+        { num: '第二十籤', ganzhi: '丁卯', grade: '中下', story: '孫悟空大鬧天宮', poem: ['前途功名未得意', '只恐命內有交加', '兩家必定防損失', '勸君且退莫咨嗟'], tags: ['value', 'light', 'walk', 'quick'], baseMeaning: '宜守成避損、以退為進。今天荷包與體力都適合稍微省著點用，選擇平價實在、清爽不踩雷的店家最聰明。' },
+        { num: '第二十一籤', ganzhi: '丁巳', grade: '上吉', story: '朱壽昌辭官尋母', poem: ['十方佛法有靈通', '大難禍患不相同', '紅日當空常照耀', '還有貴人到家堂'], tags: ['warm', 'hearty', 'rice', 'comfort'], baseMeaning: '紅日當空、貴人臨門、逢凶化吉。今日陽氣充沛、運勢明亮，適合來頓熱騰騰又充滿溫度的暖心餐點。' },
+        { num: '第二十二籤', ganzhi: '丁未', grade: '上上籤', story: '周文王請姜太公', poem: ['太公家業八十成', '月出光輝四海明', '命內自然逢大吉', '茅屋中間百事亨'], tags: ['classic', 'value', 'dumpling', 'noodle'], baseMeaning: '茅屋之中也能百事亨通、逢大吉。好味道不必在華麗餐廳，巷弄裡的實力派平價小吃正是今日大吉之選！' },
+        { num: '第二十三籤', ganzhi: '丁酉', grade: '中下', story: '姜子牙為武吉掩卦', poem: ['欲去長江水闊茫', '前途未遂運未通', '如今絲綸常在手', '只恐魚水不相逢'], tags: ['quick', 'walk', 'noodle', 'classic'], baseMeaning: '前途茫茫、切忌盲目亂闖。若今天選擇困難症發作，別再到處張望，就照食神指點直接去吃就對了。' },
+        { num: '第二十四籤', ganzhi: '丁亥', grade: '上吉', story: '秦叔寶救李淵', poem: ['月出光輝四海明', '前途祿位見太平', '浮雲掃退終無事', '可保禍患不臨身'], tags: ['balanced', 'light', 'comfort', 'walk'], baseMeaning: '浮雲掃退、明月朗照、四海太平。今日身心適合舒展放鬆，選一家環境舒服、味道純粹的店最能養氣。' },
+        { num: '第二十五籤', ganzhi: '戊子', grade: '中平', story: '胡鳳嬌觀音寺求籤', poem: ['總是前途莫心勞', '求神問聖枉是多', '但看雞犬日過後', '不須作福事如何'], tags: ['quick', 'classic', 'rice', 'walk'], baseMeaning: '提醒莫白費心神過度焦慮，順勢而為即可。吃飯本是件開心事，放下糾結、爽快開吃最實在。' },
+        { num: '第二十六籤', ganzhi: '戊寅', grade: '上上籤', story: '范丹洗浴遇賢妻', poem: ['選出牡丹第一枝', '勸君折取莫遲疑', '世間若問相知處', '萬事逢春正及時'], tags: ['treat', 'feast', 'exotic', 'mall'], baseMeaning: '牡丹第一枝、當機立斷莫遲疑！今日食運極旺，口袋名單裡最誘人、最想犒賞自己的那家就是天選之店。' },
+        { num: '第二十七籤', ganzhi: '戊辰', grade: '上吉', story: '胡完救文氏母女', poem: ['君爾寬心且自由', '門庭清吉家無憂', '財寶自然終吉利', '凡事無傷不用求'], tags: ['comfort', 'dumpling', 'rice', 'walk'], baseMeaning: '寬心自由、清吉無憂、自然得利。今日沒有任何忌諱，選一家吃起來輕鬆愜意、滿足感高的店準沒錯。' },
+        { num: '第二十八籤', ganzhi: '戊午', grade: '下下', story: '李存孝打虎', poem: ['於今莫作此當時', '虎落平陽被犬欺', '世間凡事何難定', '千山萬水也遲疑'], tags: ['meat', 'heavy', 'spicy', 'hearty'], baseMeaning: '暫處低潮、需要補回元氣重振雄風！今天最需要大口吃肉或香辣過癮的料理來補血，把衰氣通通吃掉。' },
+        { num: '第二十九籤', ganzhi: '戊申', grade: '中平', story: '關公古城斬蔡陽', poem: ['枯木可惜未逢春', '如今反在暗中藏', '寬心且守風霜退', '還君依舊作乾坤'], tags: ['warm', 'soup', 'hotpot', 'comfort'], baseMeaning: '如枯木待春、宜先養精蓄銳。今天用一碗熱湯或暖呼呼的餐點替身體充電，靜待好運回春。' },
+        { num: '第三十籤', ganzhi: '戊戌', grade: '中平', story: '薛丁山三請樊梨花', poem: ['漸漸看此月中和', '過後須防未得高', '改變顏色前途去', '凡事必定見重勞'], tags: ['exotic', 'explore', 'curry', 'korean'], baseMeaning: '提醒若一成不變易感疲乏，適度換個風味與步調反而能破局。今日不妨換換平常較少吃的異國或特色口味。' },
+        { num: '第三十一籤', ganzhi: '己丑', grade: '上吉', story: '董永遇仙', poem: ['綠柳蒼蒼正當時', '任君此去作乾坤', '花果結實無殘謝', '福祿自有慶家門'], tags: ['light', 'viet', 'rice', 'balanced'], baseMeaning: '生機盎然、花果結實、正值好時節。今日食運飽滿有活力，無論爽口鮮甜或豐盛主餐都能吃出好心情。' },
+        { num: '第三十二籤', ganzhi: '己卯', grade: '下下', story: '薛仁貴征東', poem: ['龍虎相交在門前', '此事必定兩相連', '黃金忽然變成鐵', '何用作福問神仙'], tags: ['value', 'classic', 'walk', 'dumpling'], baseMeaning: '提醒謹防名過其實、花冤枉錢。今天切忌盲目跟風，選一家評價最穩、實實在在的平價美食才不會失落。' },
+        { num: '第三十三籤', ganzhi: '己巳', grade: '中平', story: '鮑叔牙薦管仲', poem: ['欲去長江水闊茫', '行舟把定未遭風', '戶內用心再作福', '看看魚水得相逢'], tags: ['soup', 'noodle', 'walk', 'comfort'], baseMeaning: '把穩舵向便能避開風浪、終得魚水相逢。今日以穩為主，選一家湯鮮味美、順口好消化的店最契合。' },
+        { num: '第三十四籤', ganzhi: '己未', grade: '中吉', story: '曹操潼關遇馬超', poem: ['危險高山行過盡', '莫嫌此路有重重', '若見蘭桂漸漸發', '長蛇反轉變成龍'], tags: ['explore', 'mrt', 'ubike', 'treat'], baseMeaning: '走過辛苦坡道、終將化蛇為龍！別嫌多走幾步或搭車麻煩，越過一點距離往往能換來最值得的美味驚喜。' },
+        { num: '第三十五籤', ganzhi: '己酉', grade: '中吉', story: '唐三藏取經', poem: ['此事何須用心機', '前途變怪自然知', '看看此去得和合', '漸漸脫出見太平'], tags: ['balanced', 'comfort', 'rice', 'walk'], baseMeaning: '不須費盡心機、順著走自然和合太平。今天吃飯別做功課比半天，交給緣分直奔這家就對了。' },
+        { num: '第三十六籤', ganzhi: '己亥', grade: '上吉', story: '張子房遁跡', poem: ['福如東海壽如山', '君爾何須嘆苦難', '命內自然逢大吉', '祈保分明自平安'], tags: ['noodle', 'feast', 'hearty', 'comfort'], baseMeaning: '福如東海、壽比南山的大吉之兆！今天特別適合吃象徵長壽順遂的麵食，或好好吃頓豐盛好料接福氣。' },
+        { num: '第三十七籤', ganzhi: '庚子', grade: '中吉', story: '正德君看綠牡丹', poem: ['運逢得意身顯變', '君爾身中皆有益', '一向前途無難事', '決意之中保清吉'], tags: ['exotic', 'spicy', 'teppanyaki', 'treat'], baseMeaning: '運逢得意、求新求變皆有益處。今日大膽嘗試香氣濃郁或特色鮮明的餐點，果斷決定必得滿意。' },
+        { num: '第三十八籤', ganzhi: '庚寅', grade: '中吉', story: '劉備三顧草廬', poem: ['名顯有意在中央', '不須祈禱心自安', '看看早晚日過後', '即時得意在其間'], tags: ['classic', 'rice', 'meat', 'walk'], baseMeaning: '誠意到位、名顯中央、心自安然。這家店就像臥龍般低調卻實力堅強，吃過就知道為什麼口碑這麼穩。' },
+        { num: '第三十九籤', ganzhi: '庚辰', grade: '中平', story: '楊文廣困柳州城', poem: ['意中若問神仙路', '勸爾且退望高樓', '寬心且守寬心坐', '必然遇得貴人扶'], tags: ['mall', 'comfort', 'warm', 'walk'], baseMeaning: '宜寬心靜守、暫避風頭，自有貴人相扶。今日適合找間座位舒適、能好好坐下來喘口氣的店家用餐。' },
+        { num: '第四十籤', ganzhi: '庚午', grade: '中吉', story: '薛平貴探寒窯', poem: ['平生富貴成祿位', '君家門戶定光輝', '此中必定無損失', '夫妻百歲喜相隨'], tags: ['hearty', 'rice', 'dumpling', 'feast'], baseMeaning: '門戶光輝、穩賺不賠、喜氣相隨。今日用餐絕對不會踩雷，無論份量或美味程度都讓人滿載而歸。' },
+        { num: '第四十一籤', ganzhi: '庚申', grade: '中吉', story: '陳三五娘荔枝緣', poem: ['今行到此實難推', '歌歌暢飲自徘徊', '雞犬相聞消息近', '婚姻夙世結成雙'], tags: ['treat', 'korean', 'thai', 'hotpot'], baseMeaning: '歌歌暢飲、良緣天定、近在咫尺。今日充滿歡快聚會氣氛，適合香氣誘人、讓人忍不住大快朵頤的美食！' },
+        { num: '第四十二籤', ganzhi: '庚戌', grade: '下下', story: '孟姜女尋夫', poem: ['一重江水一重山', '誰知此去路又難', '任他改求終不過', '是非終久未得安'], tags: ['walk', 'quick', 'comfort', 'soup'], baseMeaning: '山水重重、遠行多勞。食神貼心提醒今天別挑太遠或要大排長龍的店，就近步行找碗安心暖食最實在。' },
+        { num: '第四十三籤', ganzhi: '辛丑', grade: '中吉', story: '劉智遠邠州投軍', poem: ['一年作事急如飛', '君爾寬心莫遲疑', '貴人還在千里外', '音信月中漸漸知'], tags: ['quick', 'noodle', 'rice', 'walk'], baseMeaning: '行事如飛、莫再遲疑！今天行程緊湊或肚子已經咕嚕叫，速戰速決挑這家出餐俐落的好店最合拍。' },
+        { num: '第四十四籤', ganzhi: '辛卯', grade: '中吉', story: '蕭何月下追韓信', poem: ['客到前途多得利', '君爾何故兩相疑', '雖是中間逢進退', '月出光輝得運時'], tags: ['explore', 'mrt', 'ubike', 'exotic'], baseMeaning: '前途得利、勿再猶豫懷疑！就像蕭何果斷追回韓信，這家店值得你邁開腳步去一探究竟。' },
+        { num: '第四十五籤', ganzhi: '辛巳', grade: '上上籤', story: '張良受書圯上老人', poem: ['花開今已結成果', '富貴榮華終到老', '君子小人相會合', '萬事清吉莫煩惱'], tags: ['feast', 'meat', 'rice', 'treat'], baseMeaning: '花開結果、萬事清吉無煩惱的大吉籤！今天不用顧慮太多，盡情享受一頓豐盛美味的好料吧。' },
+        { num: '第四十六籤', ganzhi: '辛未', grade: '上上籤', story: '狄仁傑中興大唐', poem: ['功名得意與君顯', '前途富貴喜安然', '若遇一輪明月照', '十五團圓光滿天'], tags: ['feast', 'hotpot', 'teppanyaki', 'mall'], baseMeaning: '十五團圓、光輝滿天，諸事得意安然！今日食運登頂，特別適合圓滿豐盛、熱氣騰騰的豪華好滋味。' },
+        { num: '第四十七籤', ganzhi: '辛酉', grade: '中吉', story: '宋文舉中狀元', poem: ['君爾何須問聖跡', '自己心中皆有益', '於今且看月中旬', '凶事脫出化成吉'], tags: ['comfort', 'classic', 'noodle', 'rice'], baseMeaning: '其實你心裡早有答案，順從內心所想便是大吉！這家店正能化疲憊為好運，吃下去心情立刻轉晴。' },
+        { num: '第四十八籤', ganzhi: '辛亥', grade: '中下', story: '漢昭君出塞和番', poem: ['陽世作事未和同', '雲遮月色正朦朧', '心中意欲前途去', '只恐命內運未通'], tags: ['warm', 'soup', 'comfort', 'walk'], baseMeaning: '雲遮月色、一時有些迷茫低落。這時候最需要一碗溫熱療癒的料理安撫身心，吃飽了雲霧自然會散。' },
+        { num: '第四十九籤', ganzhi: '壬子', grade: '中平', story: '蘇小妹答佛印', poem: ['言語雖多不可從', '風雲靜處未行龍', '暗中終得明消息', '君爾何須問重重'], tags: ['classic', 'value', 'dumpling', 'noodle'], baseMeaning: '別被太多雜訊與評論干擾，靜下心來自有明路。不用再滑手機看評價了，照此籤去吃這家準沒錯！' },
+        { num: '第五十籤', ganzhi: '壬寅', grade: '上吉', story: '玄天上帝收龜蛇', poem: ['佛前發誓無異心', '且看前途得好音', '此物原來本是鐵', '也能變化得成金'], tags: ['teppanyaki', 'crispy', 'heavy', 'meat'], baseMeaning: '點鐵成金、專心致志必得好音！看似平凡的食材在好手藝下化為絕妙美味，今日適合鍋氣與香氣十足的料理。' },
+        { num: '第五十一籤', ganzhi: '壬辰', grade: '中平', story: '諸葛孔明隆中高臥', poem: ['東西南北不堪行', '前途此事正可當', '勸君把定莫煩惱', '家門自有保安康'], tags: ['walk', 'classic', 'rice', 'comfort'], baseMeaning: '不必東南西北到處奔波，安穩守在近處自有安康。今日最宜步行可達、踏實飽足的家常好味。' },
+        { num: '第五十二籤', ganzhi: '壬午', grade: '中平', story: '薛仁貴回家遇丁山', poem: ['功名事業本由天', '不須掛念意懸懸', '若問中間遲與速', '風雲際會在眼前'], tags: ['quick', 'noodle', 'spicy', 'curry'], baseMeaning: '風雲際會就在眼前，不必懸心等待。機會與美味近在咫尺，果斷出發立刻就能大快朵頤。' },
+        { num: '第五十三籤', ganzhi: '壬申', grade: '上吉', story: '蘇秦夫妻相會', poem: ['看君來問心中事', '積善之家慶有餘', '運亨財子雙雙至', '指日喜氣溢門閭'], tags: ['dumpling', 'potsticker', 'meat', 'feast'], baseMeaning: '積善有餘、喜氣盈門、財福雙至。今日特別適合吃象徵招財進寶的元寶水餃、鍋貼或豐盛主餐沾沾喜氣！' },
+        { num: '第五十四籤', ganzhi: '壬戌', grade: '中吉', story: '王月英相國寺求佛', poem: ['孤燈寂寂夜沉沉', '萬事清吉萬事成', '若逢陰中有善果', '燒得好香達神明'], tags: ['soup', 'warm', 'light', 'rice_roll'], baseMeaning: '靜謐之中蘊藏清吉善果。無論是一個人安靜吃飯或忙碌過後喘口氣，溫和細緻的好味道最能療癒你。' },
+        { num: '第五十五籤', ganzhi: '癸丑', grade: '中下', story: '郭華醉酒誤佳期', poem: ['須知進退總虛言', '看看發暗未必全', '珠玉深藏還未變', '心中但得枉徒然'], tags: ['light', 'cold', 'quick', 'walk'], baseMeaning: '提醒勿貪杯過膩或拖延誤事。今日宜清淡爽口、準時用餐，保持頭腦清醒才不會錯過好事。' },
+        { num: '第五十六籤', ganzhi: '癸卯', grade: '中下', story: '范少伯泛舟五湖', poem: ['病中若得苦心勞', '到底完全總未遭', '去後不須回頭問', '心中事務盡消磨'], tags: ['light', 'soup', 'viet', 'comfort'], baseMeaning: '勞心耗神之際，宜放下執念、好好休養生息。今日吃點清爽好消化或溫熱舒胃的餐點，把疲勞通通清零。' },
+        { num: '第五十七籤', ganzhi: '癸巳', grade: '中吉', story: '李三娘井邊會子', poem: ['勸君把定心莫虛', '前途清吉得運時', '到底中間無大事', '又遇神仙守安居'], tags: ['comfort', 'rice', 'noodle', 'walk'], baseMeaning: '把定心神、前途清吉、神仙守護安居。今日運勢平穩向好，選一家最能讓你感到放鬆自在的店家就對了。' },
+        { num: '第五十八籤', ganzhi: '癸未', grade: '中下', story: '漢高祖斬白蛇', poem: ['蛇身意欲變成龍', '只恐命內運未通', '久病且作寬心坐', '言語雖多不可從'], tags: ['value', 'classic', 'warm', 'walk'], baseMeaning: '時機未到先寬心靜養、莫受外界雜音影響。今天別追求花俏排場，選一家最穩妥耐吃的口袋名單最安心。' },
+        { num: '第五十九籤', ganzhi: '癸酉', grade: '上吉', story: '董永皇都市遇仙', poem: ['有心作福莫遲疑', '求名清吉正當時', '此事必能成會合', '財寶自然喜相隨'], tags: ['treat', 'meat', 'curry', 'crispy'], baseMeaning: '正當時令、莫再遲疑、必能圓滿會合！想吃好料的念頭別壓抑，現在立刻出發最能把好運吃進肚子裡。' },
+        { num: '第六十籤', ganzhi: '癸亥', grade: '中平', story: '楊六郎斬子', poem: ['月出光輝本清吉', '浮雲總是蔽陰色', '戶內用心再作福', '當官分理便有益'], tags: ['walk', 'classic', 'balanced', 'comfort'], baseMeaning: '本質清吉但暫有浮雲遮蔽，宜守本分、近處積福。今日不必遠求，就近選一家踏實均衡的好店，雲開霧散就在轉眼間。' }
+      ];
+
+      function TempleFortuneEngine(domRefs, sound, hooks) {
+        this.dom = domRefs;
+        this.sound = sound;
+        this.hooks = hooks || {};
+        this.candidates = [];
+        this.phase = 'idle'; // idle | shaking | jiaobei | tossing | loading | result
+        this.isBusy = false;
+        this.currentFortune = null;
+        this.jiaobeiTries = 0;
+        this.lastRecommendedStore = null;
+        this.reqSeq = 0;
+        this.timers = [];
+        this.refreshAiBadge();
+        this.renderAlmanac();
+      }
+
+      /* 計算今日農曆日期、日干支、建除十二神與食運宜忌（純前端零依賴，每日固定更新） */
+      TempleFortuneEngine.prototype.getTodayAlmanac = function () {
+        var now = new Date();
+        var y = now.getFullYear();
+        var m = now.getMonth();
+        var d = now.getDate();
+
+        var STEMS = '甲乙丙丁戊己庚辛壬癸';
+        var BRANCHES = '子丑寅卯辰巳午未申酉戌亥';
+        var JIANCHU = ['建日', '除日', '滿日', '平日', '定日', '執日', '破日', '危日', '成日', '收日', '開日', '閉日'];
+
+        var daysSinceJiazi = Math.floor((Date.UTC(y, m, d) - Date.UTC(2000, 0, 7)) / 86400000);
+        var gzIdx = ((daysSinceJiazi % 60) + 60) % 60;
+        var dayGanzhi = STEMS.charAt(gzIdx % 10) + BRANCHES.charAt(gzIdx % 12);
+        var jianchu = JIANCHU[((gzIdx + m) % 12 + 12) % 12];
+
+        // 格式化農曆月日（例如：農曆十月二十）
+        var lunarStr = '';
+        try {
+          var fmt = new Intl.DateTimeFormat('zh-Hant-u-ca-chinese', { month: 'long', day: 'numeric' });
+          var rawLunar = fmt.format(now);
+          var dayNames = [
+            '', '初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',
+            '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',
+            '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十'
+          ];
+          lunarStr = rawLunar.replace(/(\d{1,2})日?$/, function (_, numStr) {
+            var n = parseInt(numStr, 10);
+            return dayNames[n] || numStr;
+          });
+          if (lunarStr && lunarStr.indexOf('農曆') === -1) lunarStr = '農曆' + lunarStr;
+        } catch (e) {
+          lunarStr = '農曆吉日';
+        }
+
+        // 食運農民曆「宜／忌」規則庫（依建除十二神 + 日干支穩定決定今日宜忌）
+        var YI_POOL = [
+          { label: '熱湯暖胃', tags: ['soup', 'warm', 'hotpot'] },
+          { label: '大口吃肉', tags: ['meat', 'hearty', 'teppanyaki'] },
+          { label: '嚐鮮異國', tags: ['exotic', 'korean', 'thai', 'curry', 'viet'] },
+          { label: '順路步行', tags: ['walk', 'quick'] },
+          { label: '清爽解膩', tags: ['light', 'cold', 'viet', 'rice_roll'] },
+          { label: '元寶聚財', tags: ['dumpling', 'potsticker'] },
+          { label: '犒賞大餐', tags: ['feast', 'treat', 'mall', 'hotpot'] },
+          { label: '老店尋真', tags: ['classic', 'value', 'noodle'] },
+          { label: '五穀飽足', tags: ['rice', 'hearty'] },
+          { label: '滑順吃麵', tags: ['noodle', 'soup'] },
+          { label: '酥香解壓', tags: ['crispy', 'heavy', 'spicy'] },
+          { label: '出走覓食', tags: ['explore', 'mrt', 'ubike'] }
+        ];
+
+        var JI_POOL = [
+          { label: '過度油膩', avoidTags: ['heavy', 'crispy'] },
+          { label: '遠途奔波', avoidTags: ['explore', 'mrt', 'ubike'] },
+          { label: '節食委屈', avoidTags: ['light', 'cold'] },
+          { label: '花大錢踩雷', avoidTags: ['feast', 'treat', 'mall'] },
+          { label: '一成不變', avoidTags: ['classic', 'walk'] },
+          { label: '吃太清淡', avoidTags: ['light', 'rice_roll'] },
+          { label: '重辣上火', avoidTags: ['spicy', 'heavy'] },
+          { label: '草草果腹', avoidTags: ['quick', 'value'] }
+        ];
+
+        // 以今日日期做確定性挑選（3 宜 + 2 忌，確保不互相矛盾）
+        var seed = Math.abs(daysSinceJiazi * 31 + y * 7 + m * 13 + d * 17);
+        var yiItems = [];
+        var yiTagSet = {};
+        for (var i = 0; i < 3; i++) {
+          var yiPick = YI_POOL[(seed + i * 5) % YI_POOL.length];
+          if (yiItems.indexOf(yiPick) === -1) {
+            yiItems.push(yiPick);
+            yiPick.tags.forEach(function (t) { yiTagSet[t] = true; });
+          }
+        }
+
+        var jiItems = [];
+        var jiTagSet = {};
+        for (var j = 0; j < JI_POOL.length && jiItems.length < 2; j++) {
+          var jiPick = JI_POOL[(seed + j * 3) % JI_POOL.length];
+          var conflict = jiPick.avoidTags.some(function (t) { return Boolean(yiTagSet[t]); });
+          if (!conflict && jiItems.indexOf(jiPick) === -1) {
+            jiItems.push(jiPick);
+            jiPick.avoidTags.forEach(function (t) { jiTagSet[t] = true; });
+          }
+        }
+
+        return {
+          solarStr: (m + 1) + '/' + d,
+          lunarStr: lunarStr,
+          dayGanzhi: dayGanzhi + '日',
+          jianchu: jianchu,
+          yiLabels: yiItems.map(function (x) { return x.label; }),
+          jiLabels: jiItems.map(function (x) { return x.label; }),
+          yiTags: Object.keys(yiTagSet),
+          jiAvoidTags: Object.keys(jiTagSet)
+        };
+      };
+
+      TempleFortuneEngine.prototype.renderAlmanac = function () {
+        if (!this.dom.almanacCard) return;
+        var alm = this.getTodayAlmanac();
+        this.dom.almanacCard.innerHTML =
+          '<div class="almanac-head">' +
+            '<span>📅 國曆 ' + escapeHtml(alm.solarStr) + '（' + escapeHtml(alm.lunarStr) + '・' + escapeHtml(alm.dayGanzhi) + '）</span>' +
+            '<span class="almanac-jianchu">' + escapeHtml(alm.jianchu) + '</span>' +
+          '</div>' +
+          '<div class="almanac-rows">' +
+            '<div class="almanac-row">' +
+              '<span class="almanac-badge yi">宜</span>' +
+              '<span>' + escapeHtml(alm.yiLabels.join('・')) + '</span>' +
+            '</div>' +
+            '<div class="almanac-row">' +
+              '<span class="almanac-badge ji">忌</span>' +
+              '<span>' + escapeHtml(alm.jiLabels.join('・')) + '</span>' +
+            '</div>' +
+          '</div>';
+      };
+
+      TempleFortuneEngine.prototype.clearTimers = function () {
+        this.timers.forEach(function (id) { clearTimeout(id); });
+        this.timers = [];
+      };
+
+      TempleFortuneEngine.prototype.addTimer = function (fn, ms) {
+        var self = this;
+        var id = setTimeout(function () {
+          self.timers = self.timers.filter(function (t) { return t !== id; });
+          fn();
+        }, ms);
+        this.timers.push(id);
+        return id;
+      };
+
+      TempleFortuneEngine.prototype.setCandidates = function (list) {
+        this.candidates = Array.isArray(list) ? list.slice() : [];
+        if (this.candidates.length === 0 && this.phase !== 'idle') {
+          this.reset();
+        }
+      };
+
+      TempleFortuneEngine.prototype.getGeminiApiKey = function () {
+        try {
+          return (localStorage.getItem(GEMINI_KEY_STORAGE) || '').trim();
+        } catch (e) {
+          return '';
+        }
+      };
+
+      TempleFortuneEngine.prototype.getGeminiModel = function () {
+        try {
+          return (localStorage.getItem(GEMINI_MODEL_STORAGE) || 'gemini-2.5-flash').trim() || 'gemini-2.5-flash';
+        } catch (e) {
+          return 'gemini-2.5-flash';
+        }
+      };
+
+      TempleFortuneEngine.prototype.refreshAiBadge = function () {
+        var key = this.getGeminiApiKey();
+        var model = this.getGeminiModel();
+        if (this.dom.aiStatusBadge) {
+          if (key) {
+            this.dom.aiStatusBadge.textContent = '✨ Gemini AI (' + model.replace('gemini-', '') + ')';
+            this.dom.aiStatusBadge.classList.add('gemini-on');
+          } else {
+            this.dom.aiStatusBadge.textContent = '🔮 內建智慧解籤';
+            this.dom.aiStatusBadge.classList.remove('gemini-on');
+          }
+        }
+      };
+
+      TempleFortuneEngine.prototype.setPhase = function (nextPhase) {
+        this.phase = nextPhase;
+        this.isBusy = (nextPhase === 'shaking' || nextPhase === 'tossing' || nextPhase === 'loading');
+
+        this.dom.phaseIdle.classList.toggle('hidden', nextPhase !== 'idle' && nextPhase !== 'shaking');
+        this.dom.phaseJiaobei.classList.toggle('hidden', nextPhase !== 'jiaobei' && nextPhase !== 'tossing');
+        this.dom.phaseLoading.classList.toggle('hidden', nextPhase !== 'loading');
+        this.dom.phaseResult.classList.toggle('hidden', nextPhase !== 'result');
+
+        if (this.hooks.onStateChange) this.hooks.onStateChange();
+      };
+
+      TempleFortuneEngine.prototype.reset = function () {
+        this.clearTimers();
+        this.reqSeq++;
+        this.currentFortune = null;
+        this.jiaobeiTries = 0;
+        this.lastRecommendedStore = null;
+
+        this.dom.tubeWrap.classList.remove('shaking');
+        var winnerStick = this.dom.sticksBundle.querySelector('[data-winner-stick="true"]');
+        if (winnerStick) winnerStick.classList.remove('popped');
+        this.dom.idleHint.textContent = '點擊籤筒或下方按鈕誠心求籤，再擲筊請示食神旨意';
+
+        this.dom.jiaobeiArena.classList.remove('tossing');
+        this.dom.jiaobeiResultBox.classList.add('hidden');
+        this.dom.redrawStickBtn.classList.add('hidden');
+
+        this.setPhase('idle');
+      };
+
+      TempleFortuneEngine.prototype.renderSlipHtml = function (fortune) {
+        if (!fortune) return '';
+        return (
+          '<div class="fortune-slip-head">' +
+            '<span class="fortune-slip-num">🎋 ' + escapeHtml(fortune.num) + '【' + escapeHtml(fortune.ganzhi) + '】</span>' +
+            '<span class="fortune-slip-grade">' + escapeHtml(fortune.grade) + '</span>' +
+          '</div>' +
+          '<div class="fortune-slip-story">📜 卦頭故事：' + escapeHtml(fortune.story) + '</div>' +
+          '<div class="fortune-slip-poem">' +
+            fortune.poem.map(function (line) {
+              return '<div>' + escapeHtml(line) + '</div>';
+            }).join('') +
+          '</div>'
+        );
+      };
+
+      TempleFortuneEngine.prototype.handlePrimaryAction = function () {
+        if (this.isBusy) return;
+        if (this.candidates.length === 0) {
+          if (this.hooks.onToast) this.hooks.onToast('目前沒有候選店家可供解籤，請先調整篩選或新增店家！', 'error');
+          return;
+        }
+        if (this.phase === 'idle') {
+          this.shakeAndDraw();
+        } else if (this.phase === 'jiaobei') {
+          this.tossJiaobei();
+        } else if (this.phase === 'result') {
+          this.reset();
+        }
+      };
+
+      TempleFortuneEngine.prototype.shakeAndDraw = function () {
+        if (this.isBusy || this.candidates.length === 0) return;
+        var self = this;
+        this.clearTimers();
+        this.jiaobeiTries = 0;
+
+        var winnerStick = this.dom.sticksBundle.querySelector('[data-winner-stick="true"]');
+        if (winnerStick) winnerStick.classList.remove('popped');
+
+        this.setPhase('shaking');
+        this.dom.tubeWrap.classList.add('shaking');
+        this.dom.idleHint.textContent = '🎋 誠心搖動籤筒中，默念今天想吃的感覺...';
+        this.sound.playBambooShake();
+
+        // 挑出一支靈籤
+        var idx = Math.floor(Math.random() * TEMPLE_FORTUNES.length);
+        this.currentFortune = TEMPLE_FORTUNES[idx];
+
+        this.addTimer(function () {
+          self.dom.tubeWrap.classList.remove('shaking');
+          if (winnerStick) winnerStick.classList.add('popped');
+          self.sound.playWoodenFish();
+          self.dom.idleHint.textContent = '✨ 抽出「' + self.currentFortune.num + '【' + self.currentFortune.ganzhi + '】' + self.currentFortune.grade + '」！請擲筊請示神明...';
+        }, 920);
+
+        this.addTimer(function () {
+          self.dom.drawnBanner.textContent = '🎋 ' + self.currentFortune.num + '【' + self.currentFortune.ganzhi + '】' + self.currentFortune.grade + '・' + self.currentFortune.story;
+          self.dom.jiaobeiResultBox.classList.add('hidden');
+          self.dom.redrawStickBtn.classList.add('hidden');
+          self.dom.jiaobeiLeft.className = 'jiaobei-block yin';
+          self.dom.jiaobeiRight.className = 'jiaobei-block yang';
+          self.setPhase('jiaobei');
+        }, 1480);
+      };
+
+      TempleFortuneEngine.prototype.tossJiaobei = function () {
+        if (this.isBusy || this.phase !== 'jiaobei') return;
+        var self = this;
+        this.clearTimers();
+        this.jiaobeiTries++;
+
+        this.setPhase('tossing');
+        this.dom.jiaobeiResultBox.classList.add('hidden');
+        this.dom.jiaobeiArena.classList.remove('tossing');
+        void this.dom.jiaobeiArena.offsetWidth;
+        this.dom.jiaobeiArena.classList.add('tossing');
+        this.sound.playJiaobeiToss();
+
+        // 第 1 次 68% 聖筊、第 2 次 82%、第 3 次必出聖筊避免卡關
+        var r = Math.random();
+        var shengProb = this.jiaobeiTries === 1 ? 0.68 : (this.jiaobeiTries === 2 ? 0.82 : 1.0);
+        var outcome;
+        if (r < shengProb) {
+          outcome = 'sheng'; // 一陰一陽
+        } else if (r < shengProb + (1 - shengProb) * 0.5) {
+          outcome = 'xiao';  // 兩陽（笑筊）
+        } else {
+          outcome = 'yin';   // 兩陰（陰筊）
+        }
+
+        this.addTimer(function () {
+          self.dom.jiaobeiArena.classList.remove('tossing');
+          self.dom.jiaobeiResultBox.classList.remove('hidden');
+
+          if (outcome === 'sheng') {
+            var flip = Math.random() < 0.5;
+            self.dom.jiaobeiLeft.className = 'jiaobei-block ' + (flip ? 'yin' : 'yang');
+            self.dom.jiaobeiRight.className = 'jiaobei-block ' + (flip ? 'yang' : 'yin');
+            self.dom.jiaobeiResultTitle.className = 'jiaobei-result-title sheng';
+            self.dom.jiaobeiResultTitle.textContent = '✨ 聖筊！（一陰一陽）';
+            self.dom.jiaobeiResultDesc.textContent = '食神允准此籤！正在請廟公 AI 為您解籤並指點有緣店家...';
+            self.dom.redrawStickBtn.classList.add('hidden');
+            self.sound.playTempleBell();
+            self.addTimer(function () {
+              self.interpretFortune();
+            }, 950);
+          } else if (outcome === 'xiao') {
+            self.dom.jiaobeiLeft.className = 'jiaobei-block yang';
+            self.dom.jiaobeiRight.className = 'jiaobei-block yang';
+            self.dom.jiaobeiResultTitle.className = 'jiaobei-result-title xiao';
+            self.dom.jiaobeiResultTitle.textContent = '😄 笑筊！（兩面皆陽）';
+            self.dom.jiaobeiResultDesc.textContent = '食神微笑不語，或許您心裡早有想吃的念頭？可再擲一次、重抽或直接解籤。';
+            self.dom.redrawStickBtn.classList.remove('hidden');
+            self.sound.playWoodenFish();
+            self.setPhase('jiaobei');
+          } else {
+            self.dom.jiaobeiLeft.className = 'jiaobei-block yin';
+            self.dom.jiaobeiRight.className = 'jiaobei-block yin';
+            self.dom.jiaobeiResultTitle.className = 'jiaobei-result-title yin';
+            self.dom.jiaobeiResultTitle.textContent = '🙏 陰筊！（兩面皆陰）';
+            self.dom.jiaobeiResultDesc.textContent = '食神指示此籤緣分未到，建議重新抽一支籤，或再誠心擲筊請示。';
+            self.dom.redrawStickBtn.classList.remove('hidden');
+            self.sound.playWoodenFish();
+            self.setPhase('jiaobei');
+          }
+        }, 700);
+      };
+
+      TempleFortuneEngine.prototype.skipJiaobei = function () {
+        if (this.isBusy || this.phase !== 'jiaobei') return;
+        this.interpretFortune();
+      };
+
+      TempleFortuneEngine.prototype.getMealPeriod = function () {
+        var h = new Date().getHours();
+        if (h >= 5 && h < 10) return '早餐';
+        if (h >= 10 && h < 14) return '午餐';
+        if (h >= 14 && h < 17) return '下午茶';
+        if (h >= 17 && h < 21) return '晚餐';
+        return '宵夜';
+      };
+
+      TempleFortuneEngine.prototype.interpretFortune = function () {
+        if (this.candidates.length === 0 || !this.currentFortune) return;
+        var self = this;
+        var seq = ++this.reqSeq;
+        var fortune = this.currentFortune;
+        var mood = (this.dom.moodInput.value || '').trim();
+        var weatherInfo = this.hooks.getWeatherInfo ? this.hooks.getWeatherInfo() : null;
+        var apiKey = this.getGeminiApiKey();
+
+        this.dom.loadingSlip.innerHTML = this.renderSlipHtml(fortune);
+        this.dom.loadingText.textContent = apiKey
+          ? '✨ 正在連線 Gemini AI 廟公，結合籤詩、天氣與您的心境解籤中...'
+          : '🔮 廟公正在焚香觀星、為您解籤推演最適合的有緣店家...';
+        this.setPhase('loading');
+
+        var candidatesSnapshot = this.candidates.slice();
+
+        if (!apiKey) {
+          this.addTimer(function () {
+            if (seq !== self.reqSeq) return;
+            var localRes = self.runLocalOracle(fortune, mood, weatherInfo, candidatesSnapshot);
+            self.showOracleResult(fortune, localRes, 'local', '');
+          }, 880);
+          return;
+        }
+
+        this.callGeminiOracle(apiKey, this.getGeminiModel(), fortune, mood, weatherInfo, candidatesSnapshot)
+          .then(function (aiRes) {
+            if (seq !== self.reqSeq) return;
+            self.showOracleResult(fortune, aiRes, 'gemini', '');
+          })
+          .catch(function (err) {
+            if (seq !== self.reqSeq) return;
+            var localRes = self.runLocalOracle(fortune, mood, weatherInfo, candidatesSnapshot);
+            var errMsg = (err && err.message) ? err.message : '連線逾時';
+            self.showOracleResult(fortune, localRes, 'fallback', 'Gemini AI 連線失敗（' + errMsg + '），已自動切換為內建智慧解籤引擎。');
+          });
+      };
+
+      /* 近期抽籤冷卻記憶（避免連續幾次重複抽到同一家店） */
+      TempleFortuneEngine.prototype.getRecentIds = function () {
+        try {
+          var raw = localStorage.getItem(TEMPLE_RECENT_KEY);
+          var arr = raw ? JSON.parse(raw) : [];
+          return Array.isArray(arr) ? arr : [];
+        } catch (e) {
+          return [];
+        }
+      };
+
+      TempleFortuneEngine.prototype.recordRecentStore = function (storeId) {
+        if (!storeId) return;
+        try {
+          var recent = this.getRecentIds().filter(function (id) { return id !== storeId; });
+          recent.unshift(storeId);
+          if (recent.length > 6) recent = recent.slice(0, 6);
+          localStorage.setItem(TEMPLE_RECENT_KEY, JSON.stringify(recent));
+        } catch (e) {}
+      };
+
+      TempleFortuneEngine.prototype.getCooldownPenalty = function (storeId, totalCount) {
+        var recent = this.getRecentIds();
+        var idx = recent.indexOf(storeId);
+        if (idx === -1) return 0;
+        var scale = totalCount <= 4 ? 0.45 : (totalCount <= 8 ? 0.75 : 1.0);
+        var basePenalties = [4.6, 3.3, 2.3, 1.6, 1.1, 0.7];
+        return (basePenalties[idx] || 0.6) * scale;
+      };
+
+      /* 為 Gemini AI 建構「去重＋洗牌＋隨機抽樣」的今日有緣候選池（消除位置與字面偏誤） */
+      TempleFortuneEngine.prototype.buildAiCandidatePool = function (candidates, mood) {
+        if (candidates.length <= 7) {
+          return fisherYatesShuffle(candidates);
+        }
+        var self = this;
+        var recent = this.getRecentIds();
+        var fresh = candidates.filter(function (c) { return recent.indexOf(c.id) === -1; });
+        var cooled = candidates.filter(function (c) { return recent.indexOf(c.id) !== -1; });
+        // 越久以前抽過的越優先補位
+        cooled.sort(function (a, b) { return recent.indexOf(b.id) - recent.indexOf(a.id); });
+
+        var pool = [];
+        var pickedIds = {};
+        function addUnique(item) {
+          if (!item || pickedIds[item.id]) return;
+          pickedIds[item.id] = true;
+          pool.push(item);
+        }
+
+        if (mood) {
+          var moodInfo = this.parseMoodTags(mood);
+          var ranked = fresh.concat(cooled).map(function (c) {
+            var prof = self.profileStore(c);
+            var hit = 0;
+            moodInfo.wanted.forEach(function (t) {
+              if (prof.tags.indexOf(t) !== -1) hit += 1;
+            });
+            if (c.name && mood.indexOf(c.name) !== -1) hit += 3;
+            var cd = recent.indexOf(c.id) === -1 ? 0 : 1.2;
+            return { store: c, score: Math.min(hit, 3) - cd + Math.random() * 0.9 };
+          });
+          ranked.sort(function (a, b) { return b.score - a.score; });
+          // 納入前 4 名符合心境的店家，再補 4 家隨機新鮮店家
+          ranked.slice(0, 4).forEach(function (r) { addUnique(r.store); });
+          fisherYatesShuffle(fresh.concat(cooled)).forEach(function (c) {
+            if (pool.length < 8) addUnique(c);
+          });
+        } else {
+          // 未填心境：完全從未冷卻名單隨機抽 8 家，確保全部 26 家雨露均霑
+          var source = fisherYatesShuffle(fresh).concat(cooled);
+          for (var i = 0; i < source.length && pool.length < 8; i++) {
+            addUnique(source[i]);
+          }
+        }
+
+        return fisherYatesShuffle(pool);
+      };
+
+      TempleFortuneEngine.prototype.callGeminiOracle = function (apiKey, model, fortune, mood, weatherInfo, candidates) {
+        var mealPeriod = this.getMealPeriod();
+        var weatherDesc = weatherInfo && weatherInfo.condText
+          ? (weatherInfo.condText + (typeof weatherInfo.tempC === 'number' ? ('，氣溫 ' + weatherInfo.tempC.toFixed(1) + '°C') : '') + (typeof weatherInfo.rainProb === 'number' ? ('，降雨機率 ' + Math.round(weatherInfo.rainProb) + '%') : ''))
+          : '未取得即時天氣';
+
+        var sampledPool = this.buildAiCandidatePool(candidates, mood);
+        var storeLines = sampledPool.map(function (c, i) {
+          return (i + 1) + '. [ID:' + c.id + '] 店名：' + c.name +
+            '｜交通：' + c.transport +
+            (c.time ? ('｜時間：' + c.time) : '') +
+            (c.note ? ('｜備註：' + c.note) : '');
+        }).join('\n');
+
+        var aiStyles = [
+          '【本次解籤風格：說書典故派】請像廟口說書人一樣，把「卦頭故事」裡古人的遭遇幽默類比成今天找飯吃的情境，順勢帶出為什麼就是這家店。',
+          '【本次解籤風格：夜市測字大師派】請從店名的字眼、筆畫意象或諧音來一段一本正經的「趣味測字」，證明這家店跟這支籤天造地設。',
+          '【本次解籤風格：台味暖心吐槽廟公派】請用親切又帶點小吐槽的台灣廟公口吻（如「施主啊，別再滑手機比評價了」），直接點破選擇困難症並推薦這家店。',
+          '【本次解籤風格：一本正經古詩今譯派】請把籤詩中某兩句古文故意「硬翻成現代吃貨白話」，製造反差笑點，同時合理連到這家店。',
+          '【本次解籤風格：五行風水食補派】請依本籤干支的五行氣場（金木水火土）與當下時辰／天氣，講究地推演出為什麼這家店最補今日元氣。',
+          '【本次解籤風格：武俠江湖食神派】請用武俠小說口吻把今天的用餐當成「闖蕩江湖破關」，把這家店形容成隱藏在巷弄裡的絕世秘笈或神兵。'
+        ];
+        var chosenAiStyle = aiStyles[Math.floor(Math.random() * aiStyles.length)];
+
+        var almanac = this.getTodayAlmanac();
+        var almanacDesc = almanac.lunarStr + '・' + almanac.dayGanzhi + '（' + almanac.jianchu + '）｜今日宜：' + almanac.yiLabels.join('、') + '｜今日忌：' + almanac.jiLabels.join('、');
+
+        var prompt = [
+          '你是一位幽默親切、文采出眾又懂台灣在地美食的「食神廟 AI 廟公解籤師」。',
+          '信眾剛在宮廟抽中一支靈籤並擲出聖筊，請你從以下「今日有緣候選名單」中**精準挑選一家**最適合的店家，並以繁體中文（台灣用語）撰寫生動有趣、讓人會心一笑且有說服力的解籤。',
+          '',
+          chosenAiStyle,
+          '',
+          '【抽中靈籤（台灣傳統六十甲子籤）】',
+          fortune.num + '【' + fortune.ganzhi + '】（' + fortune.grade + '｜卦頭故事：' + fortune.story + '）',
+          fortune.poem.join('，'),
+          '',
+          '【當前情境與今日農民曆】',
+          '- 用餐時段：' + mealPeriod,
+          '- 即時天氣：' + weatherDesc,
+          '- 今日農民曆：' + almanacDesc,
+          '- 信眾心境／想吃的感覺：' + (mood || '無特別指定，隨緣求食神指點'),
+          '',
+          '【今日有緣候選名單（已隨機洗牌，務必從中挑選一家，不可自創店名）】',
+          storeLines,
+          '',
+          '【解籤指引】',
+          '- 嚴禁使用千篇一律的套話（例如不要動不動就說「近處得福」「與此籤磁場相合」）。',
+          '- 請緊扣這支籤獨有的詩句意象與卦頭故事，並適度參考「今日農民曆宜／忌」（例如呼應今日宜吃什麼，或幫信眾避開今日忌諱），自然又幽默地推導出為什麼是這家店。',
+          '',
+          '請嚴格只回傳以下 JSON 格式（不要加多餘說明文字）：',
+          '{',
+          '  "storeId": "所選店家的 ID（完全符合上面 [ID:...] 內的值）",',
+          '  "storeName": "所選店家的完整店名",',
+          '  "poemInterpretation": "2~3 句白話解讀這支籤詩與卦頭故事對今日食運的寓意，風格鮮明有趣",',
+          '  "whyThisStore": "3~4 句具體又幽默地說明『為什麼是選擇這家店』，務必貼合本次指定的解籤風格與籤詩內容",',
+          '  "luckyTip": "1 句有趣又有創意的今日開運飲食小叮嚀（例如點餐暗號、加點建議或餐後小儀式）"',
+          '}'
+        ].join('\n');
+
+        var endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/' +
+          encodeURIComponent(model) + ':generateContent?key=' + encodeURIComponent(apiKey);
+
+        var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 18000) : null;
+
+        var fetchOpts = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.95,
+              responseMimeType: 'application/json'
+            }
+          })
+        };
+        if (ctrl) fetchOpts.signal = ctrl.signal;
+
+        return fetch(endpoint, fetchOpts)
+          .then(function (res) {
+            if (timer) clearTimeout(timer);
+            if (!res.ok) {
+              return res.json().catch(function () { return {}; }).then(function (errBody) {
+                var detail = errBody && errBody.error && errBody.error.message ? errBody.error.message : ('HTTP ' + res.status);
+                throw new Error(detail.slice(0, 60));
+              });
+            }
+            return res.json();
+          })
+          .then(function (data) {
+            var text = '';
+            if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+              text = data.candidates[0].content.parts.map(function (p) { return p.text || ''; }).join('').trim();
+            }
+            if (!text) throw new Error('AI 未回傳內容');
+
+            var cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+            var parsed = JSON.parse(cleaned);
+
+            var matched = null;
+            if (parsed.storeId) {
+              matched = candidates.find(function (c) { return c.id === parsed.storeId; });
+            }
+            if (!matched && parsed.storeName) {
+              matched = candidates.find(function (c) { return c.name === parsed.storeName; });
+            }
+            if (!matched && parsed.storeName) {
+              var lower = String(parsed.storeName).toLowerCase();
+              matched = candidates.find(function (c) {
+                return c.name.toLowerCase().indexOf(lower) !== -1 || lower.indexOf(c.name.toLowerCase()) !== -1;
+              });
+            }
+            if (!matched) {
+              matched = sampledPool[Math.floor(Math.random() * sampledPool.length)];
+            }
+
+            return {
+              store: matched,
+              poemInterpretation: String(parsed.poemInterpretation || fortune.baseMeaning),
+              whyThisStore: String(parsed.whyThisStore || ('此籤與「' + matched.name + '」緣分最深，正是今日食神指點之選！')),
+              luckyTip: String(parsed.luckyTip || '細嚼慢嚥、心懷感謝，今日好運自然來。')
+            };
+          });
+      };
+
+      /* 內建智慧解籤引擎：分析店家特徵、心境關鍵字、天氣與籤詩意境 */
+      TempleFortuneEngine.prototype.profileStore = function (store) {
+        var text = (store.name + ' ' + (store.note || '') + ' ' + (store.transport || '')).toLowerCase();
+        var tags = [];
+        var labels = [];
+
+        function hasAny(words) {
+          for (var i = 0; i < words.length; i++) {
+            if (text.indexOf(words[i]) !== -1) return true;
+          }
+          return false;
+        }
+
+        if (hasAny(['湯', '鍋', '牛肉麵', '鍋燒', '拉麵', '餛飩', '米線', '河粉'])) { tags.push('soup', 'warm', 'comfort'); labels.push('暖胃熱湯'); }
+        if (hasAny(['麵', '意麵', '拉麵', '乾麵', '義大利麵', '涼麵'])) { tags.push('noodle', 'quick'); labels.push('滑順麵食'); }
+        if (hasAny(['飯', '燒臘', '豬腳', '雞肉飯', '炒飯', '便當', '丼', '咖哩'])) { tags.push('rice', 'hearty'); labels.push('紮實米食'); }
+        if (hasAny(['辣', '韓', '泰', '咖哩', '麻辣', '酸辣', '椒'])) { tags.push('spicy', 'heavy', 'exotic'); labels.push('開胃重口味'); }
+        if (hasAny(['韓', '泰', '越', '義', '日', '咖哩', '拉麵', 'lalaport'])) { tags.push('exotic'); }
+        if (hasAny(['涼麵', '越', '腸粉', '沙拉', '輕食', '健康', '壽司', '素'])) { tags.push('light', 'cold', 'rice_roll', 'viet'); labels.push('清爽無負擔'); }
+        if (hasAny(['水餃', '鍋貼', '小籠', '餃', '朱記'])) { tags.push('dumpling', 'potsticker', 'value', 'quick'); labels.push('元寶麵點'); }
+        if (hasAny(['鐵板燒', '火鍋', '小火鍋', 'lalaport', '牛排', '燒肉', '聚餐'])) { tags.push('feast', 'treat', 'teppanyaki', 'hotpot', 'mall'); labels.push('豐盛犒賞'); }
+        if (hasAny(['肉', '豬腳', '燒臘', '牛', '雞', '鐵板', '蝦'])) { tags.push('meat', 'hearty'); labels.push('肉香滿足'); }
+        if (hasAny(['鍋貼', '蝦捲', '炸', '酥', '脆', '咔'])) { tags.push('crispy', 'heavy'); labels.push('酥脆療癒'); }
+        if (hasAny(['炒飯', '乾麵', '小吃', '水餃', '雞肉飯', '快刀手'])) { tags.push('value', 'quick', 'classic'); labels.push('高CP快餐'); }
+
+        if (store.transport === '步行') { tags.push('walk', 'quick'); }
+        else if (store.transport === '捷運' || store.transport === 'Ubike') { tags.push('explore', store.transport === '捷運' ? 'mrt' : 'ubike'); }
+
+        if (labels.length === 0) labels.push('招牌好味道');
+        return { tags: tags, labels: labels };
+      };
+
+      TempleFortuneEngine.prototype.parseMoodTags = function (mood) {
+        var m = (mood || '').toLowerCase();
+        var wanted = [];
+        var reasons = [];
+        function hasAny(words) {
+          for (var i = 0; i < words.length; i++) {
+            if (m.indexOf(words[i]) !== -1) return true;
+          }
+          return false;
+        }
+        if (hasAny(['湯', '熱', '暖', '冷', '累', '加班', '鍋'])) { wanted.push('soup', 'warm', 'comfort'); reasons.push('暖胃舒心'); }
+        if (hasAny(['辣', '重', '開胃', '韓', '泰', '咖哩', '濃'])) { wanted.push('spicy', 'heavy', 'exotic'); reasons.push('重口味開胃'); }
+        if (hasAny(['快', '趕', '忙', '近', '省時', '速'])) { wanted.push('quick', 'walk'); reasons.push('快速順路'); }
+        if (hasAny(['清爽', '淡', '輕', '減', '健康', '無負擔', '涼', '不油'])) { wanted.push('light', 'cold', 'viet'); reasons.push('清爽無負擔'); }
+        if (hasAny(['犒賞', '豐盛', '大餐', '慶祝', '好料', '爽', '肉'])) { wanted.push('feast', 'treat', 'meat', 'hearty'); reasons.push('豐盛犒賞自己'); }
+        if (hasAny(['省', '便宜', 'cp', '平價', '月底', '預算', '飽'])) { wanted.push('value', 'hearty', 'rice', 'dumpling'); reasons.push('高 CP 值又飽足'); }
+        if (hasAny(['飯'])) { wanted.push('rice'); reasons.push('吃飯有飽足感'); }
+        if (hasAny(['麵'])) { wanted.push('noodle'); reasons.push('想吃麵食'); }
+        return { wanted: wanted, reasons: reasons };
+      };
+
+      TempleFortuneEngine.prototype.getAuspiciousNameHint = function (name) {
+        var hints = [
+          { k: '傳承', msg: '店名帶著「傳承」二字，恰如老道家風延續好運' },
+          { k: '金仙', msg: '店名藏有「金仙」吉兆，彷彿神仙暗中庇佑招財' },
+          { k: '好心', msg: '店名「好心」正合善果積福的吉象' },
+          { k: '虎', msg: '店名帶「虎」氣勢如虹，能為今日補回滿滿幹勁' },
+          { k: '將軍', msg: '店名有「將軍」威風，象徵突破卡關、氣場全開' },
+          { k: '快刀', msg: '店名「快刀」呼應果斷俐落、斬斷煩惱的節奏' },
+          { k: '正老頭', msg: '店名「正」氣十足又帶老道火候，實實在在不踩雷' },
+          { k: '泰美', msg: '店名「泰美」暗藏安泰美滿的好兆頭' },
+          { k: '頂紅', msg: '店名「頂紅」寓意鴻運當頭、人氣紅火' },
+          { k: '承記', msg: '店名「承記」有承接福氣與好緣分之意' },
+          { k: '久越', msg: '店名「久越」象徵長久順遂、越吃越順心' }
+        ];
+        for (var i = 0; i < hints.length; i++) {
+          if (name.indexOf(hints[i].k) !== -1) return hints[i].msg;
+        }
+        return '';
+      };
+
+      TempleFortuneEngine.prototype.getGanzhiElement = function (ganzhi) {
+        var stem = (ganzhi || '').charAt(0);
+        if (stem === '甲' || stem === '乙') return { el: '木', desc: '生發舒展之氣，宜順心開胃、不拖泥帶水' };
+        if (stem === '丙' || stem === '丁') return { el: '火', desc: '熱烈明亮之氣，宜香氣四溢、提振精神' };
+        if (stem === '戊' || stem === '己') return { el: '土', desc: '厚實穩重之氣，宜吃得紮實有飽足感' };
+        if (stem === '庚' || stem === '辛') return { el: '金', desc: '俐落果斷之氣，宜乾脆拍板、講究真功夫' };
+        return { el: '水', desc: '靈動潤澤之氣，宜順口療癒、撫平疲憊' };
+      };
+
+      TempleFortuneEngine.prototype.getWordDivination = function (name) {
+        var fixed = this.getAuspiciousNameHint(name);
+        if (fixed) return fixed;
+        var clean = String(name || '').replace(/\s+/g, '');
+        var first = clean.charAt(0) || '食';
+        var last = clean.charAt(clean.length - 1) || '福';
+        var templates = [
+          '拆字來看，「' + name + '」以「' + first + '」起頭、「' + last + '」收尾，隱含先開味蕾、後收滿足的吉象',
+          '廟公掐指一算，「' + name + '」這幾個字唸起來鏗鏘有力，正中今日食運的紅心',
+          '從字面氣場來看，「' + first + '」字透著一股熟門熟路的踏實感，今天跟它特別投緣'
+        ];
+        return templates[Math.floor(Math.random() * templates.length)];
+      };
+
+      TempleFortuneEngine.prototype.runLocalOracle = function (fortune, mood, weatherInfo, candidates) {
+        var self = this;
+        var moodInfo = this.parseMoodTags(mood);
+        var almanac = this.getTodayAlmanac();
+        var isRainy = weatherInfo && (
+          (typeof weatherInfo.rainProb === 'number' && weatherInfo.rainProb >= 45) ||
+          (weatherInfo.condText && weatherInfo.condText.indexOf('雨') !== -1)
+        );
+        var isCool = weatherInfo && typeof weatherInfo.tempC === 'number' && weatherInfo.tempC <= 21;
+        var isHot = weatherInfo && typeof weatherInfo.tempC === 'number' && weatherInfo.tempC >= 29;
+
+        var scored = candidates.map(function (store) {
+          var prof = self.profileStore(store);
+          var score = 0;
+          var moodMatches = 0;
+          var fortuneMatches = 0;
+          var yiMatches = 0;
+          var jiHits = 0;
+
+          // 1. 心境比對（封頂避免多關鍵字店名壟斷）
+          moodInfo.wanted.forEach(function (t) {
+            if (prof.tags.indexOf(t) !== -1) moodMatches++;
+          });
+          score += Math.min(moodMatches, 2) * 2.1;
+
+          if (mood) {
+            var storeChars = store.name.replace(/\s+/g, '');
+            var charHit = false;
+            for (var k = 0; k < storeChars.length; k++) {
+              var ch = storeChars.charAt(k);
+              if (ch.length && mood.indexOf(ch) !== -1 && '店館家記老大小'.indexOf(ch) === -1) {
+                charHit = true;
+                break;
+              }
+            }
+            if (charHit) score += 1.6;
+          }
+
+          // 2. 籤詩卦象比對（溫和加權並封頂，讓品牌型店名也能公平登場）
+          fortune.tags.forEach(function (t) {
+            if (prof.tags.indexOf(t) !== -1) fortuneMatches++;
+          });
+          if (fortuneMatches > 0) {
+            score += Math.min(0.9 + (fortuneMatches - 1) * 0.4, 1.7);
+          }
+
+          // 3. 農民曆今日宜／忌溫和加權
+          almanac.yiTags.forEach(function (t) {
+            if (prof.tags.indexOf(t) !== -1) yiMatches++;
+          });
+          almanac.jiAvoidTags.forEach(function (t) {
+            if (prof.tags.indexOf(t) !== -1) jiHits++;
+          });
+          if (yiMatches > 0) score += Math.min(0.65 + (yiMatches - 1) * 0.25, 1.0);
+          if (jiHits > 0) score -= Math.min(jiHits * 0.45, 0.75);
+
+          // 4. 天氣適配（封頂 +1.3）
+          var weatherBonus = 0;
+          if (isRainy) {
+            if (store.transport === '步行') weatherBonus += 0.9;
+            if (prof.tags.indexOf('warm') !== -1 || prof.tags.indexOf('soup') !== -1) weatherBonus += 0.5;
+          }
+          if (isCool && (prof.tags.indexOf('warm') !== -1 || prof.tags.indexOf('soup') !== -1 || prof.tags.indexOf('hotpot') !== -1)) {
+            weatherBonus += 0.9;
+          }
+          if (isHot && (prof.tags.indexOf('light') !== -1 || prof.tags.indexOf('cold') !== -1 || prof.tags.indexOf('mall') !== -1)) {
+            weatherBonus += 0.9;
+          }
+          score += Math.min(weatherBonus, 1.3);
+
+          // 5. 近期抽過冷卻降權，避免連抽重複
+          score -= self.getCooldownPenalty(store.id, candidates.length);
+
+          return {
+            store: store,
+            prof: prof,
+            score: score,
+            moodMatches: moodMatches,
+            fortuneMatches: fortuneMatches,
+            yiMatches: yiMatches,
+            jiHits: jiHits
+          };
+        });
+
+        // 全池 Softmax 機率抽樣：沒填心境時溫度高（全名單雨露均霑），有填心境時溫度低（精準輪替）
+        var temperature = mood ? 1.15 : 2.15;
+        var maxScore = scored.reduce(function (m, item) { return item.score > m ? item.score : m; }, -Infinity);
+        var weights = scored.map(function (item) {
+          return Math.exp((item.score - maxScore) / temperature);
+        });
+        var totalWeight = weights.reduce(function (acc, w) { return acc + w; }, 0);
+        var pickR = Math.random() * totalWeight;
+        var chosen = scored[0];
+        for (var i = 0; i < scored.length; i++) {
+          pickR -= weights[i];
+          if (pickR <= 0) {
+            chosen = scored[i];
+            break;
+          }
+        }
+
+        var st = chosen.store;
+        var labelText = chosen.prof.labels.slice(0, 2).join('與');
+        var mealPeriod = this.getMealPeriod();
+        var wordDiv = this.getWordDivination(st.name);
+        var elem = this.getGanzhiElement(fortune.ganzhi);
+        var transportFlavor = st.transport === '步行'
+          ? ['雙腳溜達過去最接地氣', '走路過去剛好當餐前暖身', '不用找車位、走路直達最瀟灑'][Math.floor(Math.random() * 3)]
+          : (st.transport === 'Ubike'
+            ? ['騎 Ubike 御風而行特別有破局氣勢', '跨上單車吹個風，胃口直接打開'][Math.floor(Math.random() * 2)]
+            : ['搭' + st.transport + '換個街區氣場，轉角遇見好味道', '順著' + st.transport + '這條都市龍脈出發準沒錯'][Math.floor(Math.random() * 2)]);
+
+        // 6 種風格迥異的有趣解籤流派（隨機切換，避免千篇一律）
+        var styleBuilders = [
+          // 1. 說書典故派
+          function () {
+            return '【說書典故解】古有「' + fortune.story + '」之典，詩云「' + fortune.poem[0] + '，' + fortune.poem[1] + '」。當年古人過關靠膽識，如今你吃' + mealPeriod + '靠果斷——別再天人交戰了，「' + st.name + '」的' + labelText + '正是今天助你破關的頭號糧草！';
+          },
+          // 2. 夜市測字派
+          function () {
+            return '【廟口測字解】施主這支「' + fortune.num + '【' + fortune.ganzhi + '】」暗藏玄機！' + wordDiv + '。對照籤詩「' + fortune.poem[2] + '，' + fortune.poem[3] + '」，顯然食神早就把「' + st.name + '」寫在你的今日命盤裡了。';
+          },
+          // 3. 台味吐槽廟公派
+          function () {
+            return '【廟公直白解】施主啊，我看你印堂發亮但肚子已經開始抗議了！抽到這支「' + fortune.grade + '」的「' + fortune.num + '」，神明的意思翻譯成白話就是：別再滑手機比評價啦，今天' + mealPeriod + '直接鎖定「' + st.name + '」，' + transportFlavor + '！';
+          },
+          // 4. 五行節氣派
+          function () {
+            return '【五行食運解】此籤干支為「' + fortune.ganzhi + '」，五行屬「' + elem.el + '」（主' + elem.desc + '）。以五行相生推演，「' + st.name + '」的' + labelText + '最能補齊你今日欠缺的那一口元氣，吃完保證精神回籠。';
+          },
+          // 5. 古詩硬翻現代吃貨派
+          function () {
+            return '【吃貨今譯解】籤詩寫著「' + fortune.poem[0] + '，' + fortune.poem[1] + '」，若用現代吃貨學來解讀，就是「別想太多、好料當前先吃為敬」！在今日' + mealPeriod + '時辰裡，「' + st.name + '」最能接住這股「' + fortune.grade + '」的口福。';
+          },
+          // 6. 武俠江湖派
+          function () {
+            return '【江湖食神解】這支「' + fortune.story + '」靈籤一出，代表今天覓食宜出奇制勝！「' + st.name + '」宛如隱身街頭的實力派門派，一招' + labelText + '直擊靈魂，' + transportFlavor + '，吃完功力大增！';
+          }
+        ];
+
+        var styleIdx = Math.floor(Math.random() * styleBuilders.length);
+        if (styleBuilders.length > 1 && styleIdx === this.lastStyleIdx) {
+          styleIdx = (styleIdx + 1 + Math.floor(Math.random() * (styleBuilders.length - 1))) % styleBuilders.length;
+        }
+        this.lastStyleIdx = styleIdx;
+        var whyParts = [styleBuilders[styleIdx]()];
+
+        if (mood) {
+          if (moodInfo.reasons.length > 0 && chosen.moodMatches > 0) {
+            whyParts.push('尤其你剛稟報的心境（「' + mood + '」），正好跟這家店' + moodInfo.reasons.slice(0, 2).join('、') + '的氣場一拍即合。');
+          } else {
+            whyParts.push('對照你此刻想吃的感覺（「' + mood + '」），「' + st.name + '」正好能給味蕾一個意想不到的驚喜解方。');
+          }
+        }
+
+        // 結合今日農民曆宜／忌說明
+        if (chosen.yiMatches > 0 && almanac.yiLabels.length > 0) {
+          whyParts.push('翻開今日農民曆（' + almanac.dayGanzhi + '・' + almanac.jianchu + '），恰逢宜「' + almanac.yiLabels.slice(0, 2).join('、') + '」，選這家正合天時！');
+        } else if (chosen.jiHits === 0 && almanac.jiLabels.length > 0) {
+          whyParts.push('而且今日農民曆忌「' + almanac.jiLabels[0] + '」，吃「' + st.name + '」剛好完美避開忌諱、趨吉避凶。');
+        }
+
+        if (isRainy && st.transport === '步行') {
+          whyParts.push('加上外頭飄雨，步行就能到最省心不狼狽。');
+        } else if (isCool && (chosen.prof.tags.indexOf('warm') !== -1 || chosen.prof.tags.indexOf('soup') !== -1)) {
+          whyParts.push('今天氣溫偏涼，來點熱騰騰的剛好驅寒補氣。');
+        } else if (isHot && (chosen.prof.tags.indexOf('light') !== -1 || chosen.prof.tags.indexOf('cold') !== -1)) {
+          whyParts.push('天氣偏熱，吃點爽口滋味最解暑氣。');
+        } else if (st.time) {
+          whyParts.push('預估交通只要 ' + st.time + '，說走就走剛剛好！');
+        }
+
+        if (st.note) {
+          whyParts.push('（小提醒：你備註寫著「' + st.note + '」，記得留意喔！）');
+        }
+
+        var tips = [
+          '開運小叮嚀：進店後別猶豫超過 10 秒，眼角餘光第一個瞄到的招牌餐就是今日命定主菜！',
+          '開運小叮嚀：今天適合把手機調靜音專心吃前三口，讓熱氣把煩惱通通蒸發。',
+          '開運小叮嚀：若遇小小排隊別焦躁，那是人氣財氣匯聚之象，趁機放空滑一下靈感也不錯。',
+          '開運小叮嚀：點餐時順手多加一樣小菜、加蛋或配杯飲料，替這支「' + fortune.grade + '」再添一筆小確幸！',
+          '開運小叮嚀：進店時試著挑選靠牆或視野開闊的座位，吃起來心情會特別放鬆。',
+          '開運小叮嚀：第一口先品嚐原味再決定要不要加辣或加醬，據說這樣最能接住食神福氣。',
+          '開運小叮嚀：吃完別急著衝回座位，慢步晃個三分鐘消化一下，下午靈感會特別順！',
+          '開運小叮嚀：今天五行屬「' + elem.el + '」，飯後喝口溫水或無糖茶最能把好運鎖在體內。',
+          '開運小叮嚀：如果店員跟你對到眼微笑，記得回個點頭，今天人緣運直接 +10！',
+          '開運小叮嚀：把最後一口留給最喜歡的配料做完美收尾，象徵今天諸事有始有終、圓滿落幕。'
+        ];
+        var luckyTip = tips[Math.floor(Math.random() * tips.length)];
+
+        return {
+          store: st,
+          poemInterpretation: fortune.baseMeaning,
+          whyThisStore: whyParts.join(''),
+          luckyTip: luckyTip
+        };
+      };
+
+      TempleFortuneEngine.prototype.showOracleResult = function (fortune, res, sourceMode, fallbackNotice) {
+        var store = res.store;
+        this.lastRecommendedStore = store;
+        this.recordRecentStore(store.id);
+
+        this.dom.resultSlip.innerHTML = this.renderSlipHtml(fortune);
+        this.dom.storeName.textContent = store.name;
+
+        var meta = getTransportMeta(store.transport);
+        this.dom.storeTransport.className = 't-badge ' + meta.cls;
+        this.dom.storeTransport.textContent = meta.icon + ' ' + store.transport;
+
+        if (store.time) {
+          this.dom.storeTime.textContent = '⏱️ ' + store.time;
+          this.dom.storeTime.classList.remove('hidden');
+        } else {
+          this.dom.storeTime.classList.add('hidden');
+        }
+
+        if (sourceMode === 'gemini') {
+          this.dom.sourceTag.textContent = '✨ Gemini AI 解籤';
+          this.dom.sourceTag.classList.add('gemini');
+        } else {
+          this.dom.sourceTag.textContent = '🔮 靈籤智慧解析';
+          this.dom.sourceTag.classList.remove('gemini');
+        }
+
+        if (fallbackNotice) {
+          this.dom.fallbackNote.textContent = '⚠️ ' + fallbackNotice;
+          this.dom.fallbackNote.classList.remove('hidden');
+        } else {
+          this.dom.fallbackNote.classList.add('hidden');
+        }
+
+        this.dom.poemMeaning.textContent = res.poemInterpretation;
+        this.dom.whyStore.textContent = res.whyThisStore;
+
+        if (res.luckyTip) {
+          this.dom.luckyTip.textContent = '💡 ' + res.luckyTip;
+          this.dom.luckyTip.classList.remove('hidden');
+        } else {
+          this.dom.luckyTip.classList.add('hidden');
+        }
+
+        if (store.mapUrl) {
+          this.dom.mapLink.href = store.mapUrl;
+          this.dom.mapLink.classList.remove('hidden');
+        } else {
+          this.dom.mapLink.classList.add('hidden');
+        }
+
+        this.sound.playTempleBell();
+        this.setPhase('result');
+        if (this.dom.scrollBody) {
+          this.dom.scrollBody.scrollTop = 0;
+        }
+      };
+
+      /* =====================================================================
        * 7. 應用程式狀態與 DOM 參考
        * ===================================================================== */
       var state = {
@@ -7264,6 +9429,7 @@
         modeTabRoulette: document.getElementById('modeTabRoulette'),
         modeTabDart: document.getElementById('modeTabDart'),
         modeTabClaw: document.getElementById('modeTabClaw'),
+        modeTabTemple: document.getElementById('modeTabTemple'),
 
         weatherBar: document.getElementById('weatherBar'),
         weatherMetrics: document.getElementById('weatherMetrics'),
@@ -7331,6 +9497,60 @@
         clawDropBtn: document.getElementById('clawDropBtn'),
         clawDropText: document.getElementById('clawDropText'),
         manualShuffleClawBtn: document.getElementById('manualShuffleClawBtn'),
+
+        panelTemple: document.getElementById('panelTemple'),
+        templeStageWrapper: document.getElementById('templeStageWrapper'),
+        templeScrollBody: document.querySelector('#panelTemple .temple-scroll-body'),
+        templeAiStatusBadge: document.getElementById('templeAiStatusBadge'),
+        templeAiSettingsBtn: document.getElementById('templeAiSettingsBtn'),
+        templeAlmanacCard: document.getElementById('templeAlmanacCard'),
+        templePhaseIdle: document.getElementById('templePhaseIdle'),
+        templeMoodInput: document.getElementById('templeMoodInput'),
+        templeMoodChips: document.getElementById('templeMoodChips'),
+        templeTubeArena: document.getElementById('templeTubeArena'),
+        templeTubeWrap: document.getElementById('templeTubeWrap'),
+        templeSticksBundle: document.getElementById('templeSticksBundle'),
+        templeIdleHint: document.getElementById('templeIdleHint'),
+        templePhaseJiaobei: document.getElementById('templePhaseJiaobei'),
+        templeDrawnBanner: document.getElementById('templeDrawnBanner'),
+        jiaobeiArena: document.getElementById('jiaobeiArena'),
+        jiaobeiLeft: document.getElementById('jiaobeiLeft'),
+        jiaobeiRight: document.getElementById('jiaobeiRight'),
+        jiaobeiResultBox: document.getElementById('jiaobeiResultBox'),
+        jiaobeiResultTitle: document.getElementById('jiaobeiResultTitle'),
+        jiaobeiResultDesc: document.getElementById('jiaobeiResultDesc'),
+        templeRedrawStickBtn: document.getElementById('templeRedrawStickBtn'),
+        templeSkipJiaobeiBtn: document.getElementById('templeSkipJiaobeiBtn'),
+        templePhaseLoading: document.getElementById('templePhaseLoading'),
+        templeLoadingSlip: document.getElementById('templeLoadingSlip'),
+        templeLoadingText: document.getElementById('templeLoadingText'),
+        templePhaseResult: document.getElementById('templePhaseResult'),
+        templeResultSlip: document.getElementById('templeResultSlip'),
+        oracleStoreName: document.getElementById('oracleStoreName'),
+        oracleStoreTransport: document.getElementById('oracleStoreTransport'),
+        oracleStoreTime: document.getElementById('oracleStoreTime'),
+        oracleSourceTag: document.getElementById('oracleSourceTag'),
+        oracleFallbackNote: document.getElementById('oracleFallbackNote'),
+        oraclePoemMeaning: document.getElementById('oraclePoemMeaning'),
+        oracleWhyStore: document.getElementById('oracleWhyStore'),
+        oracleLuckyTip: document.getElementById('oracleLuckyTip'),
+        oracleMapLink: document.getElementById('oracleMapLink'),
+        oracleDecideBtn: document.getElementById('oracleDecideBtn'),
+        oracleExcludeRedrawBtn: document.getElementById('oracleExcludeRedrawBtn'),
+        oracleAskAgainBtn: document.getElementById('oracleAskAgainBtn'),
+        templeEmptyOverlay: document.getElementById('templeEmptyOverlay'),
+        templePrimaryBtn: document.getElementById('templePrimaryBtn'),
+        templePrimaryIcon: document.getElementById('templePrimaryIcon'),
+        templePrimaryText: document.getElementById('templePrimaryText'),
+        templeResetBtn: document.getElementById('templeResetBtn'),
+
+        aiSettingsModal: document.getElementById('aiSettingsModal'),
+        aiKeyStatusBox: document.getElementById('aiKeyStatusBox'),
+        geminiApiKeyInput: document.getElementById('geminiApiKeyInput'),
+        geminiModelSelect: document.getElementById('geminiModelSelect'),
+        aiKeyClearBtn: document.getElementById('aiKeyClearBtn'),
+        aiSettingsCancelBtn: document.getElementById('aiSettingsCancelBtn'),
+        aiSettingsSaveBtn: document.getElementById('aiSettingsSaveBtn'),
 
         formCard: document.getElementById('formCard'),
         formToggleBtn: document.getElementById('formToggleBtn'),
@@ -7484,7 +9704,8 @@
                (slotMachine && slotMachine.isSpinning) ||
                (roulette && roulette.isSpinning) ||
                (dartWheel && dartWheel.isBusy) ||
-               (clawMachine && clawMachine.isBusy);
+               (clawMachine && clawMachine.isBusy) ||
+               (templeFortune && templeFortune.isBusy);
       }
 
       var plinko = new PlinkoEngine(els.plinkoCanvas, els.plinkoStageWrapper, soundEngine, {
@@ -7545,6 +9766,50 @@
         onResult: openResultModal
       });
 
+      var templeFortune = new TempleFortuneEngine({
+        scrollBody: els.templeScrollBody,
+        aiStatusBadge: els.templeAiStatusBadge,
+        almanacCard: els.templeAlmanacCard,
+        phaseIdle: els.templePhaseIdle,
+        moodInput: els.templeMoodInput,
+        tubeWrap: els.templeTubeWrap,
+        sticksBundle: els.templeSticksBundle,
+        idleHint: els.templeIdleHint,
+        phaseJiaobei: els.templePhaseJiaobei,
+        drawnBanner: els.templeDrawnBanner,
+        jiaobeiArena: els.jiaobeiArena,
+        jiaobeiLeft: els.jiaobeiLeft,
+        jiaobeiRight: els.jiaobeiRight,
+        jiaobeiResultBox: els.jiaobeiResultBox,
+        jiaobeiResultTitle: els.jiaobeiResultTitle,
+        jiaobeiResultDesc: els.jiaobeiResultDesc,
+        redrawStickBtn: els.templeRedrawStickBtn,
+        phaseLoading: els.templePhaseLoading,
+        loadingSlip: els.templeLoadingSlip,
+        loadingText: els.templeLoadingText,
+        phaseResult: els.templePhaseResult,
+        resultSlip: els.templeResultSlip,
+        storeName: els.oracleStoreName,
+        storeTransport: els.oracleStoreTransport,
+        storeTime: els.oracleStoreTime,
+        sourceTag: els.oracleSourceTag,
+        fallbackNote: els.oracleFallbackNote,
+        poemMeaning: els.oraclePoemMeaning,
+        whyStore: els.oracleWhyStore,
+        luckyTip: els.oracleLuckyTip,
+        mapLink: els.oracleMapLink
+      }, soundEngine, {
+        onStateChange: syncControlButtons,
+        onToast: showToast,
+        getWeatherInfo: function () {
+          return {
+            condText: weatherState.condText || '',
+            tempC: weatherState.tempC,
+            rainProb: weatherState.rainProb
+          };
+        }
+      });
+
       function syncControlButtons() {
         var hasSlots = state.boardSlots.length > 0;
         var busy = isAnyBusy();
@@ -7554,6 +9819,7 @@
         els.modeTabRoulette.disabled = busy;
         els.modeTabDart.disabled = busy;
         els.modeTabClaw.disabled = busy;
+        els.modeTabTemple.disabled = busy;
 
         els.dropBallBtn.disabled = !hasSlots || busy;
         els.manualShuffleBtn.disabled = state.boardSlots.length < 2 || busy;
@@ -7579,6 +9845,28 @@
         els.clawDropText.textContent = clawMachine.isBusy
           ? (clawMachine.isGuaranteed ? '🔥 保夾強爪必中！' : '機械爪運作中...')
           : (clawMachine.slipCount > 0 ? ('下爪夾取！(保夾 ' + clawMachine.slipCount + '/3)') : '下爪夾取！');
+
+        els.templePrimaryBtn.disabled = !hasSlots || busy;
+        els.templeResetBtn.disabled = busy || templeFortune.phase === 'idle';
+        if (templeFortune.phase === 'shaking') {
+          els.templePrimaryIcon.textContent = '🎋';
+          els.templePrimaryText.textContent = '誠心搖筒求籤中...';
+        } else if (templeFortune.phase === 'jiaobei') {
+          els.templePrimaryIcon.textContent = '🌙';
+          els.templePrimaryText.textContent = '擲筊請示食神！';
+        } else if (templeFortune.phase === 'tossing') {
+          els.templePrimaryIcon.textContent = '🌙';
+          els.templePrimaryText.textContent = '擲筊感應中...';
+        } else if (templeFortune.phase === 'loading') {
+          els.templePrimaryIcon.textContent = '🔮';
+          els.templePrimaryText.textContent = 'AI 廟公解籤中...';
+        } else if (templeFortune.phase === 'result') {
+          els.templePrimaryIcon.textContent = '🎋';
+          els.templePrimaryText.textContent = '再求一支新籤';
+        } else {
+          els.templePrimaryIcon.textContent = '🎋';
+          els.templePrimaryText.textContent = '誠心搖筒求籤！';
+        }
       }
 
       function syncBoardSlots(shuffleNow) {
@@ -7592,11 +9880,13 @@
           roulette.setSlots([], false);
           dartWheel.setSlots([], false);
           clawMachine.setSlots([], false);
+          templeFortune.setCandidates([]);
           els.plinkoEmptyOverlay.classList.remove('hidden');
           els.slotEmptyOverlay.classList.remove('hidden');
           els.rouletteEmptyOverlay.classList.remove('hidden');
           els.dartEmptyOverlay.classList.remove('hidden');
           els.clawEmptyOverlay.classList.remove('hidden');
+          els.templeEmptyOverlay.classList.remove('hidden');
           syncControlButtons();
           return;
         }
@@ -7606,6 +9896,7 @@
         els.rouletteEmptyOverlay.classList.add('hidden');
         els.dartEmptyOverlay.classList.add('hidden');
         els.clawEmptyOverlay.classList.add('hidden');
+        els.templeEmptyOverlay.classList.add('hidden');
 
         var list = shuffleNow ? fisherYatesShuffle(candidates) : candidates.slice();
         state.boardSlots = list.slice(0, MAX_SLOTS);
@@ -7614,6 +9905,7 @@
         roulette.setSlots(state.boardSlots, shuffleNow);
         dartWheel.setSlots(state.boardSlots, shuffleNow);
         clawMachine.setSlots(state.boardSlots, shuffleNow && state.currentMode === 'claw');
+        templeFortune.setCandidates(candidates);
         syncControlButtons();
       }
 
@@ -7636,18 +9928,21 @@
         els.panelRoulette.classList.toggle('hidden', mode !== 'roulette');
         els.panelDart.classList.toggle('hidden', mode !== 'dart');
         els.panelClaw.classList.toggle('hidden', mode !== 'claw');
+        els.panelTemple.classList.toggle('hidden', mode !== 'temple');
 
         els.modeTabPlinko.classList.toggle('active', mode === 'plinko');
         els.modeTabSlot.classList.toggle('active', mode === 'slot');
         els.modeTabRoulette.classList.toggle('active', mode === 'roulette');
         els.modeTabDart.classList.toggle('active', mode === 'dart');
         els.modeTabClaw.classList.toggle('active', mode === 'claw');
+        els.modeTabTemple.classList.toggle('active', mode === 'temple');
 
         els.modeTabPlinko.setAttribute('aria-selected', String(mode === 'plinko'));
         els.modeTabSlot.setAttribute('aria-selected', String(mode === 'slot'));
         els.modeTabRoulette.setAttribute('aria-selected', String(mode === 'roulette'));
         els.modeTabDart.setAttribute('aria-selected', String(mode === 'dart'));
         els.modeTabClaw.setAttribute('aria-selected', String(mode === 'claw'));
+        els.modeTabTemple.setAttribute('aria-selected', String(mode === 'temple'));
 
         requestAnimationFrame(function () {
           if (mode === 'plinko') plinko.resize();
@@ -7843,6 +10138,7 @@
       els.modeTabRoulette.addEventListener('click', function () { switchDrawMode('roulette'); });
       els.modeTabDart.addEventListener('click', function () { switchDrawMode('dart'); });
       els.modeTabClaw.addEventListener('click', function () { switchDrawMode('claw'); });
+      els.modeTabTemple.addEventListener('click', function () { switchDrawMode('temple'); });
 
       els.filterChips.addEventListener('click', function (e) {
         var btn = e.target.closest('button[data-transport]');
@@ -7882,6 +10178,110 @@
       els.spinRouletteBtn.addEventListener('click', function () { roulette.spin(); });
       els.throwDartBtn.addEventListener('click', function () { dartWheel.throwRandom(); });
       els.clawDropBtn.addEventListener('click', function () { clawMachine.dropClaw(); });
+
+      /* ----- 模式六：宮廟求籤與 AI 設定事件 ----- */
+      els.templePrimaryBtn.addEventListener('click', function () { templeFortune.handlePrimaryAction(); });
+      els.templeResetBtn.addEventListener('click', function () { templeFortune.reset(); });
+      els.templeTubeArena.addEventListener('click', function () {
+        if (templeFortune.phase === 'idle') templeFortune.shakeAndDraw();
+      });
+      els.jiaobeiArena.addEventListener('click', function () {
+        if (templeFortune.phase === 'jiaobei') templeFortune.tossJiaobei();
+      });
+      els.templeRedrawStickBtn.addEventListener('click', function () {
+        if (!templeFortune.isBusy) {
+          templeFortune.reset();
+          templeFortune.shakeAndDraw();
+        }
+      });
+      els.templeSkipJiaobeiBtn.addEventListener('click', function () { templeFortune.skipJiaobei(); });
+      els.oracleAskAgainBtn.addEventListener('click', function () { templeFortune.reset(); });
+      els.oracleDecideBtn.addEventListener('click', function () {
+        if (templeFortune.lastRecommendedStore) {
+          showToast('食神賜福！祝您用餐愉快，出發前往「' + templeFortune.lastRecommendedStore.name + '」😋', 'success');
+        }
+      });
+      els.oracleExcludeRedrawBtn.addEventListener('click', function () {
+        var rec = templeFortune.lastRecommendedStore;
+        if (rec) {
+          var found = state.restaurants.find(function (r) { return r.id === rec.id; });
+          if (found) {
+            found.isActive = false;
+            saveRestaurants();
+            renderAll(false);
+            showToast('已暫時排除「' + found.name + '」');
+          }
+        }
+        templeFortune.reset();
+      });
+
+      els.templeMoodChips.addEventListener('click', function (e) {
+        var chip = e.target.closest('.temple-mood-chip');
+        if (!chip) return;
+        var moodVal = chip.getAttribute('data-mood') || '';
+        var wasSelected = chip.classList.contains('selected');
+        els.templeMoodChips.querySelectorAll('.temple-mood-chip').forEach(function (c) {
+          c.classList.remove('selected');
+        });
+        if (wasSelected) {
+          els.templeMoodInput.value = '';
+        } else {
+          chip.classList.add('selected');
+          els.templeMoodInput.value = moodVal;
+        }
+      });
+
+      els.templeMoodInput.addEventListener('input', function () {
+        var val = els.templeMoodInput.value.trim();
+        els.templeMoodChips.querySelectorAll('.temple-mood-chip').forEach(function (c) {
+          c.classList.toggle('selected', (c.getAttribute('data-mood') || '') === val);
+        });
+      });
+
+      function openAiSettingsModal() {
+        var key = templeFortune.getGeminiApiKey();
+        var model = templeFortune.getGeminiModel();
+        els.geminiApiKeyInput.value = key;
+        els.geminiModelSelect.value = model;
+        if (key) {
+          els.aiKeyStatusBox.textContent = '✅ 已設定 Gemini API Key（目前模型：' + model + '）';
+          els.aiKeyStatusBox.classList.add('active');
+        } else {
+          els.aiKeyStatusBox.textContent = '🔮 未設定金鑰：目前使用內建智慧解籤引擎';
+          els.aiKeyStatusBox.classList.remove('active');
+        }
+        els.aiSettingsModal.classList.remove('hidden');
+      }
+
+      function closeAiSettingsModal() {
+        els.aiSettingsModal.classList.add('hidden');
+      }
+
+      els.templeAiSettingsBtn.addEventListener('click', openAiSettingsModal);
+      els.aiSettingsCancelBtn.addEventListener('click', closeAiSettingsModal);
+      els.aiSettingsModal.addEventListener('click', function (e) {
+        if (e.target === els.aiSettingsModal) closeAiSettingsModal();
+      });
+      els.aiSettingsSaveBtn.addEventListener('click', function () {
+        var newKey = els.geminiApiKeyInput.value.trim();
+        var newModel = els.geminiModelSelect.value || 'gemini-2.5-flash';
+        try {
+          if (newKey) localStorage.setItem(GEMINI_KEY_STORAGE, newKey);
+          else localStorage.removeItem(GEMINI_KEY_STORAGE);
+          localStorage.setItem(GEMINI_MODEL_STORAGE, newModel);
+        } catch (e) {}
+        templeFortune.refreshAiBadge();
+        closeAiSettingsModal();
+        showToast(newKey ? '已儲存 Gemini AI 設定 ✨' : '已切換回內建智慧解籤模式 🔮', 'success');
+      });
+      els.aiKeyClearBtn.addEventListener('click', function () {
+        els.geminiApiKeyInput.value = '';
+        try { localStorage.removeItem(GEMINI_KEY_STORAGE); } catch (e) {}
+        templeFortune.refreshAiBadge();
+        els.aiKeyStatusBox.textContent = '🔮 未設定金鑰：目前使用內建智慧解籤引擎';
+        els.aiKeyStatusBox.classList.remove('active');
+        showToast('已清除 Gemini API Key');
+      });
 
       els.autoShuffleCheck.addEventListener('change', function () { handleAutoShuffleToggle(els.autoShuffleCheck.checked); });
       els.autoShuffleRouletteCheck.addEventListener('change', function () { handleAutoShuffleToggle(els.autoShuffleRouletteCheck.checked); });
@@ -8330,6 +10730,10 @@
             var rainProb = typeof cur.precipitation_probability === 'number'
               ? cur.precipitation_probability
               : extractHourlyRainProb(data, cur.time);
+
+            weatherState.condText = meta.text;
+            weatherState.tempC = cur.temperature_2m;
+            weatherState.rainProb = typeof rainProb === 'number' ? rainProb : null;
 
             els.weatherCondPill.textContent = meta.icon + ' ' + meta.text;
             els.weatherTempPill.textContent = '🌡️ ' + cur.temperature_2m.toFixed(1) + '°C';
